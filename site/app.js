@@ -424,10 +424,8 @@ async function renderMetals() {
 
   $("#mt-etc").innerHTML = rows(M.etc.map(bySymbol).filter(Boolean), { star: true, field: f });
   $("#mt-miners").innerHTML = rows(M.miners.map(bySymbol).filter(Boolean), { star: true, field: f });
-  if (M.steel) {
-    $("#mt-special").innerHTML = rows(M.steel.special.map(bySymbol).filter(Boolean), { star: true, field: f }) || '<li class="empty">Dati non disponibili.</li>';
-    $("#mt-steel").innerHTML = rows(M.steel.producers.map(bySymbol).filter(Boolean), { star: true, field: f }) || '<li class="empty">Dati non disponibili.</li>';
-  }
+  if (M.steel) $("#mt-steel-groups").innerHTML = M.steel.groups.map((g) => `<h3 class="mt-h3">${esc(g.title)}</h3>
+    <ul class="rows">${rows(g.symbols.map(bySymbol).filter(Boolean), { star: true, field: f }) || '<li class="empty">Dati disponibili dal prossimo aggiornamento.</li>'}</ul>`).join("");
 
   // Rapporti tra metalli (storico giornaliero di 1 anno)
   const box = $("#mt-ratios");

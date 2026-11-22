@@ -971,7 +971,27 @@
     "005490.KS",
     "TX",
     "TEN.MI",
-    "SLX"
+    "SLX",
+    "AUP=F",
+    "CLF",
+    "GGB",
+    "DAN.MI",
+    "CMC",
+    "RS",
+    "VALE",
+    "RIO",
+    "BHP",
+    "FMG.AX",
+    "AA",
+    "NHY.OL",
+    "CENX",
+    "CSTM",
+    "KALU",
+    "2600.HK",
+    "0486.HK",
+    "HINDALCO.NS",
+    "ALUM.MI",
+    "AIGI.MI"
    ]
   },
   "FX": {
@@ -1306,6 +1326,16 @@
     "unit": "tonnellata",
     "short": "t",
     "grams": 1000000,
+    "industrial": true,
+    "sub": "future COMEX (USA)"
+   },
+   {
+    "symbol": "AUP=F",
+    "name": "Premio alluminio",
+    "sub": "Midwest USA, sopra il prezzo base",
+    "icon": "➕",
+    "unit": "libbra",
+    "grams": 453.59237,
     "industrial": true
    }
   ],
@@ -1369,40 +1399,87 @@
    },
    {
     "lang": "it",
-    "q": "prezzo acciaio OR acciaio inox OR siderurgia OR acciaierie",
+    "q": "prezzo acciaio OR acciaio inox OR siderurgia OR prezzo alluminio",
     "hl": "it",
     "gl": "IT",
     "ceid": "IT:it"
    },
    {
     "lang": "en",
-    "q": "steel prices OR stainless steel OR steelmakers",
+    "q": "steel prices OR stainless steel OR aluminium prices OR aluminum prices",
     "hl": "en-US",
     "gl": "US",
     "ceid": "US:en"
    }
   ],
   "steel": {
-   "special": [
-    "APAM.AS",
-    "OUT1V.HE",
-    "ACX.MC",
-    "ALLEI.ST",
-    "ATI",
-    "CRS",
-    "VOE.VI"
-   ],
-   "producers": [
-    "MT",
-    "NUE",
-    "STLD",
-    "TKA.DE",
-    "SSAB-A.ST",
-    "5401.T",
-    "005490.KS",
-    "TX",
-    "TEN.MI",
-    "SLX"
+   "groups": [
+    {
+     "title": "Acciai inox, speciali e superleghe",
+     "symbols": [
+      "APAM.AS",
+      "OUT1V.HE",
+      "ACX.MC",
+      "ALLEI.ST",
+      "ATI",
+      "CRS",
+      "VOE.VI"
+     ]
+    },
+    {
+     "title": "Grandi produttori di acciaio",
+     "symbols": [
+      "MT",
+      "NUE",
+      "STLD",
+      "CLF",
+      "TKA.DE",
+      "SSAB-A.ST",
+      "5401.T",
+      "005490.KS",
+      "TX",
+      "GGB"
+     ]
+    },
+    {
+     "title": "Tubi, impianti, riciclo e distribuzione",
+     "symbols": [
+      "TEN.MI",
+      "DAN.MI",
+      "CMC",
+      "RS"
+     ]
+    },
+    {
+     "title": "Minerale di ferro (materia prima dell'acciaio)",
+     "symbols": [
+      "VALE",
+      "RIO",
+      "BHP",
+      "FMG.AX"
+     ]
+    },
+    {
+     "title": "Alluminio: produttori e laminati",
+     "symbols": [
+      "AA",
+      "NHY.OL",
+      "CENX",
+      "CSTM",
+      "KALU",
+      "2600.HK",
+      "0486.HK",
+      "HINDALCO.NS"
+     ]
+    },
+    {
+     "title": "ETC ed ETF su acciaio, alluminio e metalli industriali",
+     "symbols": [
+      "ALUM.MI",
+      "AIGI.MI",
+      "SLX"
+     ]
+    }
    ]
   }
  },

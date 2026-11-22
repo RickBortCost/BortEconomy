@@ -456,8 +456,8 @@ export default [
       assert(topics.length === 1 && topics[0] === k, `filtro per argomento non applicato: ${topics}`);
       await page.click('#news-topics button[data-topic="all"]');
       await page.click("[data-tab=metals]");
-      await page.waitForSelector("#mt-special li");
-      assert(await page.isVisible("#mt-steel"), "sezione acciaio assente");
+      await page.waitForSelector("#mt-steel-groups ul li");
+      assert((await page.$$("#mt-steel-groups h3")).length >= 5, "sezione acciaio e alluminio incompleta");
       await page.click("[data-tab=news]");
     },
   },
