@@ -5,6 +5,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.0.1] - 2026-11-22
+
+### Corretto
+- Pubblicazione su GitHub Pages tramite branch `gh-pages`: il sito è online senza configurazione manuale.
+- Aggiornate le azioni `checkout` e `setup-node` alla v5 (Node.js 20 deprecato sui runner).
+
 ## [1.0.0] - 2026-11-22
 
 ### Aggiunto
@@ -15,5 +21,6 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/RickBortCost/BortEconomy/releases/tag/v1.0.0
