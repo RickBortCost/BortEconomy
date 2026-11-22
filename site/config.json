@@ -936,6 +936,33 @@
     "PAAS",
     "AG"
    ]
+  },
+  "FX": {
+   "name": "Cambi",
+   "symbols": [
+    "EURUSD=X",
+    "EURGBP=X",
+    "EURCHF=X",
+    "EURJPY=X",
+    "EURSEK=X",
+    "EURDKK=X",
+    "EURNOK=X",
+    "EURPLN=X",
+    "EURHKD=X",
+    "EURCNY=X",
+    "EURINR=X",
+    "EURKRW=X",
+    "EURTWD=X",
+    "EURBRL=X",
+    "EURCAD=X",
+    "EURAUD=X",
+    "EURSGD=X",
+    "EURMXN=X",
+    "EURZAR=X",
+    "EURILS=X",
+    "EURTRY=X",
+    "EURSAR=X"
+   ]
   }
  },
  "aliases": {

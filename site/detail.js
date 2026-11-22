@@ -233,7 +233,9 @@ export function closeDetail(fromPop = false) {
   if (!fromPop && location.hash.startsWith("#q=")) history.back();
 }
 
-export function initDetail({ onAsk, quoteFor, favs, onAdd, pendingSince, loadDirectory, extraStats, askPrompt, marketStatus }) {
+export function initDetail({ onAsk, quoteFor, favs, onAdd, pendingSince, loadDirectory, extraStats, askPrompt, marketStatus, onPortfolio, onAlert }) {
+  $("#dt-pf").addEventListener("click", () => onPortfolio?.(st.sym));
+  $("#dt-alert").addEventListener("click", () => onAlert?.(st.sym));
   st.marketStatus = marketStatus;
   st.extraStats = extraStats; st.askPrompt = askPrompt;
   st.onAsk = onAsk; st.favs = favs; st.onAdd = onAdd; st.pendingSince = pendingSince;

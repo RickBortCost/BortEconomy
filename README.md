@@ -9,6 +9,8 @@ Web app (anche mobile, installabile come PWA) con:
 - **Metalli preziosi**: oro, argento, platino, palladio e rame in € o $ per oncia e grammo, rendimenti, rapporti oro/argento e altri, ETC fisici, società minerarie, notizie dedicate; stessa scheda di dettaglio dei titoli.
 - **Dettaglio titolo**: grafico interattivo per ore, giorni e settimane, statistiche e storico per ogni simbolo (link diretto `#q=SIMBOLO`).
 - **Tema chiaro/scuro**: automatico secondo il sistema o scelto manualmente (pulsante 🌓 in alto).
+- **Portafoglio**: posizioni salvate nel browser, valore e guadagni in euro, ripartizione, andamento, import/export.
+- **Avvisi di prezzo**: notifiche GitHub quando un titolo supera una soglia o si muove oltre una percentuale.
 - **Claude AI**: chat con analisi basata sulle notizie e i dati caricati, con ricerca web.
 
 ## Come funziona
@@ -24,6 +26,10 @@ Già attivo: Settings → Pages → Source "Deploy from a branch", branch `gh-pa
 ## Aggiungere titoli
 
 Dal sito: cerca il titolo, aprilo e tocca **➕ Aggiungi al monitoraggio** (oppure "Non lo trovi? Cerca su Yahoo Finance"). In alternativa crea direttamente una issue con titolo `Aggiungi titolo: SIMBOLO` (es. `Aggiungi titolo: SFER.MI`); più simboli o nomi possono andare nel corpo, uno per riga. I simboli validi vengono aggiunti a `catalog.USER` in `site/config.json`; per i nomi il workflow risponde con i risultati della ricerca e un link per aggiungere ciascuno.
+
+## Avvisi di prezzo
+
+Dalla scheda di un titolo tocca 🔔, scegli la condizione e conferma la richiesta su GitHub (issue `Avviso prezzo: SIMBOLO sopra|sotto|up|down VALORE`). Gli avvisi sono in `site/alerts.json`; a ogni aggiornamento (ogni 30 minuti) vengono controllati e quando scattano si apre una issue che ti menziona. Per rimuoverne uno: pulsante "Rimuovi" nella scheda Portafoglio (issue `Rimuovi avviso: CODICE`).
 
 ## Claude
 

@@ -92,7 +92,7 @@ await test("tema scuro", async () => {
 });
 
 await test("nessuno scorrimento orizzontale su mobile", async () => {
-  for (const tab of ["news", "markets", "metals", "ai"]) {
+  for (const tab of ["news", "markets", "metals", "portfolio", "ai"]) {
     await page.click(`[data-tab=${tab}]`);
     assert(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), `overflow nella scheda ${tab}`);
   }

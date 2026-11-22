@@ -1,7 +1,9 @@
-name: Aggiungi titoli
+name: Richieste dal sito
 
-# Si attiva con una issue il cui titolo inizia con "Aggiungi titolo" (creata dal pulsante
-# "Aggiungi al monitoraggio" del sito). Solo proprietario/collaboratori del repository possono aggiungere titoli.
+# Si attiva con le issue create dai pulsanti del sito:
+#   "Aggiungi titolo: …"  → aggiunge titoli al catalogo monitorato
+#   "Avviso prezzo: …"    → crea un avviso di prezzo      "Rimuovi avviso: ID" → lo elimina
+# Solo proprietario/collaboratori del repository possono fare richieste.
 
 on:
   issues:
@@ -18,7 +20,7 @@ concurrency:
 
 jobs:
   add:
-    if: startsWith(github.event.issue.title, 'Aggiungi titolo')
+    if: startsWith(github.event.issue.title, 'Aggiungi titolo') || startsWith(github.event.issue.title, 'Avviso prezzo') || startsWith(github.event.issue.title, 'Rimuovi avviso')
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
@@ -28,7 +30,7 @@ jobs:
       - name: Richiesta non autorizzata
         if: env.AUTHORIZED != 'true'
         run: |
-          gh issue comment "$ISSUE" -R "$GITHUB_REPOSITORY" --body "Solo i manutentori del repository possono aggiungere titoli al monitoraggio."
+          gh issue comment "$ISSUE" -R "$GITHUB_REPOSITORY" --body "Solo i manutentori del repository possono inviare richieste dal sito."
           gh issue close "$ISSUE" -R "$GITHUB_REPOSITORY" --reason "not planned"
 
       - uses: actions/checkout@v5
@@ -41,21 +43,25 @@ jobs:
         with:
           node-version: 22
 
-      - name: Risolvi e aggiungi i titoli
+      - name: Elabora la richiesta
         if: env.AUTHORIZED == 'true'
         env:
           TITLE: ${{ github.event.issue.title }}
           BODY: ${{ github.event.issue.body }}
-        run: node scripts/add-symbols.mjs "$TITLE" "$BODY"
+        run: |
+          case "$TITLE" in
+            "Aggiungi titolo"*) node scripts/add-symbols.mjs "$TITLE" "$BODY" ;;
+            *) node scripts/alerts-request.mjs "$TITLE" ;;
+          esac
 
-      - name: Salva il catalogo e ripubblica il sito
+      - name: Salva le modifiche e ripubblica il sito
         if: env.AUTHORIZED == 'true'
         run: |
-          if git diff --quiet site/config.json; then echo "Nessuna modifica al catalogo"; exit 0; fi
+          if git diff --quiet site/config.json site/alerts.json; then echo "Nessuna modifica"; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/config.json
-          git commit -q -m "Aggiungi titoli al monitoraggio: $(cat add-symbols.txt) (#$ISSUE)"
+          git add site/config.json site/alerts.json
+          git commit -q -m "Richiesta dal sito: $(cat add-symbols.txt) (#$ISSUE)"
           for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done
           gh workflow run pages.yml -R "$GITHUB_REPOSITORY" --ref main
 

@@ -13,6 +13,7 @@ import { buildDirectory } from "./lib/directory.mjs";
 import { chart, summarize, scalePts, SERIES, encodeSeries, decodeSeries } from "./lib/markets.mjs";
 import { fundamentals, profiles } from "./lib/fundamentals.mjs";
 import { macroCalendar, earningsCalendar } from "./lib/calendar.mjs";
+import { evaluate as evaluateAlerts } from "./lib/alerts.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "site", "data");
@@ -142,6 +143,16 @@ for (const q of quotes) if (prof[q.symbol]?.sector) q.sector = prof[q.symbol].se
 
 await write("markets.json", { updated, quotes });
 console.log(`markets: ${quotes.length}/${allSymbols.length} (aggiornati ${fresh}, precedenti ${reused}, serie lunghe ${dayCalls}, notizie società ${newsCalls}, fondamentali ${fund.size}, profili aggiornati ${refreshed})`);
+
+// ---------- Avvisi di prezzo ----------
+// site/alerts.json è la fonte (nel repository); gli avvisi scattati vengono marcati e notificati dal workflow
+const ALERTS = join(ROOT, "site", "alerts.json");
+const alertsData = JSON.parse(await readFile(ALERTS, "utf8").catch(() => '{"alerts":[]}'));
+const fired = evaluateAlerts(alertsData.alerts ?? [], quotes);
+if (fired.length) await writeFile(ALERTS, JSON.stringify(alertsData, null, 1) + "\n");
+await write("alerts-fired.json", fired);
+health.alerts = { active: (alertsData.alerts ?? []).filter((a) => !a.triggeredAt).length, fired: fired.length };
+if (fired.length) console.log(`avvisi scattati: ${fired.map((a) => a.text).join(" | ")}`);
 
 // ---------- Calendario ----------
 const macro = await macroCalendar();

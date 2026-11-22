@@ -5,6 +5,26 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.7.0] - 2026-11-22
+
+### Aggiunto
+- **Portafoglio** (nuova scheda 💼): posizioni con quantità, prezzo di carico e data di acquisto (anche più acquisti dello stesso titolo), su titoli monitorati o della directory mondiale.
+  - Riepilogo in euro al cambio attuale: valore, investito, guadagno/perdita totale, variazione di oggi.
+  - Tabella posizioni con valore, peso, guadagno in euro e percentuale; tocco per aprire il titolo, ✎ per modificare o eliminare.
+  - Ripartizione per tipo, area, settore o valuta (grafico ad anello).
+  - Andamento del valore su 1 mese, 3 mesi, 1 anno, 5 anni (ultima chiusura nota nei giorni senza contrattazioni).
+  - Esportazione JSON/CSV e importazione da file (JSON o CSV con colonne simbolo, quantità, prezzo, valuta, data).
+  - "Analizza con Claude" per una valutazione di diversificazione e rischi.
+  - Pulsante 💼 nella scheda di ogni titolo.
+- **Avvisi di prezzo**: pulsante 🔔 nella scheda di ogni titolo (prezzo sopra/sotto una soglia, rialzo o ribasso giornaliero oltre una percentuale). La richiesta passa da GitHub; a ogni aggiornamento dei dati gli avvisi vengono controllati e, quando scattano, una issue che ti menziona invia la notifica (anche push sull'app GitHub). Elenco degli avvisi attivi e scattati nella scheda Portafoglio, con rimozione.
+- Cambi EUR per 22 valute, usati per convertire il portafoglio.
+- Test unitari (avvisi, formato storici, valute) e test dell'interfaccia per portafoglio e avvisi.
+
+### Modificato
+- Il workflow "Aggiungi titoli" diventa "Richieste dal sito" e gestisce anche creazione e rimozione degli avvisi.
+- Pulsanti della scheda titolo compatti su schermi stretti.
+- Le quotazioni in centesimi di dollaro (alcune materie prime agricole) sono convertite in dollari.
+
 ## [1.6.0] - 2026-11-22
 
 ### Aggiunto
@@ -103,7 +123,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.6.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.0...v1.4.1
