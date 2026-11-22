@@ -87,6 +87,31 @@
     <footer class="foot" id="foot"></footer>
   </main>
 
+  <section id="detail" class="detail" hidden aria-label="Dettaglio titolo">
+    <div class="dt-wrap">
+      <header class="dt-head">
+        <button class="ghost" id="dt-back" aria-label="Chiudi">← Indietro</button>
+        <button class="ghost" id="dt-ask">✨ Chiedi a Claude</button>
+      </header>
+      <h2 id="dt-name" class="dt-name"></h2>
+      <p class="meta" id="dt-sym"></p>
+      <div class="dt-price" id="dt-price"></div>
+      <p class="meta" id="dt-time"></p>
+      <div class="toolbar">
+        <div class="seg" id="dt-gran"></div>
+        <div class="seg" id="dt-range"></div>
+      </div>
+      <p class="meta" id="dt-period"></p>
+      <div class="dt-chart" id="dt-chart"></div>
+      <div class="dt-stats" id="dt-stats"></div>
+      <h3 id="dt-hist-title"></h3>
+      <div class="dt-table">
+        <table><thead><tr><th>Data</th><th>Chiusura</th><th>Var.</th><th>Volume</th></tr></thead><tbody id="dt-hist"></tbody></table>
+      </div>
+      <button class="more" id="dt-hist-more" hidden>Mostra tutto lo storico</button>
+    </div>
+  </section>
+
   <dialog id="settings">
     <form method="dialog" class="settings">
       <h3>Collegamento a Claude</h3>

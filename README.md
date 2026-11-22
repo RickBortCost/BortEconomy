@@ -4,6 +4,7 @@ Web app (anche mobile, installabile come PWA) con:
 
 - **Notizie economiche** del giorno e della settimana: mondo e paese selezionabile (14 paesi), da Google News RSS in lingua locale + italiano.
 - **Mercati**: indici mondiali, valute/materie prime/tassi, migliori e peggiori titoli mondiali (giorno/settimana), titoli principali del paese. Fonte: Yahoo Finance (dati ritardati).
+- **Dettaglio titolo**: grafico interattivo per ore, giorni e settimane, statistiche e storico per ogni simbolo (link diretto `#q=SIMBOLO`).
 - **Claude AI**: chat con analisi basata sulle notizie e i dati caricati, con ricerca web.
 
 ## Come funziona
