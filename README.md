@@ -4,6 +4,7 @@ Web app (anche mobile, installabile come PWA) con:
 
 - **Notizie economiche** del giorno e della settimana: mondo e paese selezionabile (14 paesi), da Google News RSS in lingua locale + italiano.
 - **Mercati**: indici mondiali, valute/materie prime/tassi, migliori e peggiori titoli mondiali (giorno/settimana), titoli principali del paese. Fonte: Yahoo Finance (dati ritardati).
+- **Ricerca e preferiti**: ricerca tra 461 titoli, indici, valute, materie prime, cripto ed ETF; preferiti salvati nel browser.
 - **Dettaglio titolo**: grafico interattivo per ore, giorni e settimane, statistiche e storico per ogni simbolo (link diretto `#q=SIMBOLO`).
 - **Claude AI**: chat con analisi basata sulle notizie e i dati caricati, con ricerca web.
 
@@ -28,7 +29,7 @@ node scripts/fetch-data.mjs
 cd site && python3 -m http.server 8000
 ```
 
-Paesi e titoli monitorati sono configurabili in `site/config.json`.
+Paesi, titoli monitorati (`catalog`) e sinonimi di ricerca (`aliases`) sono configurabili in `site/config.json`.
 
 ## Versioni e release
 

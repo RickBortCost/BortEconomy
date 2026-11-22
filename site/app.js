@@ -16,6 +16,21 @@ const state = {
   mkField: "changePct",
 };
 
+// ---------------- preferiti ----------------
+const favs = {
+  list() { try { return JSON.parse(store.get("favs", "[]")); } catch { return []; } },
+  has(sym) { return this.list().includes(sym); },
+  toggle(sym) {
+    const l = this.list(); const i = l.indexOf(sym);
+    i >= 0 ? l.splice(i, 1) : l.push(sym);
+    store.set("favs", JSON.stringify(l));
+    renderMarkets(); renderSearch();
+    return i < 0;
+  },
+};
+const starBtn = (sym) => { const on = favs.has(sym);
+  return `<button class="star" data-star="${esc(sym)}" aria-pressed="${on}" aria-label="${on ? "Rimuovi dai" : "Aggiungi ai"} preferiti">${on ? "★" : "☆"}</button>`; };
+
 async function getJSON(url) {
   const res = await fetch(`${url}?t=${Math.floor(Date.now() / 300000)}`);
   if (!res.ok) throw new Error(`${url}: ${res.status}`);
@@ -69,7 +84,11 @@ async function renderNews() {
 }
 
 // ---------------- mercati ----------------
-function bySymbol(sym) { return state.markets?.quotes.find((q) => q.symbol === sym); }
+let quoteMap = null;
+function bySymbol(sym) {
+  if (!quoteMap && state.markets) quoteMap = new Map(state.markets.quotes.map((q) => [q.symbol, q]));
+  return quoteMap?.get(sym);
+}
 
 function tiles(symbols) {
   return symbols.map(bySymbol).filter(Boolean).map((q) => `
@@ -81,16 +100,55 @@ function tiles(symbols) {
     </div>`).join("") || `<div class="empty">Dati non disponibili.</div>`;
 }
 
-function rows(quotes) {
+function rows(quotes, { star = false, empty = "Dati non disponibili.", group = false } = {}) {
   return quotes.map((q) => `
-    <li data-sym="${esc(q.symbol)}" tabindex="0" role="button"><div class="nm"><b>${esc(q.name)}</b><small>${esc(q.symbol)}</small></div>
-      <div class="px">${nf(q.price)} <small>${esc(q.currency ?? "")}</small></div>${pctHtml(q[state.mkField])}</li>`).join("")
-    || `<li class="empty">Dati non disponibili.</li>`;
+    <li data-sym="${esc(q.symbol)}" tabindex="0" role="button" class="${star ? "has-star" : ""}">${star ? starBtn(q.symbol) : ""}
+      <div class="nm"><b>${esc(q.name)}</b><small>${esc(q.symbol)}${group ? ` · <span class="grp">${esc(groupLabel(q))}</span>` : ""}</small></div>
+      <div class="px">${nf(q.price, q.price < 10 ? 4 : 2)} <small>${esc(q.currency ?? "")}</small></div>${pctHtml(q[state.mkField])}</li>`).join("")
+    || `<li class="empty">${empty}</li>`;
+}
+
+const groupLabel = (q) => state.config.catalog?.[q.group]?.name ?? q.exchange ?? "";
+
+// ---------------- ricerca titoli ----------------
+const norm = (s) => String(s ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+let searchIndex = null;
+function buildIndex() {
+  const al = state.config.aliases ?? {};
+  searchIndex = (state.markets?.quotes ?? []).map((q) => ({
+    q, sym: norm(q.symbol), text: norm(`${q.name} ${q.longName} ${q.exchange} ${groupLabel(q)} ${al[q.symbol] ?? ""}`),
+  }));
+}
+function searchQuotes(term, limit = 25) {
+  const t = norm(term).trim(); if (!t) return [];
+  if (!searchIndex) buildIndex();
+  const words = t.split(/\s+/);
+  const scored = [];
+  for (const e of searchIndex) {
+    let score = 0;
+    if (e.sym === t) score = 100;
+    else if (e.sym.startsWith(t)) score = 80;
+    else if (e.sym.replace(/[^a-z0-9]/g, "").startsWith(t.replace(/[^a-z0-9]/g, "")) && t.length > 1) score = 70;
+    if (words.every((w) => e.text.includes(w) || e.sym.includes(w))) {
+      const prefix = words.every((w) => new RegExp(`(^|[^a-z0-9])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`).test(e.text));
+      if (prefix) score = Math.max(score, 60);
+      else if (t.length >= 4) score = Math.max(score, 40); // corrispondenze interne solo per termini lunghi
+    }
+    if (score) scored.push([score - (e.q.type === "EQUITY" ? 0 : 1), e.q]);
+  }
+  return scored.sort((a, b) => b[0] - a[0] || a[1].name.localeCompare(b[1].name)).slice(0, limit).map((x) => x[1]);
+}
+function renderSearch() {
+  const box = $("#q-results"), term = $("#q-input").value;
+  if (!term.trim()) { box.hidden = true; box.innerHTML = ""; return; }
+  const res = searchQuotes(term);
+  box.hidden = false;
+  box.innerHTML = rows(res, { star: true, group: true, empty: `Nessun titolo trovato per “${esc(term)}”. I titoli disponibili sono ${state.markets?.quotes.length ?? 0} tra indici e azioni principali.` });
 }
 
 function movers(n = 8) {
   const f = state.mkField;
-  const qs = state.config.globalStocks.map(bySymbol).filter((q) => q && q[f] != null).sort((a, b) => b[f] - a[f]);
+  const qs = (state.markets?.quotes ?? []).filter((q) => q.type === "EQUITY" && !q.stale && q[f] != null).sort((a, b) => b[f] - a[f]);
   return { gainers: qs.slice(0, n), losers: qs.slice(-n).reverse() };
 }
 
@@ -98,6 +156,8 @@ function renderMarkets() {
   if (!state.markets) { $("#mk-meta").textContent = "Dati di mercato non disponibili."; return; }
   const c = state.config.countries[state.country];
   $("#mk-meta").textContent = `Quotazioni ritardate · aggiornato ${fmtTime(state.markets.updated)} · variazione ${state.mkField === "changePct" ? "giornaliera" : "settimanale"}`;
+  $("#mk-favs").innerHTML = rows(favs.list().map(bySymbol).filter(Boolean), { star: true, group: true,
+    empty: "Nessun preferito. Cerca un titolo o aprine uno e tocca ☆ per aggiungerlo qui." });
   const idx = [...new Set([c.index, ...state.config.globalIndices])];
   $("#mk-indices").innerHTML = tiles(idx);
   $("#mk-macro").innerHTML = tiles(state.config.macro);
@@ -142,6 +202,7 @@ async function buildContext() {
 <mercati aggiornati="${state.markets?.updated ?? "n/d"}">
 Indici: ${[c.index, ...state.config.globalIndices].map(q).filter(Boolean).join("; ")}
 Macro: ${state.config.macro.map(q).filter(Boolean).join("; ")}
+Preferiti dell'utente: ${favs.list().map(q).filter(Boolean).join("; ") || "nessuno"}
 Migliori titoli oggi: ${gainers.map((x) => `${x.name} ${nf(x.changePct)}%`).join(", ")}
 Peggiori titoli oggi: ${losers.map((x) => `${x.name} ${nf(x.changePct)}%`).join(", ")}
 Titoli ${c.name}: ${c.stocks.map(q).filter(Boolean).join("; ")}
@@ -276,6 +337,8 @@ async function init() {
 
   // Dettaglio titoli
   const openFrom = (e) => {
+    const star = e.target.closest("[data-star]");
+    if (star) { if (e.type === "click") { e.preventDefault(); e.stopPropagation(); favs.toggle(star.dataset.star); } return; }
     const el = e.target.closest("[data-sym]"); if (!el) return;
     if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
     e.preventDefault();
@@ -314,7 +377,16 @@ async function init() {
   }).catch(() => {});
   state.markets = await getJSON("data/markets.json").catch(() => null);
   renderMarkets();
-  initDetail({ quoteFor: bySymbol, onAsk: (text) => { setTab("ai"); ask(text); } });
+  initDetail({ quoteFor: bySymbol, onAsk: (text) => { setTab("ai"); ask(text); }, favs });
+  const qi = $("#q-input");
+  qi.addEventListener("input", renderSearch);
+  qi.addEventListener("focus", renderSearch);
+  qi.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { qi.value = ""; renderSearch(); qi.blur(); }
+    if (e.key === "Enter") { const first = $("#q-results [data-sym]"); if (first) openDetail(first.dataset.sym, bySymbol(first.dataset.sym)); }
+  });
+  document.addEventListener("click", (e) => { if (!e.target.closest(".qsearch")) $("#q-results").hidden = true; });
+  $("#search-btn").addEventListener("click", () => { setTab("markets"); qi.focus(); qi.scrollIntoView({ block: "center" }); });
   await renderNews();
 }
 
