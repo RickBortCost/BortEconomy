@@ -8,7 +8,7 @@ try { await access(`${OUT}/markets.json`); console.log("site/data già presente:
 
 const files = ["meta.json", "markets.json", "directory.json", "calendar.json", "profiles.json", "health.json", "brief.json", "alerts.json",
   "news-WORLD.json", "news-IT.json", "news-US.json", "news-METALS.json",
-  "hist/ENI.MI.json", "hist/AAPL.json", "hist/GC_F.json", "hist/SI_F.json", "hist/PL_F.json", "hist/PA_F.json", "hist/_GSPC.json", "hist/EURUSD_X.json"];
+  "hist/ENI.MI.json", "hist/AAPL.json", "hist/GC_F.json", "hist/SI_F.json", "hist/PL_F.json", "hist/PA_F.json", "hist/_GSPC.json", "hist/EURUSD_X.json", "hist/FTSEMIB.MI.json", "hist/HG_F.json"];
 await mkdir(`${OUT}/hist`, { recursive: true });
 let ok = 0;
 for (const f of files) {

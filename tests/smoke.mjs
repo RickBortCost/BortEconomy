@@ -20,6 +20,9 @@ async function test(name, fn) {
   const t = Date.now();
   try { await fn(); results.push([true, name]); console.log(`✓ ${name} (${Date.now() - t} ms)`); }
   catch (e) { results.push([false, name]); console.log(`✗ ${name}\n    ${String(e.message).split("\n")[0]}`); }
+  // pulizia: chiude eventuali schede o finestre rimaste aperte, così un errore non si propaga ai test successivi
+  await page.keyboard.press("Escape").catch(() => {});
+  await page.evaluate(() => { document.querySelectorAll("dialog[open]").forEach((d) => d.close()); }).catch(() => {});
 }
 const assert = (cond, msg) => { if (!cond) throw new Error(msg); };
 
@@ -27,6 +30,7 @@ const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePa
 const ctx = await browser.newContext({ ...devices["iPhone 13"] });
 await ctx.route(/^https:\/\/(github\.com|api\.anthropic\.com|cdn\.jsdelivr\.net)\//, (r) => r.fulfill({ status: 200, body: "stub" }));
 const page = await ctx.newPage();
+page.setDefaultTimeout(10000);
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
 
@@ -44,7 +48,7 @@ await test("mercati: indici, migliori e peggiori", async () => {
 });
 
 await test("dettaglio titolo: grafico ore/giorni/settimane e storico", async () => {
-  await page.click("#mk-indices .tile >> nth=0");
+  await page.click('#mk-indices .tile[data-sym="^GSPC"]');
   await page.waitForSelector("#dt-chart svg");
   for (const g of ["hour", "day", "week"]) {
     await page.click(`#dt-gran button[data-v=${g}]`);
