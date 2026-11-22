@@ -36,6 +36,7 @@
     <button role="tab" data-tab="news" aria-selected="true">📰<span>Notizie</span></button>
     <button role="tab" data-tab="markets">📈<span>Mercati</span></button>
     <button role="tab" data-tab="metals">🥇<span>Metalli</span></button>
+    <button role="tab" data-tab="portfolio">💼<span>Portafoglio</span></button>
     <button role="tab" data-tab="ai">✨<span>Claude</span></button>
   </nav>
 
@@ -127,6 +128,47 @@
       <button class="primary mt-ask" id="mt-ask">✨ Analisi dei metalli preziosi con Claude</button>
     </section>
 
+    <!-- PORTAFOGLIO -->
+    <section id="tab-portfolio" class="panel">
+      <div id="pf-empty" class="pf-empty">
+        <h2>Il tuo portafoglio</h2>
+        <p class="meta">Registra le tue posizioni (azioni, ETF, metalli, valute, cripto): valore in euro, guadagni e perdite, ripartizione e andamento. I dati restano solo in questo browser; puoi esportarli e importarli.</p>
+        <button class="primary" id="pf-add-empty">➕ Aggiungi la prima posizione</button>
+        <label class="ghost pf-import-btn">📂 Importa da file<input type="file" accept=".json,.csv,.txt" id="pf-import-empty" hidden></label>
+      </div>
+      <div id="pf-body" hidden>
+        <div class="toolbar pf-tools">
+          <button class="primary" id="pf-add">➕ Posizione</button>
+          <button class="ghost" id="pf-ask">✨ Analizza con Claude</button>
+        </div>
+        <div class="grid pf-summary" id="pf-summary"></div>
+        <h2>Posizioni</h2>
+        <div class="dt-table"><table class="pf-table">
+          <thead><tr><th>Titolo</th><th>Valore</th><th>Guadagno</th><th></th></tr></thead>
+          <tbody id="pf-rows"></tbody></table></div>
+        <p class="meta" id="pf-note"></p>
+        <h2>Ripartizione</h2>
+        <div class="toolbar"><div class="seg" id="pf-alloc-by">
+          <button data-v="type" class="on">Tipo</button><button data-v="region">Area</button><button data-v="sector">Settore</button><button data-v="currency">Valuta</button>
+        </div></div>
+        <div class="pf-alloc" id="pf-alloc"></div>
+        <h2>Andamento</h2>
+        <div class="toolbar"><div class="seg" id="pf-range">
+          <button data-v="31">1M</button><button data-v="92">3M</button><button data-v="365" class="on">1A</button><button data-v="1830">5A</button>
+        </div></div>
+        <p class="meta">Valore delle posizioni detenute a ogni data (dalla data di acquisto), al cambio attuale.</p>
+        <div class="pf-hist" id="pf-hist"></div>
+        <div class="toolbar pf-io">
+          <button class="ghost" id="pf-export-json">⬇️ Esporta JSON</button>
+          <button class="ghost" id="pf-export-csv">⬇️ Esporta CSV</button>
+          <label class="ghost pf-import-btn">📂 Importa<input type="file" accept=".json,.csv,.txt" id="pf-import" hidden></label>
+        </div>
+      </div>
+      <h2>🔔 Avvisi di prezzo</h2>
+      <p class="meta">Ricevi una notifica GitHub (anche sul telefono) quando un titolo supera o scende sotto una soglia, o si muove più di una certa percentuale in un giorno. Creali dalla scheda di un titolo con 🔔.</p>
+      <ul class="rows al-list" id="al-list"></ul>
+    </section>
+
     <section id="tab-ai" class="panel">
       <div class="ai-head">
         <p class="meta">Claude analizza le notizie caricate e può cercare sul web informazioni aggiornate.</p>
@@ -153,7 +195,9 @@
         <button class="ghost" id="dt-back" aria-label="Indietro">←<span class="lbl"> Indietro</span></button>
         <span class="dt-actions">
           <button class="ghost" id="dt-fav" aria-pressed="false" aria-label="Aggiungi ai preferiti">☆<span class="lbl"> Preferito</span></button>
-          <button class="ghost" id="dt-ask">✨ Chiedi a Claude</button>
+          <button class="ghost" id="dt-pf" aria-label="Aggiungi al portafoglio" title="Aggiungi al portafoglio">💼</button>
+          <button class="ghost" id="dt-alert" aria-label="Crea un avviso di prezzo" title="Crea un avviso di prezzo">🔔</button>
+          <button class="ghost" id="dt-ask" aria-label="Chiedi a Claude">✨<span class="lbl"> Chiedi a Claude</span></button>
         </span>
       </header>
       <h2 id="dt-name" class="dt-name"></h2>
@@ -174,6 +218,50 @@
       <button class="more" id="dt-hist-more" hidden>Mostra tutto lo storico</button>
     </div>
   </section>
+
+  <dialog id="pf-dialog">
+    <form method="dialog" class="settings">
+      <h3>Posizione</h3>
+      <label>Titolo (simbolo o nome)
+        <input id="pf-sym" autocomplete="off" placeholder="es. ENI.MI, Apple, oro">
+      </label>
+      <small class="meta" id="pf-sym-name"></small>
+      <ul class="pf-picks" id="pf-sym-results"></ul>
+      <label>Quantità <input id="pf-qty" type="number" step="any" min="0" inputmode="decimal"></label>
+      <label>Prezzo di carico (nella valuta del titolo) <input id="pf-price" type="number" step="any" min="0" inputmode="decimal"></label>
+      <label>Data di acquisto <input id="pf-date" type="date"></label>
+      <div class="actions">
+        <button value="delete" class="ghost" id="pf-delete" formnovalidate>Elimina</button>
+        <span><button value="cancel" class="ghost" formnovalidate>Annulla</button> <button value="save" class="primary">Salva</button></span>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="pf-lots">
+    <form method="dialog" class="settings">
+      <h3 id="pf-lots-title"></h3>
+      <ul class="pf-lots-list" id="pf-lots-list"></ul>
+      <div class="actions"><button value="cancel" class="ghost">Chiudi</button><button type="button" class="primary" id="pf-lots-add">➕ Nuovo acquisto</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="al-dialog">
+    <form method="dialog" class="settings">
+      <h3>🔔 Avviso di prezzo</h3>
+      <p class="meta" id="al-sym"></p>
+      <label>Condizione
+        <select id="al-op">
+          <option value="below">Prezzo sotto</option>
+          <option value="above">Prezzo sopra</option>
+          <option value="up">Rialzo giornaliero almeno del</option>
+          <option value="down">Ribasso giornaliero almeno del</option>
+        </select>
+      </label>
+      <label>Valore <span class="al-val"><input id="al-value" type="number" step="any" min="0" inputmode="decimal"><span id="al-unit"></span></span></label>
+      <p class="hint">Si apre GitHub con la richiesta compilata: conferma con "Submit new issue". La condizione viene controllata a ogni aggiornamento dei dati (ogni 30 minuti); quando si verifica ricevi una notifica e l'avviso si disattiva.</p>
+      <div class="actions"><button value="cancel" class="ghost">Annulla</button><button value="save" class="primary">Crea avviso</button></div>
+    </form>
+  </dialog>
 
   <dialog id="settings">
     <form method="dialog" class="settings">

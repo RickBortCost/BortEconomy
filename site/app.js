@@ -1,4 +1,5 @@
 import { initDetail, openDetail, loadHist } from "./detail.js";
+import { initPortfolio, renderPortfolio, openPositionForm, openAlertForm } from "./portfolio.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -513,6 +514,7 @@ function setTab(t) {
   document.body.classList.toggle("ai", t === "ai");
   store.set("tab", t);
   if (t === "metals") renderMetals();
+  if (t === "portfolio") renderPortfolio();
 }
 
 function seg(id, onChange) {
@@ -558,7 +560,7 @@ async function init() {
     e.preventDefault();
     openDetail(el.dataset.sym, bySymbol(el.dataset.sym));
   };
-  for (const id of ["#tab-markets", "#tab-metals"]) {
+  for (const id of ["#tab-markets", "#tab-metals", "#tab-portfolio"]) {
     $(id).addEventListener("click", openFrom);
     $(id).addEventListener("keydown", openFrom);
   }
@@ -600,6 +602,16 @@ async function init() {
   }
   renderMarkets();
   if (store.get("tab", "news") === "metals") renderMetals();
+  initPortfolio({
+    $, esc, nf, pctHtml, store, seg, bySymbol, searchQuotes, setTab, ask, openDetail, config: state.config,
+    sectorOf: (sym) => bySymbol(sym)?.sector,
+    ensureDirectory: () => loadDirectory(),
+    ensureQuotes: async (syms) => { if (syms.some((x) => !isMonitored(x))) await loadDirectory(); },
+    openIssue: (title, body) => window.open(issueUrl(title, body), "_blank", "noopener"),
+  });
+  // posizioni su titoli non monitorati: serve la directory per il prezzo
+  try { if (JSON.parse(store.get("portfolio", "[]")).some((l) => !isMonitored(l.sym))) loadDirectory().then(() => { if (store.get("tab") === "portfolio") renderPortfolio(); }); } catch {}
+  if (store.get("tab", "news") === "portfolio") renderPortfolio();
   pending.prune();
   if (favs.list().some((sym) => !isMonitored(sym))) loadDirectory().then(() => renderMarkets());
   initDetail({
@@ -607,6 +619,7 @@ async function init() {
       const eur = inCur(q.price, "EUR");
       return [[`Prezzo €/${unitShort(m)}`, money(eur, "EUR")], ["€ al grammo", money(eur == null ? null : eur / m.grams, "EUR", m.industrial ? 4 : undefined)], ["$ al grammo", money(q.price / m.grams, "USD", m.industrial ? 4 : undefined)]]; },
     askPrompt: (q) => { const m = metal(q.symbol); return m ? `Analizza il mercato di ${m.name.toLowerCase()} (${q.symbol}): prezzo attuale ${nf(q.price)} USD/${unitShort(m)}, variazioni giorno ${nf(q.changePct)}%, settimana ${nf(q.weekPct)}%, mese ${nf(q.monthPct)}%, anno ${nf(q.yearPct)}%. Spiega i fattori che lo muovono (tassi reali, dollaro, banche centrali, domanda industriale e da investimento), livelli tecnici e notizie recenti. Cerca sul web.` : null; },
+    onPortfolio: (sym) => openPositionForm({ sym }), onAlert: (sym) => openAlertForm(sym),
     quoteFor: bySymbol, marketStatus: (q) => { const m = marketStatus(q); return m && STATUS_LABEL[m]; }, onAsk: (text) => { setTab("ai"); ask(text); }, favs,
     onAdd: (sym) => { requestAdd(sym); renderSearch(); }, pendingSince: (sym) => pending.get(sym), loadDirectory });
   const qi = $("#q-input");

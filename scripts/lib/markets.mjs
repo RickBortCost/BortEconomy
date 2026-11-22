@@ -2,7 +2,7 @@
 import { get } from "./http.mjs";
 
 // Valute quotate in centesimi → valuta principale (prezzi divisi per 100)
-export const CENT = { GBp: "GBP", GBX: "GBP", ZAc: "ZAR", ILA: "ILS" };
+export const CENT = { GBp: "GBP", GBX: "GBP", ZAc: "ZAR", ILA: "ILS", USX: "USD" };
 const PRICE_FIELDS = ["regularMarketPrice", "previousClose", "chartPreviousClose", "regularMarketDayHigh", "regularMarketDayLow", "fiftyTwoWeekHigh", "fiftyTwoWeekLow"];
 
 // Serie storiche: ore (1 mese, 60m), giorni (2 anni, 1d), settimane (10 anni, 1wk)
