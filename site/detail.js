@@ -139,10 +139,24 @@ function render() {
   const closes = pts.map((p) => p[1]);
   const rangeChg = first ? ((last - first) / first) * 100 : null;
 
-  $("#dt-period").innerHTML = pts.length
+  setFavBtn();
+  const noHist = !h || !(h.day?.length || h.hour?.length);
+  for (const sel of ["#dt-gran", "#dt-range", "#dt-hist-title", ".dt-table"]) document.querySelector(sel).hidden = noHist;
+  if (noHist) {
+    const since = st.pendingSince?.(st.sym);
+    $("#dt-period").innerHTML = "";
+    $("#dt-chart").innerHTML = `<div class="dt-add">
+      <p>${since ? `Richiesta di monitoraggio inviata ${new Date(since).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}. Storico e grafico compariranno dopo l'aggiornamento del sito (di solito 5–10 minuti).`
+        : "Questo titolo non è ancora monitorato: sono disponibili solo prezzo e variazione del giorno. Aggiungilo per avere storico, grafico e aggiornamenti."}</p>
+      <button class="primary" id="dt-add-btn">${since ? "↻ Invia di nuovo la richiesta" : "➕ Aggiungi al monitoraggio"}</button>
+      <small>Si apre GitHub con la richiesta già compilata: conferma con "Submit new issue". Serve l'accesso al repository.</small>
+    </div>`;
+    $("#dt-add-btn").addEventListener("click", () => { st.onAdd?.(st.sym); render(); });
+  }
+  $("#dt-period").innerHTML = noHist ? "" : pts.length
     ? `Variazione ${esc(st.range)}: ${pct(rangeChg)} · max ${nf(Math.max(...closes), dec(last))} · min ${nf(Math.min(...closes), dec(last))}`
     : "";
-  drawChart(pts);
+  if (!noHist) drawChart(pts);
 
   const stats = [
     ["Chiusura prec.", nf(q.prevClose, dec(q.prevClose))],
@@ -153,8 +167,9 @@ function render() {
     ["1 mese", pct(q.monthPct)],
     ["1 anno", pct(q.yearPct)],
     ["Borsa", esc(q.exchange ?? "–")],
+    ...(q.marketCap ? [["Capitalizzazione", `${compact(q.marketCap)} ${esc(q.currency ?? "")}`]] : []),
   ];
-  $("#dt-stats").innerHTML = stats.map(([k, v]) => `<div><small>${k}</small><b>${v}</b></div>`).join("");
+  $("#dt-stats").innerHTML = stats.filter(([, v]) => !/^(–|– – –|<span class="chg">–<\/span>)$/.test(v)).map(([k, v]) => `<div><small>${k}</small><b>${v}</b></div>`).join("");
 
   // Storico: righe del periodo, dalla più recente
   const rows = pts.map((p, i) => [p, i ? ((p[1] - pts[i - 1][1]) / pts[i - 1][1]) * 100 : null]).reverse();
@@ -162,7 +177,7 @@ function render() {
   $("#dt-hist-title").textContent = `Storico (${LABELS[st.gran].toLowerCase()}, ${st.range}) · ${rows.length} rilevazioni`;
   $("#dt-hist").innerHTML = shown.map(([p, c]) => `<tr><td>${esc(fmtFull(p[0], st.gran))}</td><td>${nf(p[1], dec(p[1]))}</td><td>${pct(c)}</td><td>${p[2] ? compact(p[2]) : "–"}</td></tr>`).join("")
     || '<tr><td colspan="4" class="empty">Nessun dato.</td></tr>';
-  $("#dt-hist-more").hidden = st.showAll || rows.length <= 30;
+  $("#dt-hist-more").hidden = noHist || st.showAll || rows.length <= 30;
 }
 
 async function loadHist(sym) {
@@ -206,8 +221,8 @@ export function closeDetail(fromPop = false) {
   if (!fromPop && location.hash.startsWith("#q=")) history.back();
 }
 
-export function initDetail({ onAsk, quoteFor, favs }) {
-  st.onAsk = onAsk; st.favs = favs;
+export function initDetail({ onAsk, quoteFor, favs, onAdd, pendingSince, loadDirectory }) {
+  st.onAsk = onAsk; st.favs = favs; st.onAdd = onAdd; st.pendingSince = pendingSince;
   $("#dt-fav").addEventListener("click", () => { favs.toggle(st.sym); setFavBtn(); });
   $("#dt-back").addEventListener("click", () => closeDetail());
   $("#dt-gran").addEventListener("click", (e) => {
@@ -232,5 +247,9 @@ export function initDetail({ onAsk, quoteFor, favs }) {
   addEventListener("keydown", (e) => { if (e.key === "Escape") closeDetail(); });
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (!$("#detail").hidden && st.hist) render(); }, 150); });
   const m = location.hash.match(/^#q=(.+)$/);
-  if (m) { const s = decodeURIComponent(m[1]); history.replaceState(null, "", location.pathname); openDetail(s, quoteFor(s)); }
+  if (m) {
+    const s = decodeURIComponent(m[1]); history.replaceState(null, "", location.pathname);
+    if (quoteFor(s)) openDetail(s, quoteFor(s));
+    else loadDirectory?.().then(() => openDetail(s, quoteFor(s)));
+  }
 }

@@ -1,4 +1,5 @@
 {
+ "repo": "RickBortCost/BortEconomy",
  "world": {
   "name": "Mondo",
   "flag": "🌍",
@@ -954,5 +955,40 @@
   "IWDA.AS": "etf msci world",
   "VWCE.DE": "etf ftse all world",
   "GLD": "etf oro"
+ },
+ "regions": {
+  "us": "Stati Uniti",
+  "it": "Italia",
+  "de": "Germania",
+  "fr": "Francia",
+  "gb": "Regno Unito",
+  "es": "Spagna",
+  "ch": "Svizzera",
+  "nl": "Paesi Bassi",
+  "be": "Belgio",
+  "pt": "Portogallo",
+  "ie": "Irlanda",
+  "at": "Austria",
+  "se": "Svezia",
+  "dk": "Danimarca",
+  "no": "Norvegia",
+  "fi": "Finlandia",
+  "pl": "Polonia",
+  "gr": "Grecia",
+  "jp": "Giappone",
+  "hk": "Hong Kong",
+  "cn": "Cina",
+  "in": "India",
+  "kr": "Corea del Sud",
+  "tw": "Taiwan",
+  "br": "Brasile",
+  "ca": "Canada",
+  "au": "Australia",
+  "sg": "Singapore",
+  "mx": "Messico",
+  "za": "Sudafrica",
+  "il": "Israele",
+  "tr": "Turchia",
+  "sa": "Arabia Saudita"
  }
 }

@@ -20,6 +20,7 @@
   --shadow: rgb(0 0 0 / .5); --star: #fbbf24;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; background: var(--bg); color: var(--text);
   font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -170,3 +171,14 @@ body.dt-open { overflow: hidden; }
 }
 .dt-head .ghost { white-space: nowrap; }
 @media (max-width: 480px) { .dt-head .lbl { display: none; } .dt-head .ghost { min-width: 42px; } }
+
+/* Directory mondiale e richieste di aggiunta */
+.tag.new { background: var(--chip); color: var(--accent); text-transform: none; }
+.tag.wait { background: var(--chip); color: var(--star); text-transform: none; }
+.q-results .q-more { display: block; padding: 0; }
+.q-more button { width: 100%; text-align: left; border: 0; background: transparent; color: var(--accent); padding: 10px 12px; cursor: pointer; font-weight: 600; }
+.q-more button:hover { background: var(--chip); }
+.dt-add { padding: 28px 20px; text-align: center; display: grid; gap: 12px; justify-items: center; }
+.dt-add p { margin: 0; color: var(--muted); max-width: 46ch; }
+.dt-add .primary { padding: 10px 18px; font-weight: 600; }
+.dt-add small { color: var(--muted); }

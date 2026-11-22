@@ -5,6 +5,17 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.4.0] - 2026-11-22
+
+### Aggiunto
+- **Ricerca di nuovi titoli**: la ricerca copre ora una directory mondiale di **oltre 11.000 azioni** (borse principali di 33 paesi, capitalizzazione sopra soglie per area) con prezzo, variazione e capitalizzazione, aggiornata a ogni pubblicazione e caricata solo alla prima ricerca.
+- **Aggiunta al monitoraggio**: i titoli non monitorati hanno una scheda con prezzo e capitalizzazione e il pulsante "➕ Aggiungi al monitoraggio", che apre su GitHub una richiesta già compilata. Il nuovo workflow `Aggiungi titoli` la verifica su Yahoo Finance, aggiunge il titolo al catalogo (`catalog.USER`), ripubblica il sito con storico e grafico e risponde nella richiesta. Il titolo viene anche aggiunto ai preferiti.
+- **Ricerca libera**: se un titolo non è nella directory, "Cerca su Yahoo Finance e aggiungilo" invia il termine al workflow, che risponde con i titoli trovati e un link per aggiungere ciascuno.
+- Capitalizzazione nella scheda dei titoli.
+
+### Modificato
+- Ordinamento dei risultati: corrispondenza del simbolo, poi del nome; a parità prima i titoli monitorati e le società più grandi.
+
 ## [1.3.0] - 2026-11-22
 
 ### Aggiunto
@@ -56,7 +67,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.3.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.1...v1.1.0
