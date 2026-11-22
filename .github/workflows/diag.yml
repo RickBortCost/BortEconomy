@@ -11,4 +11,5 @@ jobs:
       - uses: actions/setup-node@v5
         with: { node-version: 22 }
       - run: node scripts/diag.mjs
-      - run: curl -s -o /dev/null -w "curl yahoo: %{http_code}\n" -A "Mozilla/5.0" "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?range=5d&interval=1d"
+      - run: |
+          curl -s -o /dev/null -w "curl yahoo %{http_code}\n" -A "Mozilla/5.0" "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?range=5d&interval=1d"
