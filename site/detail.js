@@ -15,7 +15,7 @@ const RANGES = {
 const LABELS = { hour: "Ore", day: "Giorni", week: "Settimane" };
 const DEFAULT_RANGE = { hour: "1G", day: "6M", week: "5A" };
 
-const st = { sym: null, quote: null, hist: null, gran: "day", range: "6M", showAll: false, onAsk: null };
+const st = { sym: null, quote: null, hist: null, gran: "day", range: "6M", showAll: false, onAsk: null, favs: null };
 const cache = new Map();
 const $ = (s) => document.querySelector(s);
 
@@ -173,8 +173,16 @@ async function loadHist(sym) {
   return cache.get(sym);
 }
 
+function setFavBtn() {
+  const on = !!st.favs?.has(st.sym);
+  const b = $("#dt-fav");
+  b.setAttribute("aria-pressed", on);
+  b.textContent = on ? "★ Preferito" : "☆ Preferito";
+}
+
 export async function openDetail(sym, quote) {
   st.sym = sym; st.quote = quote; st.showAll = false;
+  setFavBtn();
   st.gran = pref("dt-gran", "day");
   st.range = pref(`dt-range-${st.gran}`, DEFAULT_RANGE[st.gran]);
   const q = quote ?? { name: sym };
@@ -197,8 +205,9 @@ export function closeDetail(fromPop = false) {
   if (!fromPop && location.hash.startsWith("#q=")) history.back();
 }
 
-export function initDetail({ onAsk, quoteFor }) {
-  st.onAsk = onAsk;
+export function initDetail({ onAsk, quoteFor, favs }) {
+  st.onAsk = onAsk; st.favs = favs;
+  $("#dt-fav").addEventListener("click", () => { favs.toggle(st.sym); setFavBtn(); });
   $("#dt-back").addEventListener("click", () => closeDetail());
   $("#dt-gran").addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;

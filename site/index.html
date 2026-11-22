@@ -14,6 +14,7 @@
 <body>
   <header class="topbar">
     <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>BortEconomy</span></div>
+    <button class="icon-btn" id="search-btn" aria-label="Cerca un titolo" title="Cerca un titolo">🔍</button>
     <label class="country">
       <span class="sr">Paese</span>
       <select id="country"></select>
@@ -47,7 +48,13 @@
 
     <!-- MERCATI -->
     <section id="tab-markets" class="panel">
+      <div class="qsearch" role="search">
+        <input id="q-input" type="search" placeholder="Cerca titolo (es. Ferrari, AAPL, oro)" aria-label="Cerca un titolo" autocomplete="off" enterkeyhint="search">
+        <ul class="rows q-results" id="q-results" hidden></ul>
+      </div>
       <p class="meta" id="mk-meta"></p>
+      <h2>⭐ Preferiti</h2>
+      <ul class="rows" id="mk-favs"></ul>
       <h2>Indici principali</h2>
       <div class="grid" id="mk-indices"></div>
       <h2>Valute, materie prime, tassi</h2>
@@ -59,8 +66,8 @@
         </div>
       </div>
       <div class="cols">
-        <div><h2 class="up">▲ Migliori titoli mondiali</h2><ul class="rows" id="mk-gainers"></ul></div>
-        <div><h2 class="down">▼ Peggiori titoli mondiali</h2><ul class="rows" id="mk-losers"></ul></div>
+        <div><h2 class="up">▲ Migliori azioni mondiali</h2><ul class="rows" id="mk-gainers"></ul></div>
+        <div><h2 class="down">▼ Peggiori azioni mondiali</h2><ul class="rows" id="mk-losers"></ul></div>
       </div>
       <h2 id="mk-country-title"></h2>
       <ul class="rows" id="mk-country"></ul>
@@ -91,7 +98,10 @@
     <div class="dt-wrap">
       <header class="dt-head">
         <button class="ghost" id="dt-back" aria-label="Chiudi">← Indietro</button>
-        <button class="ghost" id="dt-ask">✨ Chiedi a Claude</button>
+        <span class="dt-actions">
+          <button class="ghost" id="dt-fav" aria-pressed="false">☆ Preferito</button>
+          <button class="ghost" id="dt-ask">✨ Chiedi a Claude</button>
+        </span>
       </header>
       <h2 id="dt-name" class="dt-name"></h2>
       <p class="meta" id="dt-sym"></p>

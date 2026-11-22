@@ -131,3 +131,18 @@ body.dt-open { overflow: hidden; }
 .dt-table th, .dt-table td { padding: 7px 10px; text-align: right; border-top: 1px solid var(--line); white-space: nowrap; }
 .dt-table th { border-top: 0; color: var(--muted); font-weight: 600; font-size: 12.5px; }
 .dt-table th:first-child, .dt-table td:first-child { text-align: left; }
+
+/* Ricerca e preferiti */
+.icon-btn { margin-left: auto; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; width: 38px; height: 36px; cursor: pointer; font-size: 16px; }
+.qsearch { position: relative; margin: 4px 0 8px; }
+.qsearch input { width: 100%; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-size: 16px; }
+.qsearch input:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.q-results { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 6; max-height: min(65vh, 520px); overflow-y: auto; box-shadow: 0 12px 32px rgb(0 0 0 / .18); }
+.q-results .empty { display: block; }
+.rows li.has-star { grid-template-columns: auto 1fr auto auto; }
+.star { border: 0; background: transparent; font-size: 18px; line-height: 1; padding: 4px; cursor: pointer; color: var(--muted); }
+.star[aria-pressed="true"] { color: #f59e0b; }
+.rows .grp { color: var(--muted); font-size: 11.5px; }
+.dt-actions { display: flex; gap: 8px; }
+#dt-fav[aria-pressed="true"] { color: #f59e0b; border-color: #f59e0b; }
+@media (max-width: 380px) { .dt-head .ghost { padding: 7px 9px; font-size: 14px; } }

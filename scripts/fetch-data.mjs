@@ -104,25 +104,18 @@ async function chart(symbol, range, interval) {
   } catch { return null; }
 }
 
-async function history(symbol) {
-  const out = {};
-  for (const [key, [range, interval]] of Object.entries(SERIES)) {
-    out[key] = await chart(symbol, range, interval);
-    await sleep(150);
-  }
-  return out;
-}
+const DAY_REFRESH_MS = 6 * 3600 * 1000; // serie giornaliera/settimanale: aggiornate ogni 6 ore
 
-function summarize(symbol, h) {
-  const meta = h.day?.meta ?? h.hour?.meta ?? h.week?.meta;
-  const daily = h.day?.pts ?? [];
+function summarize(symbol, meta, daily) {
   if (!meta || !daily.length) return null;
   const price = meta.regularMarketPrice ?? daily.at(-1)[1];
   const lastDay = new Date((meta.regularMarketTime ?? daily.at(-1)[0]) * 1000).toISOString().slice(0, 10);
   const prior = daily.filter(([t]) => new Date(t * 1000).toISOString().slice(0, 10) < lastDay);
   const prev = meta.previousClose ?? prior.at(-1)?.[1] ?? meta.chartPreviousClose;
   const pct = (a, b) => (a != null && b ? ((a - b) / b) * 100 : null);
-  const ref = (days) => daily.findLast(([t]) => t <= daily.at(-1)[0] - days * 86400)?.[1];
+  const now = meta.regularMarketTime ?? daily.at(-1)[0];
+  const ref = (days) => daily.findLast(([t]) => t <= now - days * 86400)?.[1];
+  const spark = [...prior.slice(-22).map((p) => p[1]), price];
   return {
     symbol,
     name: meta.shortName || meta.longName || symbol,
@@ -140,13 +133,16 @@ function summarize(symbol, h) {
     high52: meta.fiftyTwoWeekHigh, low52: meta.fiftyTwoWeekLow,
     volume: meta.regularMarketVolume,
     time: meta.regularMarketTime ? new Date(meta.regularMarketTime * 1000).toISOString() : null,
-    spark: daily.slice(-23).map((p) => p[1]),
+    spark,
   };
 }
 
+const groupOf = new Map();
+for (const [k, g] of Object.entries(config.catalog ?? {})) for (const sym of g.symbols) if (!groupOf.has(sym)) groupOf.set(sym, k);
 const allSymbols = [...new Set([
   ...config.globalIndices, ...config.macro, ...config.globalStocks,
   ...Object.values(config.countries).flatMap((c) => [c.index, ...c.stocks]),
+  ...Object.values(config.catalog ?? {}).flatMap((g) => g.symbols),
 ])];
 
 await mkdir(join(OUT, "hist"), { recursive: true });
@@ -171,26 +167,36 @@ for (const [code, c] of Object.entries(config.countries)) {
 // Mercati
 const prevMarkets = await previous("data/markets.json");
 const prevQuotes = new Map((prevMarkets?.quotes ?? []).map((q) => [q.symbol, q]));
-let fresh = 0, reused = 0;
+let fresh = 0, reused = 0, dayCalls = 0;
 const quotes = (await pool(allSymbols, 2, async (sym) => {
-  const h = await history(sym);
-  const file = join(OUT, "hist", `${fileFor(sym)}.json`);
-  const q = summarize(sym, h);
-  if (q && h.hour && h.week) {
-    fresh++;
-    await writeFile(file, JSON.stringify({ symbol: sym, updated, tz: h.day.meta.gmtoffset ?? 0, hour: h.hour.pts, day: h.day.pts, week: h.week.pts }));
-    return q;
-  }
-  // Fallback: ultimi dati pubblicati, integrati con le serie scaricate ora
   const old = await previous(`data/hist/${fileFor(sym)}.json`);
-  const merged = { symbol: sym, updated: old?.updated ?? updated, tz: h.day?.meta.gmtoffset ?? old?.tz ?? 0,
-    hour: h.hour?.pts ?? old?.hour ?? [], day: h.day?.pts ?? old?.day ?? [], week: h.week?.pts ?? old?.week ?? [] };
-  if (merged.day.length || merged.hour.length) await writeFile(file, JSON.stringify(merged));
-  const pq = q ?? prevQuotes.get(sym);
-  if (pq) { reused++; return { ...pq, stale: !q }; }
+  const needDay = !old?.day?.length || !old.dayUpdated || Date.now() - Date.parse(old.dayUpdated) > DAY_REFRESH_MS;
+  const hour = await chart(sym, ...SERIES.hour);
+  await sleep(120);
+  let day = null, week = null;
+  if (needDay) {
+    dayCalls++;
+    day = await chart(sym, ...SERIES.day); await sleep(120);
+    week = await chart(sym, ...SERIES.week); await sleep(120);
+  }
+  const merged = {
+    symbol: sym,
+    tz: (hour ?? day)?.meta.gmtoffset ?? old?.tz ?? 0,
+    updated: hour ? updated : old?.updated ?? null,
+    dayUpdated: day && week ? updated : old?.dayUpdated ?? null,
+    hour: hour?.pts ?? old?.hour ?? [],
+    day: day?.pts ?? old?.day ?? [],
+    week: week?.pts ?? old?.week ?? [],
+  };
+  if (merged.day.length || merged.hour.length) await writeFile(join(OUT, "hist", `${fileFor(sym)}.json`), JSON.stringify(merged));
+  const q = summarize(sym, hour?.meta ?? day?.meta, merged.day);
+  const group = groupOf.get(sym);
+  if (q) { fresh++; return { ...q, group }; }
+  const pq = prevQuotes.get(sym);
+  if (pq) { reused++; return { ...pq, group, stale: true }; }
   return null;
 })).filter(Boolean);
 
 await writeFile(join(OUT, "markets.json"), JSON.stringify({ updated, quotes }));
-console.log(`markets: ${quotes.length}/${allSymbols.length} simboli (aggiornati ${fresh}, da pubblicazione precedente ${reused})`);
+console.log(`markets: ${quotes.length}/${allSymbols.length} simboli (aggiornati ${fresh}, da pubblicazione precedente ${reused}, serie giornaliere/settimanali scaricate ${dayCalls})`);
 if (!fresh) console.log("::warning::Nessun simbolo aggiornato da Yahoo Finance: pubblicati gli ultimi dati disponibili.");

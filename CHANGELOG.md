@@ -5,6 +5,17 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.2.0] - 2026-11-22
+
+### Aggiunto
+- **Ricerca titoli**: barra di ricerca nella sezione Mercati (e pulsante 🔍 in alto, da qualsiasi sezione) per nome, simbolo, borsa o paese, anche con termini in italiano (es. "oro", "petrolio", "Ferrari"). Invio apre il primo risultato.
+- **Preferiti**: stella ☆ nei risultati di ricerca e nella scheda del titolo; sezione "⭐ Preferiti" in cima ai Mercati. Salvati nel browser; inclusi nel contesto inviato a Claude.
+- Catalogo esteso a **461 simboli**: principali azioni di Stati Uniti, Italia (FTSE MIB), Germania (DAX), Francia (CAC 40), Regno Unito, Spagna, Svizzera, Paesi Bassi, Nord Europa, Giappone, Cina/Hong Kong, India, Brasile, Canada, Australia, Corea, Taiwan, più indici, materie prime, valute, cripto ed ETF.
+
+### Modificato
+- "Migliori/peggiori azioni mondiali" calcolati su tutte le azioni del catalogo.
+- Scaricamento incrementale: serie oraria a ogni aggiornamento, serie giornaliera e settimanale ogni 6 ore, per ridurre le richieste a Yahoo Finance.
+
 ## [1.1.0] - 2026-11-22
 
 ### Aggiunto
@@ -35,7 +46,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.1.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/RickBortCost/BortEconomy/releases/tag/v1.0.0
