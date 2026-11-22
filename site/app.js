@@ -303,6 +303,30 @@ async function ask(text) {
   }
 }
 
+// ---------------- tema ----------------
+const THEMES = { auto: ["🌓", "automatico (sistema)"], light: ["☀️", "chiaro"], dark: ["🌙", "scuro"] };
+const darkMQ = matchMedia("(prefers-color-scheme: dark)");
+function applyTheme(t) {
+  if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+  const dark = t === "dark" || (t === "auto" && darkMQ.matches);
+  document.querySelector('meta[name="theme-color"]').content = dark ? "#111827" : "#ffffff";
+  const b = $("#theme-btn");
+  b.textContent = THEMES[t][0];
+  b.title = b.ariaLabel = `Tema: ${THEMES[t][1]} – tocca per cambiare`;
+}
+function initTheme() {
+  let t = store.get("theme", "auto"); if (!THEMES[t]) t = "auto";
+  applyTheme(t);
+  $("#theme-btn").addEventListener("click", () => {
+    const order = Object.keys(THEMES);
+    t = order[(order.indexOf(t) + 1) % order.length];
+    store.set("theme", t === "auto" ? null : t);
+    applyTheme(t);
+  });
+  darkMQ.addEventListener("change", () => applyTheme(t));
+}
+
 // ---------------- UI ----------------
 function setTab(t) {
   $$(".tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === t));
@@ -320,6 +344,7 @@ function seg(id, onChange) {
 }
 
 async function init() {
+  initTheme();
   state.config = await getJSON("config.json");
   if (!state.config.countries[state.country]) state.country = "IT";
   const sel = $("#country");

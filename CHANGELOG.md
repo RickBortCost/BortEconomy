@@ -5,6 +5,16 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.3.0] - 2026-11-22
+
+### Aggiunto
+- **Tema scuro**: pulsante nella barra superiore che alterna Automatico (🌓, segue il sistema) → Chiaro (☀️) → Scuro (🌙). Scelta salvata nel browser e applicata prima del caricamento della pagina (nessun lampo di colore); aggiorna anche il colore della barra del browser su mobile e i controlli nativi.
+
+### Modificato
+- Colori del tema centralizzati in variabili (testo su pulsanti, ombre, stella preferiti) per un contrasto corretto in entrambi i temi.
+- Tooltip del grafico leggibile in tema scuro.
+- Su schermi stretti: pulsanti della scheda titolo compatti (solo icone) e nome dell'app nascosto nella barra superiore.
+
 ## [1.2.0] - 2026-11-22
 
 ### Aggiunto
@@ -46,7 +56,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.2.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.0...v1.0.1
