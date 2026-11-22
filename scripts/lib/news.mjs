@@ -1,5 +1,6 @@
 // Notizie da Google News RSS: parsing, deduplica e filtro sugli ultimi 7 giorni.
 import { get, pool } from "./http.mjs";
+import { isFinance } from "./finance-filter.mjs";
 
 const WEEK_MS = 7 * 24 * 3600 * 1000;
 
@@ -26,20 +27,34 @@ function parseRss(xml, lang) {
   }).filter((n) => n.title && n.date);
 }
 
-export async function buildNews(feeds, limit = 250) {
+// finance = true: solo notizie di economia, finanza e mercati (filtro di pertinenza sul titolo e sulla fonte)
+export async function buildNews(feeds, limit = 250, { finance = false } = {}) {
   const lists = await pool(feeds, 4, async (f) => parseRss(await get(feedUrl(f)), f.lang));
-  const seen = new Set();
+  const seen = new Set(), perSource = new Map();
   const now = Date.now();
   return lists.flat()
     .filter((n) => now - new Date(n.date) < WEEK_MS)
+    .filter((n) => !finance || isFinance(n))
     .sort((a, b) => b.date.localeCompare(a.date))
     .filter((n) => {
       const key = n.title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim().slice(0, 80);
       if (seen.has(key)) return false;
       seen.add(key); return true;
     })
+    .filter((n) => { // al massimo 12 notizie per fonte: più varietà
+      if (!finance) return true;
+      const c = (perSource.get(n.source) ?? 0) + 1; perSource.set(n.source, c);
+      return c <= 12;
+    })
     .slice(0, limit);
 }
+
+// Ricerca aggiuntiva su borsa e mercati per lingua (compensa le notizie generiche scartate dal filtro)
+export const MARKET_Q = {
+  it: "\"Piazza Affari\" OR \"Borsa di Milano\" OR \"titoli azionari\" OR \"mercati finanziari\" OR spread OR BCE", en: "\"stock market\" OR stocks OR earnings OR \"bond yields\"",
+  de: "Börse OR Aktien OR Anleihen OR Leitzins", fr: "Bourse OR actions OR \"marchés financiers\"", es: "Bolsa OR acciones OR \"mercados financieros\"",
+  pt: "Bolsa OR ações OR \"mercado financeiro\"", ja: "株式市場 OR 株価 OR 日銀", zh: "股市 OR 股票 OR 央行", ko: "증시 OR 주식 OR 한국은행",
+};
 
 // Lingua/edizione di Google News per regione di quotazione
 const EDITION = {
