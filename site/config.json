@@ -1,0 +1,46 @@
+{
+  "world": {
+    "name": "Mondo",
+    "flag": "🌍",
+    "feeds": [
+      { "lang": "it", "url": "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=it&gl=IT&ceid=IT:it" },
+      { "lang": "it", "q": "economia mondiale OR mercati globali OR banche centrali", "hl": "it", "gl": "IT", "ceid": "IT:it" },
+      { "lang": "en", "url": "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-US&gl=US&ceid=US:en" },
+      { "lang": "en", "q": "global economy OR world markets OR central banks", "hl": "en-US", "gl": "US", "ceid": "US:en" }
+    ]
+  },
+  "countries": {
+    "IT": { "name": "Italia", "flag": "🇮🇹", "hl": "it", "gl": "IT", "ceid": "IT:it", "q": "economia italiana OR Borsa di Milano OR Piazza Affari", "qit": "economia Italia",
+            "index": "FTSEMIB.MI", "stocks": ["ENI.MI", "ISP.MI", "UCG.MI", "ENEL.MI", "RACE.MI", "STLAM.MI", "G.MI", "STMMI.MI", "LDO.MI", "PRY.MI"] },
+    "US": { "name": "Stati Uniti", "flag": "🇺🇸", "hl": "en-US", "gl": "US", "ceid": "US:en", "q": "US economy OR Wall Street OR Federal Reserve", "qit": "economia Stati Uniti OR Wall Street OR Fed",
+            "index": "^GSPC", "stocks": ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA", "JPM", "XOM", "BRK-B"] },
+    "GB": { "name": "Regno Unito", "flag": "🇬🇧", "hl": "en-GB", "gl": "GB", "ceid": "GB:en", "q": "UK economy OR FTSE 100 OR Bank of England", "qit": "economia Regno Unito OR Bank of England",
+            "index": "^FTSE", "stocks": ["SHEL.L", "AZN.L", "HSBA.L", "ULVR.L", "BP.L", "RIO.L", "GSK.L", "BARC.L", "LLOY.L", "RR.L"] },
+    "DE": { "name": "Germania", "flag": "🇩🇪", "hl": "de", "gl": "DE", "ceid": "DE:de", "q": "Wirtschaft Deutschland OR DAX OR Konjunktur", "qit": "economia Germania OR DAX",
+            "index": "^GDAXI", "stocks": ["SAP.DE", "SIE.DE", "ALV.DE", "DTE.DE", "MBG.DE", "BMW.DE", "VOW3.DE", "BAS.DE", "DBK.DE", "RHM.DE"] },
+    "FR": { "name": "Francia", "flag": "🇫🇷", "hl": "fr", "gl": "FR", "ceid": "FR:fr", "q": "économie France OR CAC 40 OR Bourse de Paris", "qit": "economia Francia OR CAC 40",
+            "index": "^FCHI", "stocks": ["MC.PA", "OR.PA", "RMS.PA", "TTE.PA", "SAN.PA", "AIR.PA", "BNP.PA", "SU.PA", "AI.PA", "KER.PA"] },
+    "ES": { "name": "Spagna", "flag": "🇪🇸", "hl": "es", "gl": "ES", "ceid": "ES:es", "q": "economía España OR IBEX 35", "qit": "economia Spagna OR Ibex",
+            "index": "^IBEX", "stocks": ["ITX.MC", "SAN.MC", "IBE.MC", "BBVA.MC", "TEF.MC", "REP.MC", "CABK.MC", "AMS.MC"] },
+    "CH": { "name": "Svizzera", "flag": "🇨🇭", "hl": "de", "gl": "CH", "ceid": "CH:de", "q": "Wirtschaft Schweiz OR SMI Börse", "qit": "economia Svizzera",
+            "index": "^SSMI", "stocks": ["NESN.SW", "ROG.SW", "NOVN.SW", "UBSG.SW", "ZURN.SW", "ABBN.SW", "CFR.SW"] },
+    "JP": { "name": "Giappone", "flag": "🇯🇵", "hl": "ja", "gl": "JP", "ceid": "JP:ja", "q": "日本経済 OR 日経平均 OR 日銀", "qit": "economia Giappone OR Nikkei",
+            "index": "^N225", "stocks": ["7203.T", "6758.T", "9984.T", "8306.T", "6861.T", "9983.T", "8035.T", "7974.T"] },
+    "CN": { "name": "Cina", "flag": "🇨🇳", "hl": "zh-CN", "gl": "CN", "ceid": "CN:zh-Hans", "q": "中国经济 OR 股市", "qit": "economia Cina",
+            "index": "000001.SS", "stocks": ["0700.HK", "9988.HK", "1398.HK", "0941.HK", "3690.HK", "1211.HK", "600519.SS", "300750.SZ"] },
+    "IN": { "name": "India", "flag": "🇮🇳", "hl": "en-IN", "gl": "IN", "ceid": "IN:en", "q": "Indian economy OR Sensex OR RBI", "qit": "economia India",
+            "index": "^BSESN", "stocks": ["RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "ICICIBANK.NS", "BHARTIARTL.NS", "ITC.NS"] },
+    "BR": { "name": "Brasile", "flag": "🇧🇷", "hl": "pt-BR", "gl": "BR", "ceid": "BR:pt-419", "q": "economia brasileira OR Ibovespa", "qit": "economia Brasile",
+            "index": "^BVSP", "stocks": ["PETR4.SA", "VALE3.SA", "ITUB4.SA", "BBDC4.SA", "ABEV3.SA", "WEGE3.SA"] },
+    "CA": { "name": "Canada", "flag": "🇨🇦", "hl": "en-CA", "gl": "CA", "ceid": "CA:en", "q": "Canada economy OR TSX OR Bank of Canada", "qit": "economia Canada",
+            "index": "^GSPTSE", "stocks": ["RY.TO", "TD.TO", "SHOP.TO", "ENB.TO", "CNR.TO", "BN.TO"] },
+    "AU": { "name": "Australia", "flag": "🇦🇺", "hl": "en-AU", "gl": "AU", "ceid": "AU:en", "q": "Australian economy OR ASX OR RBA", "qit": "economia Australia",
+            "index": "^AXJO", "stocks": ["BHP.AX", "CBA.AX", "CSL.AX", "NAB.AX", "WBC.AX", "FMG.AX"] },
+    "KR": { "name": "Corea del Sud", "flag": "🇰🇷", "hl": "ko", "gl": "KR", "ceid": "KR:ko", "q": "한국 경제 OR 코스피", "qit": "economia Corea del Sud",
+            "index": "^KS11", "stocks": ["005930.KS", "000660.KS", "373220.KS", "005380.KS", "035420.KS"] }
+  },
+  "globalIndices": ["^GSPC", "^IXIC", "^DJI", "^STOXX50E", "^FTSE", "^GDAXI", "^FCHI", "FTSEMIB.MI", "^N225", "^HSI", "000001.SS", "^BSESN", "^BVSP"],
+  "macro": ["EURUSD=X", "GBPUSD=X", "USDJPY=X", "GC=F", "CL=F", "BZ=F", "^TNX", "BTC-USD", "^VIX"],
+  "globalStocks": ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA", "AVGO", "BRK-B", "JPM", "LLY", "V", "WMT", "XOM", "MA", "NFLX", "ORCL", "COST", "TSM",
+                   "ASML.AS", "SAP.DE", "NOVO-B.CO", "MC.PA", "NESN.SW", "SHEL.L", "AZN.L", "7203.T", "005930.KS", "0700.HK", "9988.HK", "RELIANCE.NS", "RACE.MI"]
+}
