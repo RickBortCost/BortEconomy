@@ -5,6 +5,20 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.1.0] - 2026-11-22
+
+### Aggiunto
+- **Dettaglio titolo**: tocca qualsiasi indice, valuta, materia prima o azione per aprire la scheda completa.
+  - Grafico interattivo con granularità **Ore** (1G, 3G, 1S, 1M), **Giorni** (1M, 3M, 6M, 1A, 2A) e **Settimane** (1A, 3A, 5A, 10A), volumi, linea di riferimento e cursore con prezzo, data e variazione (anche al tocco su mobile).
+  - Statistiche: chiusura precedente, min/max del giorno e 52 settimane, volume, variazioni 1 settimana / 1 mese / 1 anno, borsa.
+  - Tabella storico del periodo con chiusura, variazione e volume.
+  - Pulsante "Chiedi a Claude" per l'analisi del titolo; link diretto condivisibile (`#q=SIMBOLO`) e tasto Indietro del browser.
+- Storici per ogni simbolo in `data/hist/` (orario 1 mese, giornaliero 2 anni, settimanale 10 anni).
+
+### Corretto
+- Quotazioni vuote quando aggiornate da GitHub Actions: Yahoo Finance limitava le richieste in parallelo. Ora le richieste sono distribuite nel tempo con backoff, e se un simbolo non si scarica vengono mantenuti gli ultimi dati pubblicati.
+- Simbolo Roche aggiornato (`RO.SW`).
+
 ## [1.0.1] - 2026-11-22
 
 ### Corretto
@@ -21,6 +35,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.1...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/RickBortCost/BortEconomy/releases/tag/v1.0.0

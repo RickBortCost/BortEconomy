@@ -1,3 +1,5 @@
+import { initDetail, openDetail } from "./detail.js";
+
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const store = {
@@ -71,7 +73,7 @@ function bySymbol(sym) { return state.markets?.quotes.find((q) => q.symbol === s
 
 function tiles(symbols) {
   return symbols.map(bySymbol).filter(Boolean).map((q) => `
-    <div class="tile" title="${esc(q.symbol)}">
+    <div class="tile" data-sym="${esc(q.symbol)}" tabindex="0" role="button" title="Dettaglio ${esc(q.name)}">
       <div class="n">${esc(q.name)}</div>
       <div class="p">${nf(q.price, q.price < 10 ? 4 : 2)}</div>
       ${pctHtml(q[state.mkField])}
@@ -81,7 +83,7 @@ function tiles(symbols) {
 
 function rows(quotes) {
   return quotes.map((q) => `
-    <li><div class="nm"><b>${esc(q.name)}</b><small>${esc(q.symbol)}</small></div>
+    <li data-sym="${esc(q.symbol)}" tabindex="0" role="button"><div class="nm"><b>${esc(q.name)}</b><small>${esc(q.symbol)}</small></div>
       <div class="px">${nf(q.price)} <small>${esc(q.currency ?? "")}</small></div>${pctHtml(q[state.mkField])}</li>`).join("")
     || `<li class="empty">Dati non disponibili.</li>`;
 }
@@ -272,6 +274,16 @@ async function init() {
   $("#search").addEventListener("input", (e) => { state.query = e.target.value; state.shown = 40; renderNews(); });
   $("#news-more").addEventListener("click", () => { state.shown += 40; renderNews(); });
 
+  // Dettaglio titoli
+  const openFrom = (e) => {
+    const el = e.target.closest("[data-sym]"); if (!el) return;
+    if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    openDetail(el.dataset.sym, bySymbol(el.dataset.sym));
+  };
+  $("#tab-markets").addEventListener("click", openFrom);
+  $("#tab-markets").addEventListener("keydown", openFrom);
+
   // Claude
   const dlg = $("#settings");
   $("#ai-settings-btn").addEventListener("click", () => dlg.showModal());
@@ -302,6 +314,7 @@ async function init() {
   }).catch(() => {});
   state.markets = await getJSON("data/markets.json").catch(() => null);
   renderMarkets();
+  initDetail({ quoteFor: bySymbol, onAsk: (text) => { setTab("ai"); ask(text); } });
   await renderNews();
 }
 
