@@ -5,6 +5,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.4.1] - 2026-11-22
+
+### Corretto
+- Richieste di aggiunta: un termine ripetuto (es. nel titolo e nel corpo) compare una sola volta nella risposta.
+
 ## [1.4.0] - 2026-11-22
 
 ### Aggiunto
@@ -67,7 +72,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.1.0...v1.2.0
