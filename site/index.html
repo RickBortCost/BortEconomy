@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>BortEconomy</title>
+  <meta name="description" content="News economiche del giorno e della settimana, mercati mondiali e analisi AI con Claude.">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>BortEconomy</span></div>
+    <label class="country">
+      <span class="sr">Paese</span>
+      <select id="country"></select>
+    </label>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="news" aria-selected="true">📰<span>Notizie</span></button>
+    <button role="tab" data-tab="markets">📈<span>Mercati</span></button>
+    <button role="tab" data-tab="ai">✨<span>Claude AI</span></button>
+  </nav>
+
+  <main>
+    <!-- NOTIZIE -->
+    <section id="tab-news" class="panel active">
+      <div class="toolbar">
+        <div class="seg" id="scope">
+          <button data-v="country" class="on">Paese</button>
+          <button data-v="world">Mondo</button>
+        </div>
+        <div class="seg" id="period">
+          <button data-v="day" class="on">Oggi</button>
+          <button data-v="week">Settimana</button>
+        </div>
+        <input id="search" type="search" placeholder="Filtra notizie…" aria-label="Filtra notizie">
+      </div>
+      <p class="meta" id="news-meta"></p>
+      <ul class="news" id="news-list"></ul>
+      <button class="more" id="news-more" hidden>Mostra altre</button>
+    </section>
+
+    <!-- MERCATI -->
+    <section id="tab-markets" class="panel">
+      <p class="meta" id="mk-meta"></p>
+      <h2>Indici principali</h2>
+      <div class="grid" id="mk-indices"></div>
+      <h2>Valute, materie prime, tassi</h2>
+      <div class="grid" id="mk-macro"></div>
+      <div class="toolbar">
+        <div class="seg" id="mk-period">
+          <button data-v="changePct" class="on">Giorno</button>
+          <button data-v="weekPct">Settimana</button>
+        </div>
+      </div>
+      <div class="cols">
+        <div><h2 class="up">▲ Migliori titoli mondiali</h2><ul class="rows" id="mk-gainers"></ul></div>
+        <div><h2 class="down">▼ Peggiori titoli mondiali</h2><ul class="rows" id="mk-losers"></ul></div>
+      </div>
+      <h2 id="mk-country-title"></h2>
+      <ul class="rows" id="mk-country"></ul>
+    </section>
+
+    <!-- CLAUDE -->
+    <section id="tab-ai" class="panel">
+      <div class="ai-head">
+        <p class="meta">Claude analizza le notizie caricate e può cercare sul web informazioni aggiornate.</p>
+        <button class="ghost" id="ai-settings-btn">⚙️ Impostazioni</button>
+      </div>
+      <div class="chips" id="ai-chips">
+        <button data-p="Riassumi le notizie economiche più importanti di oggi per {country} e nel mondo, con i punti chiave.">Riassunto di oggi</button>
+        <button data-p="Fai un'analisi della settimana economica: eventi principali, mercati, banche centrali, con focus su {country}.">Analisi settimana</button>
+        <button data-p="Spiega i principali movimenti di mercato di oggi (migliori e peggiori titoli e indici) e le possibili cause.">Perché i mercati si muovono?</button>
+        <button data-p="Quali sono i principali eventi economici e dati macro attesi nei prossimi giorni rilevanti per {country}? Cerca sul web.">Agenda prossimi giorni</button>
+      </div>
+      <div class="chat" id="chat"></div>
+      <form class="composer" id="composer">
+        <textarea id="prompt" rows="1" placeholder="Chiedi a Claude…" aria-label="Domanda per Claude"></textarea>
+        <button type="submit" id="send">Invia</button>
+      </form>
+    </section>
+  </main>
+
+  <dialog id="settings">
+    <form method="dialog" class="settings">
+      <h3>Collegamento a Claude</h3>
+      <label>Chiave API Anthropic
+        <input id="api-key" type="password" autocomplete="off" placeholder="sk-ant-…">
+      </label>
+      <p class="hint">La chiave resta solo in questo browser (localStorage) e viene inviata direttamente a api.anthropic.com. Usa una chiave con limite di spesa. Creala su console.anthropic.com.</p>
+      <label>Modello
+        <select id="model">
+          <option value="claude-opus-5-5">Claude Opus 5.5 (consigliato)</option>
+          <option value="claude-sonnet-5-5">Claude Sonnet 5.5</option>
+          <option value="claude-haiku-5-5">Claude Haiku 5.5 (economico)</option>
+        </select>
+      </label>
+      <label class="check"><input id="web" type="checkbox" checked> Consenti ricerca web</label>
+      <div class="actions">
+        <button value="clear" class="ghost" id="clear-key">Rimuovi chiave</button>
+        <button value="save" class="primary">Salva</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
