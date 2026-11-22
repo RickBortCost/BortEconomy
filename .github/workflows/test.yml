@@ -1,0 +1,24 @@
+name: Test
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Installa dipendenze e browser
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Controllo sintassi
+        run: for f in scripts/*.mjs scripts/lib/*.mjs site/*.js tests/*.mjs; do node --check "$f"; done
+      - name: Test dell'interfaccia (dati del sito pubblicato)
+        run: npm test

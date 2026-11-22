@@ -208,3 +208,14 @@ body.dt-open { overflow: hidden; }
   .mt-table small { display: none; }
 }
 @media (max-width: 420px) { #mt-perf td:nth-child(6), #mt-perf ~ thead th:nth-child(6), .mt-table thead th:nth-child(6) { display: none; } }
+
+/* Stato del mercato */
+.mdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; background: var(--muted); opacity: .55; }
+.mdot.open { background: var(--up); opacity: 1; }
+.mdot.pre, .mdot.post { background: var(--star); opacity: .9; }
+.mstate { color: var(--muted); }
+.mstate.open { color: var(--up); }
+
+/* Offline */
+.offline-bar { display: none; background: var(--star); color: #111; text-align: center; font-size: 13px; padding: 6px 12px; }
+body.offline .offline-bar { display: block; }

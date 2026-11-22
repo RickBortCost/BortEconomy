@@ -29,11 +29,17 @@ Dal sito: cerca il titolo, aprilo e tocca **➕ Aggiungi al monitoraggio** (oppu
 
 In **Claude AI → ⚙️ Impostazioni** inserisci una chiave API Anthropic (console.anthropic.com). La chiave resta nel `localStorage` del browser e viene inviata solo a `api.anthropic.com`. Usa una chiave con limite di spesa. Modelli: Opus 5.5 (predefinito), Sonnet 5.5, Haiku 5.5.
 
+## Affidabilità
+
+- `data/health.json` riporta l'esito di ogni aggiornamento; se è degradato si apre automaticamente una issue di avviso (chiusa da sola al ritorno alla normalità).
+- `npm test` esegue i test dell'interfaccia con Playwright (scarica dal sito pubblicato i dati che mancano in `site/data`); in CI girano su ogni pull request.
+
 ## Sviluppo locale
 
 ```bash
-node scripts/fetch-data.mjs
-cd site && python3 -m http.server 8000
+npm ci
+node scripts/fetch-data.mjs     # oppure: npm test (usa i dati del sito pubblicato)
+npm run serve                   # http://localhost:8000
 ```
 
 Paesi, titoli monitorati (`catalog`) e sinonimi di ricerca (`aliases`) sono configurabili in `site/config.json`.

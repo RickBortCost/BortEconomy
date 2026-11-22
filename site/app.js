@@ -6,6 +6,17 @@ const store = {
   get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
   set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
 };
+// Chiave API di Claude: salvata nel browser oppure solo per la sessione corrente (sessionStorage)
+const apiKey = {
+  get() { try { return sessionStorage.getItem("apiKey") || localStorage.getItem("apiKey") || ""; } catch { return ""; } },
+  persistent() { try { return !!localStorage.getItem("apiKey"); } catch { return false; } },
+  set(v, persist) {
+    try {
+      localStorage.removeItem("apiKey"); sessionStorage.removeItem("apiKey");
+      if (v) (persist ? localStorage : sessionStorage).setItem("apiKey", v);
+    } catch {}
+  },
+};
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const DAY = 864e5;
 
@@ -128,10 +139,26 @@ function requestSearch(term) {
   window.open(issueUrl(`Aggiungi titolo: ${term}`, "Richiesta di ricerca inviata da BortEconomy: il workflow risponderà con i titoli trovati su Yahoo Finance."), "_blank", "noopener");
 }
 
+// Mercato aperto/chiuso: stato rilevato all'ultimo aggiornamento se recente, altrimenti calcolato
+// dall'orario della seduta (stessa fascia oraria nei giorni feriali, nel fuso della borsa). Festività non considerate.
+function marketStatus(q) {
+  if (!q || q.dir) return null;
+  if (q.type === "CRYPTOCURRENCY") return "open";
+  const st = q.f?.state, age = Date.now() - Date.parse(state.markets?.updated ?? 0);
+  if (st && age < 45 * 60e3) return st === "REGULAR" ? "open" : st === "PRE" || st === "PREPRE" ? "pre" : st === "POST" || st === "POSTPOST" ? "post" : "closed";
+  const s = q.session; if (!s) return null;
+  const now = Date.now() / 1000, len = s[1] - s[0];
+  const off = (((now - s[0]) % 86400) + 86400) % 86400;
+  const dow = new Date((now + (s[2] ?? 0)) * 1000).getUTCDay();
+  return off <= len && dow !== 0 && dow !== 6 ? "open" : "closed";
+}
+const STATUS_LABEL = { open: "aperto", closed: "chiuso", pre: "pre-apertura", post: "after-hours" };
+const statusDot = (q) => { const m = marketStatus(q); return m ? `<i class="mdot ${m}" title="Mercato ${STATUS_LABEL[m]}"></i>` : ""; };
+
 function tiles(symbols) {
   return symbols.map(bySymbol).filter(Boolean).map((q) => `
     <div class="tile" data-sym="${esc(q.symbol)}" tabindex="0" role="button" title="Dettaglio ${esc(q.name)}">
-      <div class="n">${esc(q.name)}</div>
+      <div class="n">${statusDot(q)}${esc(q.name)}</div>
       <div class="p">${nf(q.price, q.price < 10 ? 4 : 2)}</div>
       ${pctHtml(q[state.mkField])}
       ${spark(q.spark, (q[state.mkField] ?? 0) >= 0)}
@@ -141,7 +168,7 @@ function tiles(symbols) {
 function rows(quotes, { star = false, empty = "Dati non disponibili.", group = false, field = state.mkField } = {}) {
   return quotes.map((q) => `
     <li data-sym="${esc(q.symbol)}" tabindex="0" role="button" class="${star ? "has-star" : ""}">${star ? starBtn(q.symbol) : ""}
-      <div class="nm"><b>${esc(q.name)}</b><small>${esc(q.symbol)}${group ? ` · <span class="grp">${esc(groupLabel(q))}</span>` : ""}${q.dir
+      <div class="nm"><b>${esc(q.name)}</b><small>${statusDot(q)}${esc(q.symbol)}${group ? ` · <span class="grp">${esc(groupLabel(q))}</span>` : ""}${q.dir
         ? ` <span class="tag ${pending.get(q.symbol) ? "wait" : "new"}">${pending.get(q.symbol) ? "richiesto" : "non monitorato"}</span>` : ""}</small></div>
       <div class="px">${nf(q.price, q.price < 10 ? 4 : 2)} <small>${esc(q.currency ?? "")}</small></div>${pctHtml(q[field])}</li>`).join("")
     || `<li class="empty">${empty}</li>`;
@@ -385,7 +412,7 @@ function addMsg(cls, html) {
 }
 
 async function ask(text) {
-  const key = store.get("apiKey", "");
+  const key = apiKey.get();
   if (!key) { $("#settings").showModal(); return; }
   if (chat.busy || !text.trim()) return;
   chat.busy = true; $("#send").disabled = true;
@@ -498,6 +525,9 @@ function seg(id, onChange) {
 
 async function init() {
   initTheme();
+  if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+  const offline = () => document.body.classList.toggle("offline", !navigator.onLine);
+  addEventListener("online", offline); addEventListener("offline", offline); offline();
   state.config = await getJSON("config.json");
   if (!state.config.countries[state.country]) state.country = "IT";
   const sel = $("#country");
@@ -538,14 +568,15 @@ async function init() {
   $("#ai-settings-btn").addEventListener("click", () => dlg.showModal());
   dlg.addEventListener("close", () => {
     if (dlg.returnValue === "save") {
-      store.set("apiKey", $("#api-key").value.trim() || null);
+      apiKey.set($("#api-key").value.trim(), $("#remember-key").checked);
       store.set("model", $("#model").value);
       store.set("web", $("#web").checked ? "1" : "0");
     } else if (dlg.returnValue === "clear") {
-      store.set("apiKey", null); $("#api-key").value = "";
+      apiKey.set(null); $("#api-key").value = "";
     }
   });
-  $("#api-key").value = store.get("apiKey", "");
+  $("#api-key").value = apiKey.get();
+  $("#remember-key").checked = !apiKey.get() || apiKey.persistent();
   $("#model").value = store.get("model", "claude-opus-5-5");
   $("#web").checked = store.get("web", "1") === "1";
   $("#ai-chips").addEventListener("click", (e) => {
@@ -556,7 +587,7 @@ async function init() {
   ta.addEventListener("input", () => { ta.style.height = "auto"; ta.style.height = `${ta.scrollHeight}px`; });
   ta.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#composer").requestSubmit(); } });
   $("#composer").addEventListener("submit", (e) => { e.preventDefault(); const v = ta.value; ta.value = ""; ta.style.height = "auto"; ask(v); });
-  if (!store.get("apiKey", "")) addMsg("bot", "<p>Per usare Claude inserisci la tua chiave API Anthropic in <b>⚙️ Impostazioni</b>.</p>");
+  if (!apiKey.get()) addMsg("bot", "<p>Per usare Claude inserisci la tua chiave API Anthropic in <b>⚙️ Impostazioni</b>.</p>");
 
   getJSON("data/meta.json").then((m) => {
     $("#foot").innerHTML = `BortEconomy <a href="https://github.com/RickBortCost/BortEconomy/releases/tag/v${esc(m.version)}" target="_blank" rel="noopener">v${esc(m.version)}</a> · Dati: Google News, Yahoo Finance · Non è consulenza finanziaria`;
@@ -576,7 +607,7 @@ async function init() {
       const eur = inCur(q.price, "EUR");
       return [[`Prezzo €/${unitShort(m)}`, money(eur, "EUR")], ["€ al grammo", money(eur == null ? null : eur / m.grams, "EUR", m.industrial ? 4 : undefined)], ["$ al grammo", money(q.price / m.grams, "USD", m.industrial ? 4 : undefined)]]; },
     askPrompt: (q) => { const m = metal(q.symbol); return m ? `Analizza il mercato di ${m.name.toLowerCase()} (${q.symbol}): prezzo attuale ${nf(q.price)} USD/${unitShort(m)}, variazioni giorno ${nf(q.changePct)}%, settimana ${nf(q.weekPct)}%, mese ${nf(q.monthPct)}%, anno ${nf(q.yearPct)}%. Spiega i fattori che lo muovono (tassi reali, dollaro, banche centrali, domanda industriale e da investimento), livelli tecnici e notizie recenti. Cerca sul web.` : null; },
-    quoteFor: bySymbol, onAsk: (text) => { setTab("ai"); ask(text); }, favs,
+    quoteFor: bySymbol, marketStatus: (q) => { const m = marketStatus(q); return m && STATUS_LABEL[m]; }, onAsk: (text) => { setTab("ai"); ask(text); }, favs,
     onAdd: (sym) => { requestAdd(sym); renderSearch(); }, pendingSince: (sym) => pending.get(sym), loadDirectory });
   const qi = $("#q-input");
   qi.addEventListener("input", renderSearch);

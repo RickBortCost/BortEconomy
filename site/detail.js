@@ -181,10 +181,19 @@ function render() {
   $("#dt-hist-more").hidden = noHist || st.showAll || rows.length <= 30;
 }
 
+// Storici in formato compatto (colonne + timestamp incrementali) o classico [[t, c, v], …]
+function decodeSeries(s) {
+  if (!s) return [];
+  if (Array.isArray(s)) return s;
+  let t = 0;
+  return s.t.map((d, i) => { t += d; return s.v?.[i] ? [t, s.c[i], s.v[i]] : [t, s.c[i]]; });
+}
+
 export async function loadHist(sym) {
   if (!cache.has(sym)) {
     const file = sym.replace(/[^A-Za-z0-9.-]/g, "_");
-    cache.set(sym, fetch(`data/hist/${file}.json?t=${Math.floor(Date.now() / 300000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    cache.set(sym, fetch(`data/hist/${file}.json?t=${Math.floor(Date.now() / 300000)}`).then((r) => (r.ok ? r.json() : null))
+      .then((h) => h && { ...h, hour: decodeSeries(h.hour), day: decodeSeries(h.day), week: decodeSeries(h.week) }).catch(() => null));
   }
   return cache.get(sym);
 }
@@ -206,7 +215,9 @@ export async function openDetail(sym, quote) {
   $("#dt-name").textContent = q.longName || q.name || sym;
   $("#dt-sym").textContent = [sym, q.type === "INDEX" ? "Indice" : q.type === "CURRENCY" ? "Valuta" : q.type === "FUTURE" ? "Future" : q.type === "CRYPTOCURRENCY" ? "Cripto" : null].filter(Boolean).join(" · ");
   $("#dt-price").innerHTML = `${nf(q.price, dec(q.price))} <small>${esc(q.currency ?? "")}</small> ${pct(q.changePct)}`;
-  $("#dt-time").textContent = q.time ? `Ultima quotazione: ${new Date(q.time).toLocaleString("it-IT")}${q.stale ? " (dato non aggiornato)" : ""} · dati ritardati` : "";
+  const ms = st.marketStatus?.(q);
+  $("#dt-time").innerHTML = (ms ? `<span class="mstate ${ms === "aperto" ? "open" : ""}">● Mercato ${ms}</span> · ` : "")
+    + (q.time ? `Ultima quotazione: ${new Date(q.time).toLocaleString("it-IT")}${q.stale ? " (dato non aggiornato)" : ""} · dati ritardati` : "");
   $("#detail").hidden = false;
   document.body.classList.add("dt-open");
   $("#dt-chart").innerHTML = '<div class="empty">Caricamento…</div>';
@@ -222,7 +233,8 @@ export function closeDetail(fromPop = false) {
   if (!fromPop && location.hash.startsWith("#q=")) history.back();
 }
 
-export function initDetail({ onAsk, quoteFor, favs, onAdd, pendingSince, loadDirectory, extraStats, askPrompt }) {
+export function initDetail({ onAsk, quoteFor, favs, onAdd, pendingSince, loadDirectory, extraStats, askPrompt, marketStatus }) {
+  st.marketStatus = marketStatus;
   st.extraStats = extraStats; st.askPrompt = askPrompt;
   st.onAsk = onAsk; st.favs = favs; st.onAdd = onAdd; st.pendingSince = pendingSince;
   $("#dt-fav").addEventListener("click", () => { favs.toggle(st.sym); setFavBtn(); });

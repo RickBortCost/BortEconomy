@@ -1,6 +1,6 @@
 {
   "name": "borteconomy",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "description": "News economiche, mercati mondiali e analisi AI con Claude",
   "type": "module",
@@ -9,9 +9,13 @@
     "serve": "python3 -m http.server 8000 -d site",
     "release:patch": "node scripts/bump.mjs patch",
     "release:minor": "node scripts/bump.mjs minor",
-    "release:major": "node scripts/bump.mjs major"
+    "release:major": "node scripts/bump.mjs major",
+    "test": "node tests/fixtures.mjs && node tests/smoke.mjs"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
   }
 }
