@@ -15,6 +15,7 @@ const terms = [title.replace(/^[^:]*:/, ""), ...body.split(/\r?\n/)]
   .flatMap((l) => l.split(/[,;]/))
   .map((t) => t.replace(/[`*_<>]/g, "").trim())
   .filter((t) => t && !t.startsWith("#") && !/^(-{2,}|richiesta|inviata|aggiungi)/i.test(t) && t.length <= 60)
+  .filter((t, i, all) => all.findIndex((x) => x.toLowerCase() === t.toLowerCase()) === i) // senza ripetizioni
   .slice(0, 10);
 
 async function valid(sym) {
