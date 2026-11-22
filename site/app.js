@@ -1,7 +1,7 @@
 import { initDetail, openDetail, loadHist } from "./detail.js";
 import { initPortfolio, renderPortfolio, openPositionForm, openAlertForm, positionWeights, positionsValue, donut } from "./portfolio.js";
 import { initLab, renderComposition, renderLab } from "./lab.js";
-import { PROVIDERS, aiSettings, errorText } from "./ai.js";
+import { PROVIDERS, aiSettings, errorText, server } from "./ai.js";
 import { vault, PROTECTED } from "./vault.js";
 import { pls } from "./profiles.js";
 import { initSecurity, confirmShare, askPassword } from "./security.js";
@@ -446,16 +446,16 @@ function addMsg(cls, html) {
 async function ask(text) {
   const p = aiSettings.provider(), P = PROVIDERS[p];
   if (vault.locked()) { document.querySelector("#sec-btn").click(); return; }
-  const key = aiSettings.key(p);
-  if (!key) { openSettings(p); return; }
+  const acc = aiSettings.access(p);
+  if (!acc) { openSettings(p); return; }
   if (chat.busy || !text.trim()) return;
   chat.busy = true; $("#send").disabled = true;
   addMsg("user", esc(text).replace(/\n/g, "<br>"));
   const bot = addMsg("bot", `<span class="ai-who">${esc(P.label)}</span><span class="status">${esc(P.label)} sta analizzando…</span>`);
-  const head = `<span class="ai-who">${esc(P.label)} · ${esc(aiSettings.model(p))}</span>`;
+  const head = `<span class="ai-who">${esc(P.label)} · ${esc(aiSettings.model(p))}${acc.via ? " · server" : ""}</span>`;
   try {
     const r = await P.send({
-      key, model: aiSettings.model(p), system: systemPrompt(await buildContext()), conv: chat.conv[p], text,
+      key: acc.key, via: acc.via, model: aiSettings.model(p), system: systemPrompt(await buildContext()), conv: chat.conv[p], text,
       web: store.get("web", "1") === "1",
       onText: (t) => { bot.innerHTML = head + md(t); },
       onStatus: (msg) => { bot.innerHTML = `${head}<span class="status">${esc(msg)}</span>`; },
@@ -467,6 +467,7 @@ async function ask(text) {
     if (r.truncated) bot.innerHTML += '<p class="status">Risposta troncata.</p>';
   } catch (e) {
     bot.classList.add("err");
+    if (acc.via && e && typeof e === "object") { e.via = true; e.message = e.error?.error?.message ?? e.message; }
     bot.textContent = errorText(e, p);
   } finally {
     chat.busy = false; $("#send").disabled = false;
@@ -492,6 +493,13 @@ function showSettingsFor(p) {
   $("#key-warn").hidden = !P.keyAdvice;
   if (vault.enabled()) { $("#remember-key").checked = true; $("#remember-key").disabled = true; } else $("#remember-key").disabled = false;
   $("#key-hint").innerHTML = `La chiave resta solo in questo browser e viene inviata direttamente a ${esc(P.host)}. Usa una chiave con limite di spesa. Creala su <b>${esc(P.keyUrl)}</b>.`;
+  $("#proxy-box").hidden = !server.available();
+  if (server.available()) {
+    $("#proxy-code").value = aiSettings.code();
+    $("#proxy-info").textContent = server.has(p)
+      ? `Questa copia del sito ha un server con ${P.label} già collegato: con il codice di accesso ricevuto dal proprietario puoi usarlo senza chiave personale (massimo ${server.info.dailyLimit} richieste al giorno). Se inserisci anche una chiave personale, viene usata quella.`
+      : `${P.label} non è disponibile sul server: serve una chiave personale.`;
+  }
   $("#load-models").hidden = p === "claude";
   $("#models-msg").textContent = p === "claude" ? "" : `Predefinito: ${P.defaultModel} (punta sempre al modello più recente). Tocca "Carica modelli" per scegliere tra quelli attivi sul tuo account.`;
   fillModels(p, p === "claude" ? P.models : []);
@@ -619,11 +627,12 @@ async function init() {
   $("#set-provider").innerHTML = Object.values(PROVIDERS).map((P) => `<button type="button" data-v="${P.id}">${esc(P.label)}</button>`).join("");
   $("#set-provider").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showSettingsFor(b.dataset.v); });
   $("#load-models").addEventListener("click", async () => {
-    const key = $("#api-key").value.trim();
-    if (!key) { $("#models-msg").textContent = "Inserisci prima la chiave API."; return; }
+    const key = $("#api-key").value.trim(), code = $("#proxy-code").value.trim();
+    const via = !key && code && server.has(setP) ? { base: server.base(setP), headers: { "x-bort-code": code } } : null;
+    if (!key && !via) { $("#models-msg").textContent = "Inserisci prima la chiave API."; return; }
     $("#models-msg").textContent = "Caricamento dei modelli…";
     try {
-      const list = await PROVIDERS[setP].listModels(key);
+      const list = await PROVIDERS[setP].listModels(key || "proxy", via);
       fillModels(setP, list);
       $("#models-msg").textContent = `${list.length} modelli disponibili sul tuo account.`;
     } catch (e) { $("#models-msg").textContent = errorText(e, setP); }
@@ -633,7 +642,8 @@ async function init() {
       aiSettings.setKey(setP, $("#api-key").value.trim(), $("#remember-key").checked);
       aiSettings.setModel(setP, $("#model").value);
       store.set("web", $("#web").checked ? "1" : "0");
-      if ($("#api-key").value.trim()) aiSettings.setProvider(setP);
+      if (server.available()) aiSettings.setCode($("#proxy-code").value.trim());
+      if (aiSettings.access(setP)) aiSettings.setProvider(setP);
     } else if (dlg.returnValue === "clear") {
       aiSettings.setKey(setP, null); $("#api-key").value = "";
     }
@@ -643,9 +653,10 @@ async function init() {
   $("#ai-provider").addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
     aiSettings.setProvider(b.dataset.v); renderProviderBar();
-    if (!aiSettings.key(b.dataset.v)) openSettings(b.dataset.v);
+    if (!aiSettings.access(b.dataset.v)) openSettings(b.dataset.v);
   });
   renderProviderBar();
+  const srv = server.load().then((i) => { if (i) renderProviderBar(); });
   initSecurity({ store, refresh: refreshProtected, download });
   document.querySelectorAll("[data-unlock]").forEach((b) => b.addEventListener("click", () => document.querySelector("#sec-btn").click()));
   refreshProtected();
@@ -657,7 +668,7 @@ async function init() {
   ta.addEventListener("input", () => { ta.style.height = "auto"; ta.style.height = `${ta.scrollHeight}px`; });
   ta.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#composer").requestSubmit(); } });
   $("#composer").addEventListener("submit", (e) => { e.preventDefault(); const v = ta.value; ta.value = ""; ta.style.height = "auto"; ask(v); });
-  if (!aiSettings.configured().length) addMsg("bot", "<p>Scegli un assistente (Claude, ChatGPT o Gemini) e inserisci la sua chiave API in <b>Impostazioni</b>. Puoi configurarne più di uno e passare dall'uno all'altro.</p>");
+  srv.then(() => { if (!aiSettings.configured().length) addMsg("bot", server.available() ? "<p>Scegli un assistente (Claude, ChatGPT o Gemini) e, in <b>Impostazioni</b>, inserisci il codice di accesso al server BortEconomy oppure una tua chiave API.</p>" : "<p>Scegli un assistente (Claude, ChatGPT o Gemini) e inserisci la sua chiave API in <b>Impostazioni</b>. Puoi configurarne più di uno e passare dall'uno all'altro.</p>"); });
 
   getJSON("data/meta.json").then((m) => {
     $("#foot").innerHTML = `BortEconomy <a href="https://github.com/RickBortCost/BortEconomy/releases/tag/v${esc(m.version)}" target="_blank" rel="noopener">v${esc(m.version)}</a> · Dati: Google News, Yahoo Finance · Non è consulenza finanziaria`;

@@ -46,5 +46,31 @@ const box2 = await sealWithPassword(secret, "una frase lunga e sicura 2026!");
 check("sale e IV casuali a ogni cifratura", box2.salt !== box.salt && box2.iv !== box.iv);
 check("valutazione robustezza password", strength("abc") === 0 && strength("Una-Frase-Lunga-2026") >= 3);
 
+// proxy AI (Cloudflare Pages Function) con fetch simulato
+{
+  const { onRequest } = await import("../functions/api/[[path]].js");
+  const kv = new Map();
+  const env = { ACCESS_CODES: "anna:codice-anna-123,bea:codice-bea-456", OPENAI_API_KEY: "sk-server", DAILY_LIMIT: "2",
+    USAGE: { get: async (k) => kv.get(k) ?? null, put: async (k, v) => { kv.set(k, v); } } };
+  const real = globalThis.fetch; let sent = null;
+  globalThis.fetch = async (url, init) => { sent = { url: String(url), init }; return new Response('{"ok":1}', { headers: { "content-type": "application/json", "set-cookie": "x=1" } }); };
+  const call = (path, { code, origin = "https://bort.pages.dev", method = "POST" } = {}) => onRequest({ env, params: { path: path.split("/") },
+    request: new Request(`https://bort.pages.dev/api/${path}?key=leak`, { method, body: method === "POST" ? "{}" : undefined,
+      headers: { origin, "content-type": "application/json", ...(code ? { "x-bort-code": code } : {}), authorization: "Bearer proxy" } }) });
+  const st = await (await call("status", { method: "GET" })).json();
+  check("proxy: stato senza dati sensibili", st.providers.join() === "openai" && !JSON.stringify(st).includes("sk-server") && !JSON.stringify(st).includes("codice"));
+  check("proxy: codice mancante o errato rifiutato", (await call("openai/v1/responses")).status === 401 && (await call("openai/v1/responses", { code: "sbagliato" })).status === 401);
+  check("proxy: altra origine rifiutata", (await call("openai/v1/responses", { code: "codice-anna-123", origin: "https://evil.example" })).status === 403);
+  check("proxy: percorsi non ammessi rifiutati", (await call("openai/v1/files", { code: "codice-anna-123" })).status === 404);
+  check("proxy: fornitore non configurato", (await call("anthropic/v1/messages", { code: "codice-anna-123" })).status === 503);
+  sent = null;
+  const ok = await call("openai/v1/responses", { code: "codice-anna-123" });
+  const h = sent?.init.headers ?? {};
+  check("proxy: inoltro con chiave del server, senza codice né parametro key", ok.status === 200 && sent.url === "https://api.openai.com/v1/responses" && h.authorization === "Bearer sk-server" && !JSON.stringify(h).includes("codice") && !ok.headers.get("set-cookie"));
+  await call("openai/v1/responses", { code: "codice-anna-123" });
+  check("proxy: limite giornaliero per persona", (await call("openai/v1/responses", { code: "codice-anna-123" })).status === 429 && (await call("openai/v1/responses", { code: "codice-bea-456" })).status === 200);
+  globalThis.fetch = real;
+}
+
 console.log(failed ? `\n${failed} test falliti` : "\nTutti i test unitari superati");
 process.exit(failed ? 1 : 0);

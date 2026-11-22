@@ -7,7 +7,7 @@
 //   il blocco automatico per inattività serve di nuovo la password. Nulla viene inviato in rete.
 // - La password non è recuperabile: senza di essa i dati protetti si possono solo cancellare.
 
-export const PROTECTED = ["portfolio", "composition", "favs", "apiKey", "apiKey.openai", "apiKey.gemini"];
+export const PROTECTED = ["portfolio", "composition", "favs", "apiKey", "apiKey.openai", "apiKey.gemini", "proxyCode"];
 import { pls, pss, profiles } from "./profiles.js";
 
 const VKEY = "vault";
