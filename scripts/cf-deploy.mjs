@@ -5,6 +5,8 @@
 //   BORT_ACCESS_CODES                                 "nome:codice,…" – chi può usare il proxy AI
 //   ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY facoltative, abilitano il fornitore nel proxy
 //   BORT_DAILY_LIMIT                                  richieste al giorno per persona (predefinito 60)
+//   GH_DISPATCH_TOKEN                                 facoltativo: token GitHub (Actions: Read and write) per il timer
+//                                                     che avvia l'aggiornamento dei dati ogni 30 minuti (workers/scheduler)
 //
 // I dati (site/data) non vengono caricati: functions/data li legge dalla pubblicazione su GitHub Pages.
 import { cp, rm } from "node:fs/promises";
@@ -60,3 +62,11 @@ execFileSync("npx", ["-y", WRANGLER, "pages", "deploy", ".cf-dist", "--project-n
   stdio: "inherit", env: { ...process.env, CLOUDFLARE_API_TOKEN: TOKEN, CLOUDFLARE_ACCOUNT_ID: ACCOUNT },
 });
 console.log(`Pubblicato su https://${project.subdomain ?? `${PROJECT}.pages.dev`}`);
+
+// 5. Timer degli aggiornamenti (Worker con Cron Trigger), solo se è presente il token GitHub
+if (process.env.GH_DISPATCH_TOKEN) {
+  const opts = { cwd: "workers/scheduler", env: { ...process.env, CLOUDFLARE_API_TOKEN: TOKEN, CLOUDFLARE_ACCOUNT_ID: ACCOUNT } };
+  execFileSync("npx", ["-y", WRANGLER, "deploy"], { ...opts, stdio: "inherit" });
+  execFileSync("npx", ["-y", WRANGLER, "secret", "put", "GH_DISPATCH_TOKEN"], { ...opts, input: process.env.GH_DISPATCH_TOKEN, stdio: ["pipe", "inherit", "inherit"] });
+  console.log("Timer degli aggiornamenti attivo (ogni 30 minuti).");
+} else console.log("GH_DISPATCH_TOKEN non configurato: timer degli aggiornamenti non pubblicato.");
