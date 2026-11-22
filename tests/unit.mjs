@@ -72,5 +72,18 @@ check("valutazione robustezza password", strength("abc") === 0 && strength("Una-
   globalThis.fetch = real;
 }
 
+// filtro notizie: solo economia e mercati
+{
+  const { isFinance } = await import("../scripts/lib/finance-filter.mjs");
+  const yes = [["it", "Piazza Affari chiude in calo, FTSE MIB -2%", "ANSA"], ["it", "Mutui più cari, tassi ai massimi da un anno e mezzo", "QuiFinanza"],
+    ["en", "Bond Market's Go-To Trade for Fed Hikes Roiled by Stocks Retreat", "Bloomberg.com"], ["de", "DAX-Wochenausblick: Was folgt nach 2.000 Punkten Minus?", "stock3"],
+    ["fr", "La Bourse de Paris recule, le CAC 40 perd 2%", "Le Figaro"], ["ja", "日経平均が急落、円高進む", "NHK"]];
+  const no = [["it", "Che tempo che fa: le auto sportive di Grillo sono da sogno", "Virgilio"], ["it", "Studenti indagati senza borsa di studio", "Stylo24"],
+    ["it", "Amazon al Black Friday 2026: le migliori offerte tra moda e casa", "Vogue"], ["en", "How to sanitize your cutting board", "AP News"],
+    ["de", "Lidl hat ab Montag die coolen Angebote in den Sonderregalen", "TAG24"], ["en", "Lakers beat Celtics in overtime", "ESPN"]];
+  check("filtro notizie: tiene economia e borsa", yes.every(([lang, title, source]) => isFinance({ lang, title, source })));
+  check("filtro notizie: scarta cronaca, sport, offerte e moda", no.every(([lang, title, source]) => !isFinance({ lang, title, source })));
+}
+
 console.log(failed ? `\n${failed} test falliti` : "\nTutti i test unitari superati");
 process.exit(failed ? 1 : 0);

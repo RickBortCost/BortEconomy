@@ -25,6 +25,22 @@
     "hl": "en-US",
     "gl": "US",
     "ceid": "US:en"
+   },
+   {
+    "lang": "it",
+    "q": "\"Piazza Affari\" OR \"Borsa di Milano\" OR \"titoli azionari\" OR \"mercati finanziari\" OR spread OR BCE",
+    "hl": "it",
+    "gl": "IT",
+    "ceid": "IT:it",
+    "when": "2d"
+   },
+   {
+    "lang": "en",
+    "q": "\"stock market\" OR stocks OR earnings OR \"bond yields\"",
+    "hl": "en-US",
+    "gl": "US",
+    "ceid": "US:en",
+    "when": "2d"
    }
   ]
  },

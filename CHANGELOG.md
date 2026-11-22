@@ -5,6 +5,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.17.0] - 2026-11-22
+
+### Modificato
+- **Notizie solo di economia e borsa**: nuovo filtro di pertinenza (`scripts/lib/finance-filter.mjs`) su titolo e fonte, in 9 lingue. Premia le testate economico-finanziarie e i termini di mercato (borse, indici, tassi, banche centrali, inflazione, utili, dividendi, spread…), scarta cronaca, sport, meteo, offerte commerciali, moda, prove auto e compravendite di insider.
+- Ricerche aggiuntive su borsa e mercati per ogni paese e per il mondo, al massimo 12 notizie per fonte per avere più varietà. Le notizie delle singole società e dei metalli non sono filtrate (già specifiche).
+
 ## [1.16.0] - 2026-11-22
 
 ### Aggiunto
@@ -233,7 +239,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.16.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.17.0...HEAD
+[1.17.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.16.0...v1.17.0
 [1.16.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.15.0...v1.16.0
 [1.15.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.13.0...v1.14.0

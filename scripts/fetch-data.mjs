@@ -8,7 +8,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { pool, previous, sleep } from "./lib/http.mjs";
-import { buildNews, companyFeeds } from "./lib/news.mjs";
+import { buildNews, companyFeeds, MARKET_Q } from "./lib/news.mjs";
 import { buildDirectory } from "./lib/directory.mjs";
 import { chart, summarize, scalePts, SERIES, encodeSeries, decodeSeries } from "./lib/markets.mjs";
 import { fundamentals, profiles } from "./lib/fundamentals.mjs";
@@ -36,8 +36,8 @@ await write("meta.json", { version, updated });
 
 // ---------- Notizie ----------
 const newsCount = {};
-async function newsFile(key, feeds) {
-  let items = await buildNews(feeds);
+async function newsFile(key, feeds, finance = true) {
+  let items = await buildNews(feeds, 250, { finance });
   if (!items.length) { items = (await previous(`data/news-${key}.json`))?.items ?? []; warn(`Notizie ${key}: nessun risultato, usata la pubblicazione precedente`); }
   await write(`news-${key}.json`, { updated, items });
   newsCount[key] = items.length;
@@ -48,10 +48,12 @@ for (const [code, c] of Object.entries(config.countries)) {
     { lang: c.hl.slice(0, 2), url: `https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=${c.hl}&gl=${c.gl}&ceid=${c.ceid}` },
     { lang: c.hl.slice(0, 2), q: c.q, hl: c.hl, gl: c.gl, ceid: c.ceid },
   ];
+  const mq = MARKET_Q[c.hl.slice(0, 2)];
+  if (mq) feeds.push({ lang: c.hl.slice(0, 2), q: mq, hl: c.hl, gl: c.gl, ceid: c.ceid, when: "2d" });
   if (code !== "IT") feeds.push({ lang: "it", q: c.qit, hl: "it", gl: "IT", ceid: "IT:it" });
   await newsFile(code, feeds);
 }
-if (config.metals?.news) await newsFile("METALS", config.metals.news);
+if (config.metals?.news) await newsFile("METALS", config.metals.news, false); // ricerche già specifiche
 console.log("news:", JSON.stringify(newsCount));
 
 // ---------- Directory mondiale ----------
