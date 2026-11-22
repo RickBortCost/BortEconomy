@@ -8,16 +8,13 @@ Web app (anche mobile, installabile come PWA) con:
 
 ## Come funziona
 
-Sito statico in `site/`. Un workflow GitHub Actions (`.github/workflows/pages.yml`) ogni 30 minuti esegue `scripts/fetch-data.mjs`, genera i JSON in `site/data/` e pubblica su GitHub Pages. Nessun dato viene committato.
+Sito statico in `site/`. Un workflow GitHub Actions (`.github/workflows/pages.yml`) ogni 30 minuti e a ogni push su `main` esegue `scripts/fetch-data.mjs`, genera i JSON in `site/data/` e pubblica il sito sul branch `gh-pages` (un solo commit, sostituito a ogni esecuzione). Su `main` non vengono committati dati.
 
-## Attivazione GitHub Pages
+Sito: https://rickbortcost.github.io/BortEconomy/
 
-1. Unisci il codice nel branch `main`.
-2. Repository → **Settings → Pages → Source: GitHub Actions**.
-3. Avvia il workflow (Actions → "Aggiorna dati e pubblica" → Run workflow) o attendi il prossimo push/esecuzione.
-4. Il sito sarà su `https://<utente>.github.io/BortEconomy/`.
+## GitHub Pages
 
-GitHub Pages su repository privati richiede un piano a pagamento.
+Già attivo: Settings → Pages → Source "Deploy from a branch", branch `gh-pages`, cartella `/ (root)`. Per un aggiornamento immediato: Actions → "Aggiorna dati e pubblica su GitHub Pages" → Run workflow.
 
 ## Claude
 
