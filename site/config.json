@@ -898,6 +898,12 @@
     "VWCE.DE",
     "GLD"
    ]
+  },
+  "USER": {
+   "name": "Aggiunti dagli utenti",
+   "symbols": [
+    "SFER.MI"
+   ]
   }
  },
  "aliases": {
