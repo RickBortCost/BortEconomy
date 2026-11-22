@@ -315,7 +315,7 @@ function setFavBtn() {
   const on = !!st.favs?.has(st.sym);
   const b = $("#dt-fav");
   b.setAttribute("aria-pressed", on);
-  b.innerHTML = `${on ? "★" : "☆"}<span class="lbl"> Preferito</span>`;
+  b.innerHTML = `<svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><span class="lbl">${on ? "Nei preferiti" : "Preferito"}</span>`;
   b.setAttribute("aria-label", on ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti");
 }
 
