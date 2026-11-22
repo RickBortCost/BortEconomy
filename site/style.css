@@ -92,3 +92,5 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 .hint { font-size: 12.5px; color: var(--muted); }
 .actions { display: flex; justify-content: space-between; margin-top: 12px; }
 .empty { color: var(--muted); text-align: center; padding: 24px; }
+.foot { margin-top: 32px; text-align: center; color: var(--muted); font-size: 12.5px; }
+.foot a { color: inherit; }

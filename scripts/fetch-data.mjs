@@ -106,6 +106,8 @@ const allSymbols = [...new Set([
 
 await mkdir(OUT, { recursive: true });
 const updated = new Date().toISOString();
+const { version } = JSON.parse(await readFile(join(ROOT, "package.json"), "utf8"));
+await writeFile(join(OUT, "meta.json"), JSON.stringify({ version, updated }));
 
 const quotes = (await pool(allSymbols, 6, quote)).filter(Boolean);
 await writeFile(join(OUT, "markets.json"), JSON.stringify({ updated, quotes }));

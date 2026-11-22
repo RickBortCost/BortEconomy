@@ -297,6 +297,9 @@ async function init() {
   $("#composer").addEventListener("submit", (e) => { e.preventDefault(); const v = ta.value; ta.value = ""; ta.style.height = "auto"; ask(v); });
   if (!store.get("apiKey", "")) addMsg("bot", "<p>Per usare Claude inserisci la tua chiave API Anthropic in <b>⚙️ Impostazioni</b>.</p>");
 
+  getJSON("data/meta.json").then((m) => {
+    $("#foot").innerHTML = `BortEconomy <a href="https://github.com/RickBortCost/BortEconomy/releases/tag/v${esc(m.version)}" target="_blank" rel="noopener">v${esc(m.version)}</a> · Dati: Google News, Yahoo Finance · Non è consulenza finanziaria`;
+  }).catch(() => {});
   state.markets = await getJSON("data/markets.json").catch(() => null);
   renderMarkets();
   await renderNews();
