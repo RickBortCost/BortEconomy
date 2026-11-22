@@ -91,7 +91,7 @@ async function exportBackup() {
   const pw = await askPassword({ title: "Password del backup", text: "Il file sarà cifrato (AES-256): servirà questa password per reimportarlo. Può essere diversa da quella della cassaforte.", confirm: true, ok: "Esporta" });
   if (!pw) return;
   const data = {};
-  for (const k of [...PROTECTED, "theme", "country", "mt-cur", "pendingAdds", "share-favs", "share-confirm", "ai-provider", "model", "model.openai", "model.gemini", "web"]) {
+  for (const k of [...PROTECTED, "theme", "country", "mt-cur", "pendingAdds", "share-favs", "share-confirm", "ai-provider", "model", "model.openai", "model.gemini", "web", "home-layout"]) {
     const v = PROTECTED.includes(k) ? vault.get(k) : pls.get(k);
     if (v != null) data[k] = v;
   }

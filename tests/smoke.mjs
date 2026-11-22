@@ -34,8 +34,10 @@ page.setDefaultTimeout(10000);
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
 
-await test("la pagina si carica e mostra le notizie", async () => {
+await test("la pagina si carica: Home con widget e notizie", async () => {
   await page.goto(BASE);
+  await page.waitForSelector("#home-grid .hw", { timeout: 10000 });
+  await page.click("[data-tab=news]");
   await page.waitForSelector("#news-list li", { timeout: 10000 });
   assert(await page.$$eval("#news-list li a", (l) => l.length) > 0, "nessuna notizia");
   assert((await page.textContent("#foot")).includes("v"), "versione nel piè di pagina assente");
