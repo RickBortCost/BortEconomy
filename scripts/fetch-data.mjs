@@ -14,6 +14,7 @@ import { chart, summarize, scalePts, SERIES, encodeSeries, decodeSeries } from "
 import { fundamentals, profiles } from "./lib/fundamentals.mjs";
 import { macroCalendar, earningsCalendar } from "./lib/calendar.mjs";
 import { evaluate as evaluateAlerts } from "./lib/alerts.mjs";
+import { buildMacro } from "./lib/macro.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "site", "data");
@@ -108,7 +109,7 @@ const quotes = (await pool(allSymbols, 2, async (sym) => {
     week: week?.pts ?? scalePts(decodeSeries(old?.week), centsOld),
     news: old?.news, newsAt: old?.newsAt,
   };
-  const q = summarize(sym, hour?.meta ?? day?.meta, merged.day);
+  const q = summarize(sym, hour?.meta ?? day?.meta, merged.day, merged.week);
   const quote = q ? { ...q, group: groupOf.get(sym) } : prevQuotes.get(sym) ? { ...prevQuotes.get(sym), group: groupOf.get(sym), stale: true } : null;
   if (q) fresh++; else if (quote) reused++;
 
@@ -153,6 +154,17 @@ if (fired.length) await writeFile(ALERTS, JSON.stringify(alertsData, null, 1) + 
 await write("alerts-fired.json", fired);
 health.alerts = { active: (alertsData.alerts ?? []).filter((a) => !a.triggeredAt).length, fired: fired.length };
 if (fired.length) console.log(`avvisi scattati: ${fired.map((a) => a.text).join(" | ")}`);
+
+// ---------- Indicatori macroeconomici (BCE, Eurostat, BLS), aggiornati ogni 6 ore ----------
+const prevMacro = await previous("data/macro.json");
+if (!prevMacro?.updated || Date.now() - Date.parse(prevMacro.updated) > 6 * 3600e3 || process.env.MACRO_FORCE) {
+  const { series, failed } = await buildMacro(prevMacro);
+  await write("macro.json", { updated, series, failed });
+  if (failed.length > 4) warn(`Indicatori macro: ${failed.length} serie non aggiornate (${failed.join(", ")})`);
+  health.macro = { failed };
+} else {
+  await write("macro.json", prevMacro);
+}
 
 // ---------- Calendario ----------
 const macro = await macroCalendar();

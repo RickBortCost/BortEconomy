@@ -1,7 +1,8 @@
 import { initDetail, openDetail, loadHist } from "./detail.js";
-import { initPortfolio, renderPortfolio, openPositionForm, openAlertForm } from "./portfolio.js";
+import { initPortfolio, renderPortfolio, openPositionForm, openAlertForm, positionWeights, positionsValue, donut } from "./portfolio.js";
+import { initLab, renderComposition, renderLab } from "./lab.js";
 import { initCalendar, renderCalendar, upcoming } from "./calendar.js";
-import { initMarketsExtra, renderHeatmap, renderForex, renderCrypto } from "./markets-extra.js";
+import { initMarketsExtra, renderHeatmap, renderForex, renderCrypto, renderEtf } from "./markets-extra.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -540,6 +541,16 @@ function initTheme() {
   darkMQ.addEventListener("change", () => applyTheme(t));
 }
 
+// Sotto-sezioni del portafoglio
+function showPfView(v) {
+  $$("#pf-subnav button").forEach((b) => b.classList.toggle("on", b.dataset.v === v));
+  $$(".pf-view").forEach((el) => { el.hidden = el.id !== `pf-view-${v}`; });
+  store.set("pf-view", v);
+  if (v === "positions") renderPortfolio();
+  if (v === "composition") renderComposition();
+  if (v === "lab") renderLab();
+}
+
 // ---------------- UI ----------------
 function setTab(t) {
   $$(".tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === t));
@@ -547,7 +558,7 @@ function setTab(t) {
   document.body.classList.toggle("ai", t === "ai");
   store.set("tab", t);
   if (t === "metals") renderMetals();
-  if (t === "portfolio") renderPortfolio();
+  if (t === "portfolio") showPfView(store.get("pf-view", "positions"));
 }
 
 function seg(id, onChange) {
@@ -639,13 +650,14 @@ async function init() {
   if (store.get("tab", "news") === "metals") renderMetals();
   initCalendar({ $, esc, seg });
   initMarketsExtra({ $, esc, nf, pdec, seg, store, pctHtml, spark, tiles, bySymbol, config: state.config,
-    rows: (qs, o) => rows(qs, o), loadDirectory: () => loadDirectory(), updated: () => state.markets?.updated });
+    rows: (qs, o) => rows(qs, o), loadDirectory: () => loadDirectory(), updated: () => state.markets?.updated, allQuotes: () => state.markets?.quotes ?? [] });
   const showView = (v) => {
     $$("#mk-subnav button").forEach((b) => b.classList.toggle("on", b.dataset.v === v));
     $$(".mk-view").forEach((el) => { el.hidden = el.id !== `mk-view-${v}`; });
     store.set("mk-view", v);
     if (v === "calendar") renderCalendar();
     if (v === "map") renderHeatmap();
+    if (v === "etf") renderEtf();
     if (v === "forex") renderForex();
     if (v === "crypto") renderCrypto();
   };
@@ -667,7 +679,9 @@ async function init() {
   });
   // posizioni su titoli non monitorati: serve la directory per il prezzo
   try { if (JSON.parse(store.get("portfolio", "[]")).some((l) => !isMonitored(l.sym))) loadDirectory().then(() => { if (store.get("tab") === "portfolio") renderPortfolio(); }); } catch {}
-  if (store.get("tab", "news") === "portfolio") renderPortfolio();
+  initLab({ $, esc, nf, store, seg, bySymbol, searchQuotes, setTab, ask, openDetail, config: state.config, donut, positionWeights, positionsValue });
+  $("#pf-subnav").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showPfView(b.dataset.v); });
+  if (store.get("tab", "news") === "portfolio") showPfView(store.get("pf-view", "positions"));
   pending.prune();
   if (favs.list().some((sym) => !isMonitored(sym))) loadDirectory().then(() => renderMarkets());
   initDetail({

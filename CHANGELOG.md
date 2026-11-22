@@ -5,6 +5,22 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.12.0] - 2026-11-22
+
+### Aggiunto
+- **ETF e indici** (Mercati → ETF e indici): 45 ETF UCITS quotati in Europa (soprattutto Borsa Italiana), divisi in azionari mondo, USA, Europa e Italia, emergenti, settoriali, obbligazionari governativi, societari e globali, legati all'inflazione, liquidità, oro e materie prime; rendimenti a 1 giorno, da inizio anno, 1, 3 e 5 anni, dividendo. Vista "Indici" con tutti gli indici ordinati per rendimento a 5 anni.
+- **Composizione del portafoglio** (Portafoglio → Composizione): inserisci gli asset che possiedi con il loro peso percentuale (senza prezzi né quantità) e il capitale; modelli di partenza (tutto azionario, 60/40, prudente, all weather, crescita) o importazione dalle posizioni. Andamento storico del mix fino a 10 anni rispetto all'MSCI World, rendimento totale e annuo, volatilità, massimo ribasso, rapporto rendimento/rischio, ripartizione per classe e area, matrice delle correlazioni.
+- **Laboratorio** (Portafoglio → Laboratorio):
+  - **Indicatori macroeconomici** da fonti ufficiali (BCE, Eurostat, BLS), con storico dal 2015: tasso BCE sui depositi, rendimenti BTP e Bund a 10 anni, spread BTP-Bund, tasso reale, inflazione area euro, Italia e USA (anche core), disoccupazione area euro, Italia e USA.
+  - **Sensibilità** del portafoglio (composizione o posizioni reali) ad azioni mondiali, tassi a lungo termine, inflazione attesa, cambio euro/dollaro, petrolio e oro, stimata con regressione multipla sui rendimenti settimanali degli ultimi 5 anni, con quota di oscillazioni spiegata.
+  - **Simulatore di scenari** con cursori e scenari pronti (rialzo e taglio dei tassi, inflazione persistente, recessione, euro forte, crisi energetica, rally azionario): impatto stimato in percentuale e in euro e contributo di ogni asset.
+  - **Stress test storici**: comportamento del portafoglio nel calo di fine 2018, crollo Covid, ripresa post-Covid, rialzo dei tassi 2022, shock dei dazi 2025 e ultimi 12 mesi, confrontato con azioni mondiali e obbligazioni globali.
+  - Analisi con Claude dell'impatto delle variabili macro sul portafoglio.
+- Rendimenti da inizio anno, a 3 e a 5 anni per tutti i titoli monitorati.
+
+### Modificato
+- Il Portafoglio è diviso in tre sezioni: Posizioni, Composizione, Laboratorio.
+
 ## [1.11.0] - 2026-11-22
 
 ### Modificato
@@ -163,7 +179,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.11.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.8.0...v1.9.0

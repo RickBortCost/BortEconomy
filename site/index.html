@@ -101,6 +101,7 @@
       <nav class="subnav" id="mk-subnav" aria-label="Sezioni dei mercati">
         <button data-v="overview" class="on">Panoramica</button>
         <button data-v="calendar">Calendario</button>
+        <button data-v="etf">ETF e indici</button>
         <button data-v="map">Mappa</button>
         <button data-v="forex">Valute</button>
         <button data-v="crypto">Cripto</button>
@@ -125,6 +126,13 @@
       </div>
       <h2 id="mk-country-title"></h2>
       <ul class="rows" id="mk-country"></ul>
+      </div>
+      <div class="mk-view" id="mk-view-etf" hidden>
+        <div class="toolbar">
+          <div class="seg" id="etf-kind"><button data-v="etf" class="on">ETF</button><button data-v="idx">Indici</button></div>
+        </div>
+        <p class="meta" id="etf-meta"></p>
+        <div id="etf-list"></div>
       </div>
       <div class="mk-view" id="mk-view-map" hidden>
         <div class="subnav hm-sel" id="hm-sel"></div>
@@ -216,6 +224,12 @@
 
     <!-- PORTAFOGLIO -->
     <section id="tab-portfolio" class="panel">
+      <nav class="subnav" id="pf-subnav" aria-label="Sezioni del portafoglio">
+        <button data-v="positions" class="on">Posizioni</button>
+        <button data-v="composition">Composizione</button>
+        <button data-v="lab">Laboratorio</button>
+      </nav>
+      <div class="pf-view" id="pf-view-positions">
       <div id="pf-empty" class="pf-empty">
         <h2>Il tuo portafoglio</h2>
         <p class="meta">Registra le tue posizioni (azioni, ETF, metalli, valute, cripto): valore in euro, guadagni e perdite, ripartizione e andamento. I dati restano solo in questo browser; puoi esportarli e importarli.</p>
@@ -253,6 +267,59 @@
       <h2 class="h-icon"><svg class="ic h-ic" aria-hidden="true"><use href="#i-bell"/></svg>Avvisi di prezzo</h2>
       <p class="meta">Ricevi una notifica GitHub (anche sul telefono) quando un titolo supera o scende sotto una soglia, o si muove più di una certa percentuale in un giorno. Creali dalla scheda di un titolo con 🔔.</p>
       <ul class="rows al-list" id="al-list"></ul>
+      </div>
+
+      <div class="pf-view" id="pf-view-composition" hidden>
+        <p class="meta">Indica gli asset che possiedi e il loro peso: vedi come si sarebbe comportato il mix negli anni, quanto rischia e quanto è diversificato. Non serve inserire prezzi o quantità.</p>
+        <div class="cp-head">
+          <label>Capitale <span class="cp-cap"><input id="cp-capital" type="number" min="0" step="100" inputmode="decimal"> €</span></label>
+        </div>
+        <div class="chips cp-presets" id="cp-presets" aria-label="Modelli di partenza"></div>
+        <div class="dt-table"><table class="cp-table"><thead><tr><th>Asset</th><th>Peso</th><th>Importo</th><th></th></tr></thead><tbody id="cp-rows"></tbody></table></div>
+        <div class="cp-add">
+          <input id="cp-add" type="search" placeholder="Aggiungi un asset (es. MSCI World, BTP, oro, S&P 500)" autocomplete="off" aria-label="Aggiungi un asset">
+          <ul class="pf-picks" id="cp-add-res"></ul>
+        </div>
+        <p class="cp-total" id="cp-total"></p>
+        <div id="cp-results" hidden>
+          <h2>Andamento storico del mix</h2>
+          <div class="toolbar"><div class="seg" id="cp-period">
+            <button data-v="52">1A</button><button data-v="156">3A</button><button data-v="260" class="on">5A</button><button data-v="0">Max</button>
+          </div></div>
+          <div class="pf-hist" id="cp-chart"></div>
+          <p class="meta" id="cp-note"></p>
+          <div class="grid cp-metrics" id="cp-metrics"></div>
+          <h2>Ripartizione</h2>
+          <div class="cp-allocs"><div><h3>Per classe</h3><div class="pf-alloc" id="cp-alloc-cls"></div></div><div><h3>Per area</h3><div class="pf-alloc" id="cp-alloc-reg"></div></div></div>
+          <div id="cp-corr-wrap"><h2>Correlazioni</h2>
+            <p class="meta">Quanto si muovono insieme gli asset (1 = sempre insieme, 0 = indipendenti, negativo = in direzioni opposte). Valori bassi indicano una diversificazione migliore.</p>
+            <div class="dt-table" id="cp-corr"></div></div>
+        </div>
+      </div>
+
+      <div class="pf-view" id="pf-view-lab" hidden>
+        <h2>Indicatori macroeconomici</h2>
+        <p class="meta" id="lab-macro-meta"></p>
+        <div class="lab-mc" id="lab-macro-chart" hidden></div>
+        <div id="lab-macro"></div>
+        <h2>Il tuo portafoglio e le variabili macro</h2>
+        <div class="toolbar"><span class="meta">Analizza:</span><div class="seg" id="lab-src"></div></div>
+        <div class="pf-empty" id="lab-empty" hidden><p class="meta">Crea una composizione o aggiungi posizioni per vedere come tassi, inflazione, cambio e materie prime pesano sul tuo portafoglio.</p></div>
+        <div id="lab-body">
+          <h3>Sensibilità</h3>
+          <div class="dt-table" id="lab-sens"></div>
+          <h3>Simula uno scenario</h3>
+          <div class="chips" id="lab-presets"></div>
+          <div class="lab-sim">
+            <div class="lab-sliders" id="lab-sliders"></div>
+            <div class="lab-out"><small>Impatto stimato sul portafoglio</small><div id="lab-result"></div>
+              <ul class="lab-contrib" id="lab-contrib"></ul></div>
+          </div>
+          <h3>Come avrebbe reagito nelle crisi passate</h3>
+          <div class="dt-table"><table class="mt-table lab-stress-t"><thead><tr><th>Periodo</th><th>Portafoglio</th><th>Azioni mondo</th><th>Obbligazioni globali</th></tr></thead><tbody id="lab-stress"></tbody></table></div>
+          <button class="primary mt-ask" id="lab-ask"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Spiega con Claude come mi influenzano</button>
+        </div>
+      </div>
     </section>
 
     <section id="tab-ai" class="panel">
