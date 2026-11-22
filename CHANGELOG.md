@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.19.0] - 2026-11-22
+
+### Aggiunto
+- **Acciaio, alluminio e leghe** nella sezione Metalli: acciaio (coils laminati a caldo, future COMEX HRC), alluminio (future COMEX) e premio fisico dell'alluminio USA (Midwest), con prezzo per tonnellata/libbra e al kg. Filiera completa per gruppi: acciai inox, speciali e superleghe (Aperam, Outokumpu, Acerinox, Alleima, ATI, Carpenter, voestalpine); grandi produttori di acciaio (ArcelorMittal, Nucor, Steel Dynamics, Cleveland-Cliffs, thyssenkrupp, SSAB, Nippon Steel, POSCO, Ternium, Gerdau); tubi, impianti, riciclo e distribuzione (Tenaris, Danieli, Commercial Metals, Reliance); minerale di ferro (Vale, Rio Tinto, BHP, Fortescue); alluminio (Alcoa, Norsk Hydro, Century, Constellium, Kaiser, Chalco, Rusal, Hindalco); ETC/ETF (WisdomTree Aluminium e Industrial Metals su Borsa Italiana, VanEck Steel). Notizie su acciaio, siderurgia e alluminio.
+
+### Modificato
+- **Nuova grafica delle notizie**: notizia in evidenza, raggruppamento per Ultima ora / Oggi / Ieri / giorni, etichetta colorata per argomento (Borsa, Tassi, Macro, Aziende, Materie prime, Cripto, Valute) con filtro rapido e conteggi, icona con le iniziali della fonte, titoli citati nella notizia con variazione del giorno (si apre il dettaglio), due colonne su schermi larghi.
+
 ## [1.18.0] - 2026-11-22
 
 ### Aggiunto
@@ -247,7 +255,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.18.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.0...HEAD
+[1.19.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.18.0...v1.19.0
 [1.18.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.17.0...v1.18.0
 [1.17.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.16.0...v1.17.0
 [1.16.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.15.0...v1.16.0
