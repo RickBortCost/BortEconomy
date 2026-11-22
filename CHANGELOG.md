@@ -15,6 +15,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - **Icone vettoriali** al posto delle emoji nella navigazione, nella barra superiore e nella scheda titolo; stella dei preferiti piena quando attiva.
 - **Navigazione in basso su telefono**, come in un'app, con barra superiore e inferiore traslucide; su desktop le schede restano in alto.
 - **Nastro scorrevole degli indici** sotto la barra superiore (indice del paese scelto, principali indici, euro/dollaro, oro, petrolio, Bitcoin, Treasury, VIX): si ferma al passaggio del mouse, tocco per aprire il titolo; statico se il sistema riduce le animazioni.
+- **Nuova icona dell'app**: sfumatura indaco-viola-ciano con barre ascendenti e linea di tendenza luminosa; versioni PNG per la schermata Home di iPhone (180 px, a tutta superficie perché iOS arrotonda da sé gli angoli) e Android (192/512 px), versione adattiva "maskable", favicon 32 px; manifest e meta tag iOS aggiornati.
 - Prima notizia in evidenza; riquadro "Il punto del giorno" con bordo sfumato; grafici sintetici con area ombreggiata; animazioni di apertura per schede, finestre e dettaglio.
 
 ## [1.10.0] - 2026-11-22
