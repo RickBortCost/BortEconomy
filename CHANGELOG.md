@@ -5,6 +5,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.9.0] - 2026-11-22
+
+### Aggiunto
+- **Indicatori tecnici** nel grafico di ogni titolo: medie mobili a 50 e 200 periodi, bande di Bollinger (20, 2) e pannello RSI (14), attivabili singolarmente; i valori compaiono nel cursore. Calcolati sull'intera serie, quindi corretti anche all'inizio del periodo. Scelta ricordata.
+- **Confronto** fino a 3 titoli monitorati con il titolo aperto: linee in variazione percentuale dall'inizio del periodo, legenda con rimozione, valori di tutte le serie nel cursore.
+- **Fondamentali** nella scheda titolo: P/E corrente e atteso, utile per azione, rendimento del dividendo, prezzo/valore contabile, medie mobili a 50 e 200 giorni (con posizione del prezzo), giudizio medio degli analisti, data dei prossimi risultati.
+- **Profilo della società**: settore, industria, paese, dipendenti, descrizione e sito web.
+- **Notizie del titolo** nella scheda (stampa italiana e del mercato di quotazione, aggiornate a rotazione).
+
 ## [1.8.0] - 2026-11-22
 
 ### Aggiunto
@@ -131,7 +140,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.8.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.5.0...v1.6.0

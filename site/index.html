@@ -231,9 +231,23 @@
         <div class="seg" id="dt-gran"></div>
         <div class="seg" id="dt-range"></div>
       </div>
+      <div class="chips dt-ind" id="dt-ind" aria-label="Indicatori tecnici"></div>
+      <div class="dt-cmp" id="dt-cmp">
+        <span id="dt-cmp-list"></span>
+        <button class="ghost" id="dt-cmp-add">⚖️ Confronta</button>
+        <div class="dt-cmp-box" id="dt-cmp-box" hidden>
+          <input id="dt-cmp-q" type="search" placeholder="Titolo da confrontare (es. S&P 500, ENI)" autocomplete="off" aria-label="Titolo da confrontare">
+          <ul class="pf-picks" id="dt-cmp-res"></ul>
+        </div>
+      </div>
       <p class="meta" id="dt-period"></p>
       <div class="dt-chart" id="dt-chart"></div>
       <div class="dt-stats" id="dt-stats"></div>
+      <h3 id="dt-fund-title">Fondamentali</h3>
+      <div class="dt-stats" id="dt-fund"></div>
+      <div id="dt-profile-wrap" hidden><h3>Profilo della società</h3><div class="dt-profile" id="dt-profile"></div></div>
+      <h3 id="dt-news-title">Notizie</h3>
+      <ul class="news" id="dt-news"></ul>
       <h3 id="dt-hist-title"></h3>
       <div class="dt-table">
         <table><thead><tr><th>Data</th><th>Chiusura</th><th>Var.</th><th>Volume</th></tr></thead><tbody id="dt-hist"></tbody></table>
