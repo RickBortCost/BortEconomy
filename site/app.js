@@ -1,6 +1,7 @@
 import { initDetail, openDetail, loadHist } from "./detail.js";
 import { initPortfolio, renderPortfolio, openPositionForm, openAlertForm } from "./portfolio.js";
 import { initCalendar, renderCalendar, upcoming } from "./calendar.js";
+import { initMarketsExtra, renderHeatmap, renderForex, renderCrypto } from "./markets-extra.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -51,6 +52,7 @@ async function getJSON(url) {
 }
 
 // ---------------- formattazione ----------------
+const pdec = (v) => { const a = Math.abs(v ?? 0); return a >= 10 ? 2 : a >= 1 ? 4 : a > 0 ? Math.min(10, Math.max(4, 3 - Math.floor(Math.log10(a)))) : 2; };
 const nf = (v, d = 2) => v == null ? "–" : v.toLocaleString("it-IT", { minimumFractionDigits: d, maximumFractionDigits: d });
 const pctHtml = (v) => v == null ? '<span class="chg">–</span>'
   : `<span class="chg ${v >= 0 ? "pos" : "neg"}">${v >= 0 ? "+" : ""}${nf(v)}%</span>`;
@@ -161,7 +163,7 @@ function tiles(symbols) {
   return symbols.map(bySymbol).filter(Boolean).map((q) => `
     <div class="tile" data-sym="${esc(q.symbol)}" tabindex="0" role="button" title="Dettaglio ${esc(q.name)}">
       <div class="n">${statusDot(q)}${esc(q.name)}</div>
-      <div class="p">${nf(q.price, q.price < 10 ? 4 : 2)}</div>
+      <div class="p">${nf(q.price, pdec(q.price))}</div>
       ${pctHtml(q[state.mkField])}
       ${spark(q.spark, (q[state.mkField] ?? 0) >= 0)}
     </div>`).join("") || `<div class="empty">Dati non disponibili.</div>`;
@@ -172,7 +174,7 @@ function rows(quotes, { star = false, empty = "Dati non disponibili.", group = f
     <li data-sym="${esc(q.symbol)}" tabindex="0" role="button" class="${star ? "has-star" : ""}">${star ? starBtn(q.symbol) : ""}
       <div class="nm"><b>${esc(q.name)}</b><small>${statusDot(q)}${esc(q.symbol)}${group ? ` · <span class="grp">${esc(groupLabel(q))}</span>` : ""}${q.dir
         ? ` <span class="tag ${pending.get(q.symbol) ? "wait" : "new"}">${pending.get(q.symbol) ? "richiesto" : "non monitorato"}</span>` : ""}</small></div>
-      <div class="px">${nf(q.price, q.price < 10 ? 4 : 2)} <small>${esc(q.currency ?? "")}</small></div>${pctHtml(q[field])}</li>`).join("")
+      <div class="px">${nf(q.price, pdec(q.price))} <small>${esc(q.currency ?? "")}</small></div>${pctHtml(q[field])}</li>`).join("")
     || `<li class="empty">${empty}</li>`;
 }
 
@@ -620,11 +622,16 @@ async function init() {
   renderMarkets();
   if (store.get("tab", "news") === "metals") renderMetals();
   initCalendar({ $, esc, seg });
+  initMarketsExtra({ $, esc, nf, pdec, seg, store, pctHtml, spark, tiles, bySymbol, config: state.config,
+    rows: (qs, o) => rows(qs, o), loadDirectory: () => loadDirectory(), updated: () => state.markets?.updated });
   const showView = (v) => {
     $$("#mk-subnav button").forEach((b) => b.classList.toggle("on", b.dataset.v === v));
     $$(".mk-view").forEach((el) => { el.hidden = el.id !== `mk-view-${v}`; });
     store.set("mk-view", v);
     if (v === "calendar") renderCalendar();
+    if (v === "map") renderHeatmap();
+    if (v === "forex") renderForex();
+    if (v === "crypto") renderCrypto();
   };
   $("#mk-subnav").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showView(b.dataset.v); });
   showView(store.get("mk-view", "overview"));
