@@ -180,7 +180,14 @@ export default [
       await page.click('#mk-subnav button[data-v="etf"]');
       await page.waitForSelector("#etf-list h2, #etf-list .empty");
       if (await page.$("#etf-list .empty")) return; // dati del sito pubblicato non ancora aggiornati
-      assert(await page.$$eval("#etf-list .etf-t tr[data-sym]", (r) => r.length) >= 10, "pochi ETF");
+      // ETF della configurazione presenti nei dati (in CI i dati sono quelli già pubblicati, forse precedenti)
+      const expected = await page.evaluate(async () => {
+        const [cfg, mk] = await Promise.all([fetch("config.json").then((r) => r.json()), fetch("data/markets.json").then((r) => r.json())]);
+        const have = new Set(mk.quotes.map((q) => q.symbol));
+        return cfg.etfs.groups.flatMap((g) => g.items).filter((i) => have.has(i.s)).length;
+      });
+      const shown = await page.$$eval("#etf-list .etf-t tr[data-sym]", (r) => r.length);
+      assert(shown === expected, `ETF mostrati ${shown}, attesi ${expected}`);
       await page.click('#etf-kind button[data-v="idx"]');
       assert(await page.$$eval("#etf-list tr[data-sym]", (r) => r.length) >= 5, "pochi indici");
       await page.click('#mk-subnav button[data-v="overview"]');
