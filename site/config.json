@@ -896,7 +896,9 @@
     "VT",
     "IWDA.AS",
     "VWCE.DE",
-    "GLD"
+    "GLD",
+    "TIP",
+    "IEF"
    ]
   },
   "USER": {
@@ -998,6 +1000,54 @@
     "NEAR-USD",
     "ATOM-USD"
    ]
+  },
+  "ETF": {
+   "name": "ETF",
+   "symbols": [
+    "SWDA.MI",
+    "VWCE.MI",
+    "XDWD.MI",
+    "MWRD.MI",
+    "IUSN.DE",
+    "VHYL.MI",
+    "TDIV.MI",
+    "CSSPX.MI",
+    "VUAA.MI",
+    "IUSA.MI",
+    "CSNDX.MI",
+    "EQQQ.MI",
+    "SMEA.MI",
+    "MEUD.MI",
+    "EXSA.DE",
+    "SPYW.DE",
+    "ETFMIB.MI",
+    "IMIB.MI",
+    "EIMI.MI",
+    "VFEM.MI",
+    "XDWT.MI",
+    "XDWH.MI",
+    "XDWF.MI",
+    "INRG.MI",
+    "RBOT.MI",
+    "WCLD.MI",
+    "EM13.MI",
+    "CSBGE3.MI",
+    "IBGM.MI",
+    "IBGL.MI",
+    "XGLE.MI",
+    "BTP10.MI",
+    "IBTS.MI",
+    "IEAC.MI",
+    "IBCX.MI",
+    "IHYG.MI",
+    "EMBE.MI",
+    "AGGH.MI",
+    "IEAG.MI",
+    "IBCI.MI",
+    "ITPS.MI",
+    "XEON.MI",
+    "CMOD.MI"
+   ]
   }
  },
  "aliases": {
@@ -1084,7 +1134,52 @@
   "SUI20947-USD": "sui cripto",
   "UNI7083-USD": "uniswap cripto",
   "USDCHF=X": "dollaro franco svizzero cambio",
-  "NZDUSD=X": "dollaro neozelandese cambio"
+  "NZDUSD=X": "dollaro neozelandese cambio",
+  "SWDA.MI": "etf msci world mondo",
+  "VWCE.MI": "etf all world mondo vanguard",
+  "XDWD.MI": "etf",
+  "MWRD.MI": "etf",
+  "IUSN.DE": "etf",
+  "VHYL.MI": "etf",
+  "TDIV.MI": "etf",
+  "CSSPX.MI": "etf s&p 500 usa",
+  "VUAA.MI": "etf",
+  "IUSA.MI": "etf",
+  "CSNDX.MI": "etf nasdaq 100",
+  "EQQQ.MI": "etf",
+  "SMEA.MI": "etf",
+  "MEUD.MI": "etf",
+  "EXSA.DE": "etf",
+  "SPYW.DE": "etf",
+  "ETFMIB.MI": "etf ftse mib italia",
+  "IMIB.MI": "etf",
+  "EIMI.MI": "etf emergenti",
+  "VFEM.MI": "etf",
+  "XDWT.MI": "etf",
+  "XDWH.MI": "etf",
+  "XDWF.MI": "etf",
+  "INRG.MI": "etf",
+  "RBOT.MI": "etf",
+  "WCLD.MI": "etf",
+  "EM13.MI": "etf",
+  "CSBGE3.MI": "etf",
+  "IBGM.MI": "etf",
+  "IBGL.MI": "etf",
+  "XGLE.MI": "etf",
+  "BTP10.MI": "etf btp titoli di stato italia",
+  "IBTS.MI": "etf",
+  "IEAC.MI": "etf",
+  "IBCX.MI": "etf",
+  "IHYG.MI": "etf",
+  "EMBE.MI": "etf",
+  "AGGH.MI": "etf obbligazioni globali",
+  "IEAG.MI": "etf",
+  "IBCI.MI": "etf inflazione obbligazioni",
+  "ITPS.MI": "etf",
+  "XEON.MI": "etf liquidità monetario estr",
+  "CMOD.MI": "etf",
+  "TIP": "etf tips inflazione usa",
+  "IEF": "etf treasury 7-10 anni"
  },
  "regions": {
   "us": "Stati Uniti",
@@ -1286,5 +1381,351 @@
    "EURTRY=X",
    "EURSAR=X"
   ]
+ },
+ "etfs": {
+  "groups": [
+   {
+    "name": "Azionari mondo",
+    "items": [
+     {
+      "s": "SWDA.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "VWCE.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "XDWD.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "MWRD.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "IUSN.DE",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "VHYL.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "TDIV.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     }
+    ]
+   },
+   {
+    "name": "Azionari USA",
+    "items": [
+     {
+      "s": "CSSPX.MI",
+      "cls": "Azioni",
+      "reg": "USA"
+     },
+     {
+      "s": "VUAA.MI",
+      "cls": "Azioni",
+      "reg": "USA"
+     },
+     {
+      "s": "IUSA.MI",
+      "cls": "Azioni",
+      "reg": "USA"
+     },
+     {
+      "s": "CSNDX.MI",
+      "cls": "Azioni",
+      "reg": "USA"
+     },
+     {
+      "s": "EQQQ.MI",
+      "cls": "Azioni",
+      "reg": "USA"
+     }
+    ]
+   },
+   {
+    "name": "Azionari Europa e Italia",
+    "items": [
+     {
+      "s": "SMEA.MI",
+      "cls": "Azioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "MEUD.MI",
+      "cls": "Azioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "EXSA.DE",
+      "cls": "Azioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "SPYW.DE",
+      "cls": "Azioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "ETFMIB.MI",
+      "cls": "Azioni",
+      "reg": "Italia"
+     },
+     {
+      "s": "IMIB.MI",
+      "cls": "Azioni",
+      "reg": "Italia"
+     }
+    ]
+   },
+   {
+    "name": "Azionari emergenti",
+    "items": [
+     {
+      "s": "EIMI.MI",
+      "cls": "Azioni",
+      "reg": "Emergenti"
+     },
+     {
+      "s": "VFEM.MI",
+      "cls": "Azioni",
+      "reg": "Emergenti"
+     }
+    ]
+   },
+   {
+    "name": "Settoriali e tematici",
+    "items": [
+     {
+      "s": "XDWT.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "XDWH.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "XDWF.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "INRG.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "RBOT.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "WCLD.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     }
+    ]
+   },
+   {
+    "name": "Obbligazionari governativi",
+    "items": [
+     {
+      "s": "EM13.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "CSBGE3.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "IBGM.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "IBGL.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "XGLE.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "BTP10.MI",
+      "cls": "Obbligazioni",
+      "reg": "Italia"
+     },
+     {
+      "s": "IBTS.MI",
+      "cls": "Obbligazioni",
+      "reg": "USA"
+     }
+    ]
+   },
+   {
+    "name": "Obbligazionari societari e globali",
+    "items": [
+     {
+      "s": "IEAC.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "IBCX.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "IHYG.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "EMBE.MI",
+      "cls": "Obbligazioni",
+      "reg": "Emergenti"
+     },
+     {
+      "s": "AGGH.MI",
+      "cls": "Obbligazioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "IEAG.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     }
+    ]
+   },
+   {
+    "name": "Legati all'inflazione",
+    "items": [
+     {
+      "s": "IBCI.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "ITPS.MI",
+      "cls": "Obbligazioni",
+      "reg": "USA"
+     }
+    ]
+   },
+   {
+    "name": "Liquidità",
+    "items": [
+     {
+      "s": "XEON.MI",
+      "cls": "Liquidità",
+      "reg": "Europa"
+     }
+    ]
+   },
+   {
+    "name": "Oro e materie prime",
+    "items": [
+     {
+      "s": "SGLD.MI",
+      "cls": "Oro",
+      "reg": "Mondo"
+     },
+     {
+      "s": "PHAU.MI",
+      "cls": "Oro",
+      "reg": "Mondo"
+     },
+     {
+      "s": "CMOD.MI",
+      "cls": "Materie prime",
+      "reg": "Mondo"
+     }
+    ]
+   }
+  ]
+ },
+ "factors": {
+  "equity": {
+   "s": "SWDA.MI",
+   "name": "Azioni mondiali",
+   "unit": "%",
+   "range": [
+    -40,
+    40
+   ],
+   "step": 1
+  },
+  "rates": {
+   "s": "^TNX",
+   "name": "Tassi a 10 anni (Treasury USA, riferimento globale)",
+   "unit": "p.p.",
+   "range": [
+    -2,
+    2
+   ],
+   "step": 0.25,
+   "diff": true
+  },
+  "inflation": {
+   "s": [
+    "TIP",
+    "IEF"
+   ],
+   "name": "Inflazione attesa (TIPS contro Treasury)",
+   "unit": "p.p.",
+   "range": [
+    -2,
+    2
+   ],
+   "step": 0.25,
+   "scale": 7
+  },
+  "eurusd": {
+   "s": "EURUSD=X",
+   "name": "Euro contro dollaro",
+   "unit": "%",
+   "range": [
+    -20,
+    20
+   ],
+   "step": 1
+  },
+  "oil": {
+   "s": "BZ=F",
+   "name": "Petrolio Brent",
+   "unit": "%",
+   "range": [
+    -50,
+    50
+   ],
+   "step": 5
+  },
+  "gold": {
+   "s": "GC=F",
+   "name": "Oro",
+   "unit": "%",
+   "range": [
+    -30,
+    30
+   ],
+   "step": 1
+  }
  }
 }

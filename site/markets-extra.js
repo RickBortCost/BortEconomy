@@ -89,6 +89,32 @@ export async function renderHeatmap() {
   }).join("");
 }
 
+// ---------- ETF e indici ----------
+let etfKind = "etf";
+const short = (n) => String(n).replace(/\b(UCITS|ETF|ETC|USD|EUR|\(Acc\)|\(Dist\)|Acc|Dist|Accumulation|Distributing|PLC|II|VII|1C)\b/g, "").replace(/\s+-\s+/g, " ").replace(/\s{2,}/g, " ").trim();
+function etfRows(qs) {
+  return `<div class="dt-table"><table class="mt-table etf-t"><thead><tr><th>Nome</th><th>Prezzo</th><th>1G</th><th>Da inizio anno</th><th>1A</th><th>3A</th><th>5A</th></tr></thead><tbody>${qs.map((q) => `
+    <tr data-sym="${H.esc(q.symbol)}"><td><b>${H.esc(short(q.longName || q.name))}</b><small>${H.esc(q.symbol)}${q.f?.dy ? ` · dividendo ${H.nf(q.f.dy, 1)}%` : ""}</small></td>
+    <td>${H.nf(q.price, H.pdec(q.price))}<small>${H.esc(q.currency ?? "")}</small></td>
+    <td>${H.pctHtml(q.changePct)}</td><td>${H.pctHtml(q.ytdPct)}</td><td>${H.pctHtml(q.yearPct)}</td><td>${H.pctHtml(q.y3Pct)}</td><td>${H.pctHtml(q.y5Pct)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+export function renderEtf() {
+  const $ = H.$;
+  $$("#etf-kind button").forEach((b) => b.classList.toggle("on", b.dataset.v === etfKind));
+  if (etfKind === "etf") {
+    $("#etf-meta").textContent = "ETF UCITS quotati in Europa (Borsa Italiana dove possibile), in euro. Tocca un ETF per grafico, indicatori e confronto; aggiungilo alla Composizione del portafoglio per simulare il tuo mix.";
+    $("#etf-list").innerHTML = (H.config.etfs?.groups ?? []).map((g) => {
+      const qs = g.items.map((i) => H.bySymbol(i.s)).filter(Boolean);
+      return qs.length ? `<h2>${H.esc(g.name)}</h2>${etfRows(qs)}` : "";
+    }).join("") || '<div class="empty">Dati degli ETF non ancora disponibili: compariranno al prossimo aggiornamento.</div>';
+  } else {
+    const qs = H.allQuotes().filter((q) => q.type === "INDEX" && !/^\^(TNX|FVX|TYX|IRX|VIX)$/.test(q.symbol)).sort((a, b) => (b.y5Pct ?? -999) - (a.y5Pct ?? -999));
+    $("#etf-meta").textContent = "Indici di borsa mondiali, ordinati per rendimento a 5 anni (solo prezzo, senza dividendi). Gli indici non si comprano direttamente: si investono tramite ETF che li replicano.";
+    $("#etf-list").innerHTML = etfRows(qs);
+  }
+}
+const $$ = (s) => [...document.querySelectorAll(s)];
+
 // ---------- valute ----------
 export function renderForex() {
   const $ = H.$, C = H.config.forex;
@@ -137,5 +163,6 @@ export function initMarketsExtra(helpers) {
   for (const id of ["#fx-amount", "#fx-from", "#fx-to"]) $(id).addEventListener("input", convert);
   $("#fx-swap").addEventListener("click", () => { const a = $("#fx-from").value; $("#fx-from").value = $("#fx-to").value; $("#fx-to").value = a; convert(); });
   H.seg("#cr-period", (v) => { mx.cryptoField = v; renderCrypto(); });
+  $("#etf-kind").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { etfKind = b.dataset.v; renderEtf(); } });
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (!$("#mk-view-map").hidden) renderHeatmap(); }, 200); });
 }

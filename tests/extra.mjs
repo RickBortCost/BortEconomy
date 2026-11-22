@@ -173,4 +173,68 @@ export default [
       await page.click('#mk-subnav button[data-v="overview"]');
     },
   },
+  {
+    name: "ETF e indici: categorie e rendimenti",
+    async run({ page, assert }) {
+      await page.click("[data-tab=markets]");
+      await page.click('#mk-subnav button[data-v="etf"]');
+      await page.waitForSelector("#etf-list h2, #etf-list .empty");
+      if (await page.$("#etf-list .empty")) return; // dati del sito pubblicato non ancora aggiornati
+      // ETF della configurazione presenti nei dati (in CI i dati sono quelli già pubblicati, forse precedenti)
+      const expected = await page.evaluate(async () => {
+        const [cfg, mk] = await Promise.all([fetch("config.json").then((r) => r.json()), fetch("data/markets.json").then((r) => r.json())]);
+        const have = new Set(mk.quotes.map((q) => q.symbol));
+        return cfg.etfs.groups.flatMap((g) => g.items).filter((i) => have.has(i.s)).length;
+      });
+      const shown = await page.$$eval("#etf-list .etf-t tr[data-sym]", (r) => r.length);
+      assert(shown === expected, `ETF mostrati ${shown}, attesi ${expected}`);
+      await page.click('#etf-kind button[data-v="idx"]');
+      assert(await page.$$eval("#etf-list tr[data-sym]", (r) => r.length) >= 5, "pochi indici");
+      await page.click('#mk-subnav button[data-v="overview"]');
+    },
+  },
+  {
+    name: "composizione: modello, pesi, andamento storico e metriche",
+    async run({ page, assert }) {
+      await page.evaluate(() => localStorage.removeItem("composition"));
+      await page.click("[data-tab=portfolio]");
+      await page.click('#pf-subnav button[data-v="composition"]');
+      await page.waitForSelector("#cp-presets button");
+      await page.click('#cp-presets button[data-preset="1"]'); // 60/40
+      await page.waitForSelector("#cp-rows .cp-w");
+      assert(await page.$$eval("#cp-rows .cp-w", (r) => r.length) === 2, "modello 60/40 non caricato");
+      const hasHist = await page.evaluate(async () => (await fetch("data/hist/SWDA.MI.json")).ok);
+      if (hasHist) {
+        await page.waitForSelector("#cp-chart svg", { timeout: 10000 });
+        assert((await page.textContent("#cp-metrics")).includes("Volatilità"), "metriche assenti");
+      }
+      await page.fill("#cp-rows .cp-w >> nth=0", "50");
+      await page.press("#cp-rows .cp-w >> nth=0", "Enter");
+      await page.dispatchEvent("#cp-rows .cp-w >> nth=0", "change");
+      await page.waitForSelector("#cp-norm");
+      await page.click("#cp-norm");
+      assert((await page.textContent("#cp-total")).includes("100"), "normalizzazione non riuscita");
+    },
+  },
+  {
+    name: "laboratorio: indicatori macro, sensibilità, scenari e stress test",
+    async run({ page, assert }) {
+      await page.click("[data-tab=portfolio]");
+      await page.click('#pf-subnav button[data-v="lab"]');
+      await page.waitForSelector("#lab-macro .lab-m, #lab-macro .empty", { timeout: 10000 });
+      const hasMacro = await page.evaluate(async () => (await fetch("data/macro.json")).ok);
+      if (hasMacro) {
+        assert(await page.$$eval("#lab-macro .lab-m", (c) => c.length) >= 6, "indicatori macro mancanti");
+        await page.click("#lab-macro .lab-m >> nth=0");
+        await page.waitForSelector("#lab-macro-chart svg");
+      }
+      const hasF = await page.evaluate(async () => (await fetch("data/hist/TIP.json")).ok);
+      if (!hasF) return;
+      await page.waitForSelector(".lab-sens-t", { timeout: 15000 });
+      await page.click("#lab-presets button >> nth=3"); // recessione
+      const r = await page.textContent("#lab-result");
+      assert(/[+-]\d/.test(r), `impatto dello scenario assente: ${r}`);
+      await page.waitForSelector("#lab-stress tr");
+    },
+  },
 ];

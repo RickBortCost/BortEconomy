@@ -59,9 +59,17 @@ function groupOf(r, by) {
   return q.region ? H.config.regions?.[q.region] ?? q.region : H.config.catalog?.[q.group]?.name ?? q.exchange ?? "Altro";
 }
 
+// Pesi attuali delle posizioni (per valore in euro) e valore totale, usati da Composizione e Laboratorio
+export function positionWeights() {
+  const rows = rowsData().filter((r) => r.value > 0);
+  const tot = rows.reduce((s, r) => s + r.value, 0);
+  return tot ? rows.map((r) => ({ sym: r.sym, w: r.value / tot })) : [];
+}
+export const positionsValue = () => rowsData().reduce((s, r) => s + (r.value ?? 0), 0);
+
 // ---------- grafici ----------
 const COLORS = ["#2563eb", "#059669", "#f59e0b", "#dc2626", "#7c3aed", "#0891b2", "#db2777", "#65a30d", "#ea580c", "#64748b"];
-function donut(parts) {
+export function donut(parts) {
   const total = parts.reduce((s, p) => s + p.v, 0);
   if (!total) return "";
   let a = -Math.PI / 2;

@@ -36,7 +36,7 @@ export async function chart(symbol, range, interval) {
   } catch { return null; }
 }
 
-export function summarize(symbol, meta, daily) {
+export function summarize(symbol, meta, daily, weekly = []) {
   if (!meta || !daily.length) return null;
   const price = meta.regularMarketPrice ?? daily.at(-1)[1];
   const lastDay = new Date((meta.regularMarketTime ?? daily.at(-1)[0]) * 1000).toISOString().slice(0, 10);
@@ -59,6 +59,9 @@ export function summarize(symbol, meta, daily) {
     weekPct: pct(price, prior.at(-5)?.[1]),
     monthPct: pct(price, ref(30)),
     yearPct: pct(price, ref(365)),
+    ytdPct: pct(price, daily.findLast(([t]) => new Date(t * 1000).getUTCFullYear() < new Date(now * 1000).getUTCFullYear())?.[1]),
+    y3Pct: pct(price, weekly.findLast(([t]) => t <= now - 3 * 365.25 * 86400)?.[1]),
+    y5Pct: pct(price, weekly.findLast(([t]) => t <= now - 5 * 365.25 * 86400)?.[1]),
     dayHigh: meta.regularMarketDayHigh, dayLow: meta.regularMarketDayLow,
     high52: meta.fiftyTwoWeekHigh, low52: meta.fiftyTwoWeekLow,
     volume: meta.regularMarketVolume,
