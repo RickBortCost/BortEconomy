@@ -5,7 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>BortEconomy</title>
   <meta name="description" content="News economiche del giorno e della settimana, mercati mondiali e analisi AI con Claude.">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#ffffff">
+  <script>
+    // Applica il tema salvato prima del rendering (evita il lampo di colore)
+    (function () {
+      var t = "auto"; try { t = localStorage.getItem("theme") || "auto"; } catch (e) {}
+      if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      var dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.querySelector('meta[name="theme-color"]').content = dark ? "#111827" : "#ffffff";
+    })();
+  </script>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
@@ -15,6 +24,7 @@
   <header class="topbar">
     <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>BortEconomy</span></div>
     <button class="icon-btn" id="search-btn" aria-label="Cerca un titolo" title="Cerca un titolo">🔍</button>
+    <button class="icon-btn" id="theme-btn" aria-label="Tema" title="Tema">🌓</button>
     <label class="country">
       <span class="sr">Paese</span>
       <select id="country"></select>
@@ -97,9 +107,9 @@
   <section id="detail" class="detail" hidden aria-label="Dettaglio titolo">
     <div class="dt-wrap">
       <header class="dt-head">
-        <button class="ghost" id="dt-back" aria-label="Chiudi">← Indietro</button>
+        <button class="ghost" id="dt-back" aria-label="Indietro">←<span class="lbl"> Indietro</span></button>
         <span class="dt-actions">
-          <button class="ghost" id="dt-fav" aria-pressed="false">☆ Preferito</button>
+          <button class="ghost" id="dt-fav" aria-pressed="false" aria-label="Aggiungi ai preferiti">☆<span class="lbl"> Preferito</span></button>
           <button class="ghost" id="dt-ask">✨ Chiedi a Claude</button>
         </span>
       </header>

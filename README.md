@@ -6,6 +6,7 @@ Web app (anche mobile, installabile come PWA) con:
 - **Mercati**: indici mondiali, valute/materie prime/tassi, migliori e peggiori titoli mondiali (giorno/settimana), titoli principali del paese. Fonte: Yahoo Finance (dati ritardati).
 - **Ricerca e preferiti**: ricerca tra 461 titoli, indici, valute, materie prime, cripto ed ETF; preferiti salvati nel browser.
 - **Dettaglio titolo**: grafico interattivo per ore, giorni e settimane, statistiche e storico per ogni simbolo (link diretto `#q=SIMBOLO`).
+- **Tema chiaro/scuro**: automatico secondo il sistema o scelto manualmente (pulsante 🌓 in alto).
 - **Claude AI**: chat con analisi basata sulle notizie e i dati caricati, con ricerca web.
 
 ## Come funziona
