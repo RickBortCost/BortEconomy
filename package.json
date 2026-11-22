@@ -1,6 +1,6 @@
 {
   "name": "borteconomy",
-  "version": "1.19.0",
+  "version": "1.19.1",
   "private": true,
   "description": "News economiche, mercati mondiali e analisi AI con Claude",
   "type": "module",

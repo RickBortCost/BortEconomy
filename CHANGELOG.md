@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.19.1] - 2026-11-22
+
+### Sicurezza
+- Analisi con **TruffleHog** (storico Git, branch pubblicato, file): nessun segreto. **Trivy** (dipendenze npm, segreti, configurazioni): nessuna vulnerabilità. **SkillSpector** sulle skill di terze parti usate (plugin Cloudflare, security-audit): nessun rischio reale (segnalazioni su testo descrittivo). Revisione del codice secondo la metodologia della skill Cloudflare security-audit.
+- Nuovo workflow **Controlli di sicurezza** (`security.yml`): TruffleHog e Trivy a ogni PR, a ogni rilascio e ogni lunedì, con immagini bloccate per digest.
+- Proxy AI: blocco temporaneo dopo 20 codici di accesso errati all'ora dallo stesso indirizzo IP.
+- Funzione dati su Cloudflare: verifica che ogni richiesta resti sull'origine dei dati pubblicati (difesa in profondità contro percorsi tipo `//altro-host`).
+
 ## [1.19.0] - 2026-11-22
 
 ### Aggiunto
@@ -255,7 +263,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.1...HEAD
+[1.19.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.0...v1.19.1
 [1.19.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.18.0...v1.19.0
 [1.18.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.17.0...v1.18.0
 [1.17.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.16.0...v1.17.0

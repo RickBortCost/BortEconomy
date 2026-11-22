@@ -31,6 +31,10 @@ Il sito non usa account, cookie, statistiche o tracciamenti. Carattere e libreri
 - Proxy AI: chiavi dei fornitori solo come secret del progetto Cloudflare; accesso con codice personale (`BORT_ACCESS_CODES`), limite giornaliero per persona, percorsi API ammessi in elenco, solo dalla stessa origine. Il proxy non registra domande né risposte; Cloudflare registra metadati delle richieste (IP, orari).
 - Chi conosce un codice può usare il credito del proprietario fino al limite giornaliero: usa codici lunghi, uno per persona, e revocali togliendoli dal secret.
 
+## Controlli automatici
+
+Il workflow `security.yml` esegue TruffleHog (segreti nello storico Git e nel sito pubblicato) e Trivy (vulnerabilità delle dipendenze, segreti, configurazioni) a ogni pull request, a ogni rilascio e settimanalmente. Dependabot propone gli aggiornamenti di dipendenze e azioni.
+
 ## Limiti noti
 
 - I profili separano i dati, ma chi usa il dispositivo può eliminare un profilo non protetto o i dati del browser; un profilo con password non è leggibile senza di essa.
