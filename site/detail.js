@@ -1,3 +1,4 @@
+import { pls } from "./profiles.js";
 import { sma, bollinger, rsi } from "./indicators.js";
 // Vista di dettaglio di un titolo: grafico interattivo (ore / giorni / settimane), statistiche e storico.
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -21,8 +22,8 @@ const st = { sym: null, quote: null, hist: null, gran: "day", range: "6M", showA
 const cache = new Map();
 const $ = (s) => document.querySelector(s);
 
-function pref(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } }
-function setPref(k, v) { try { localStorage.setItem(k, v); } catch {} }
+function pref(k, d) { return pls.get(k) ?? d; }
+function setPref(k, v) { pls.set(k, v); }
 
 function slice(points, tz, spec) {
   if (!points.length || spec.all) return points;

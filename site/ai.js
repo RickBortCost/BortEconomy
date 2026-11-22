@@ -3,6 +3,7 @@
 // Ogni fornitore mantiene la propria conversazione nel formato nativo della sua API.
 
 import { vault } from "./vault.js";
+import { pls, pss } from "./profiles.js";
 
 const sse = async function* (res) {
   const reader = res.body.getReader(), dec = new TextDecoder();
@@ -143,25 +144,22 @@ export const PROVIDERS = { claude, openai, gemini };
 const LEGACY = { claude: ["apiKey", "model"] }; // chiavi usate prima del supporto multi-fornitore
 const kKey = (p) => LEGACY[p]?.[0] ?? `apiKey.${p}`;
 const kModel = (p) => LEGACY[p]?.[1] ?? `model.${p}`;
-const safe = (f, d) => { try { return f(); } catch { return d; } };
 
 export const aiSettings = {
-  provider() { const p = safe(() => localStorage.getItem("ai-provider"), null); return PROVIDERS[p] ? p : "claude"; },
-  setProvider(p) { safe(() => localStorage.setItem("ai-provider", p)); },
+  provider() { const p = pls.get("ai-provider"); return PROVIDERS[p] ? p : "claude"; },
+  setProvider(p) { pls.set("ai-provider", p); },
   key(p) {
     if (vault.enabled()) return vault.get(kKey(p)) || ""; // cassaforte attiva: chiave cifrata, disponibile solo da sbloccata
-    return safe(() => sessionStorage.getItem(kKey(p)) || localStorage.getItem(kKey(p)) || "", "");
+    return pss.get(kKey(p)) || pls.get(kKey(p)) || "";
   },
-  persistent(p) { return vault.enabled() || safe(() => !!localStorage.getItem(kKey(p)), false); },
+  persistent(p) { return vault.enabled() || !!pls.get(kKey(p)); },
   setKey(p, v, persist) {
     if (vault.enabled()) { vault.set(kKey(p), v || null); return; }
-    safe(() => {
-      localStorage.removeItem(kKey(p)); sessionStorage.removeItem(kKey(p));
-      if (v) (persist ? localStorage : sessionStorage).setItem(kKey(p), v);
-    });
+    pls.set(kKey(p), null); pss.set(kKey(p), null);
+    if (v) (persist ? pls : pss).set(kKey(p), v);
   },
-  model(p) { return safe(() => localStorage.getItem(kModel(p)), null) || PROVIDERS[p].defaultModel; },
-  setModel(p, m) { safe(() => localStorage.setItem(kModel(p), m)); },
+  model(p) { return pls.get(kModel(p)) || PROVIDERS[p].defaultModel; },
+  setModel(p, m) { pls.set(kModel(p), m); },
   configured() { return Object.keys(PROVIDERS).filter((p) => this.key(p)); },
 };
 

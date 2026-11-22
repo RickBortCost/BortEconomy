@@ -628,3 +628,20 @@ dialog::backdrop { background: rgb(7 11 22 / .5); backdrop-filter: blur(3px); }
 .lock-card .ic { width: 34px; height: 34px; color: var(--star); }
 .lock-card p { margin: 0; color: var(--muted); max-width: 42ch; }
 .vault-hidden { display: none !important; }
+
+/* ---------- profili ---------- */
+.avatar { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-weight: 700; font-size: 13px; color: #fff; background: #4f46e5; flex: none; }
+.avatar[data-c="1"] { background: #0891b2; } .avatar[data-c="2"] { background: #059669; } .avatar[data-c="3"] { background: #d97706; }
+.avatar[data-c="4"] { background: #db2777; } .avatar[data-c="5"] { background: #7c3aed; }
+.prof-btn { display: grid; place-items: center; padding: 0; }
+.prof-list { list-style: none; margin: 8px 0 4px; padding: 0; display: grid; gap: 8px; }
+.prof-list li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card2); }
+.prof-list li.on { border-color: var(--accent); }
+.prof-pick { display: flex; align-items: center; gap: 10px; flex: 1 1 100px; min-width: 0; background: none; border: 0; color: inherit; font: inherit; text-align: left; padding: 2px 0; }
+button.prof-pick { cursor: pointer; }
+.prof-pick .avatar { width: 34px; height: 34px; font-size: 15px; }
+.prof-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prof-pick .ic { width: 16px; height: 16px; color: var(--muted); }
+.prof-acts { display: flex; gap: 6px; }
+.prof-acts button { padding: 6px 10px; }
+#unlock-switch { justify-self: start; }

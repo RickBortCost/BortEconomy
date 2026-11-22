@@ -7,7 +7,9 @@
     try { window.top.location = window.self.location.href; } catch (e) {}
   }
   // Tema salvato applicato subito (evita il lampo di colore)
-  var t = "auto"; try { t = localStorage.getItem("theme") || "auto"; } catch (e) {}
+  // (tema del profilo attivo: il profilo "default" usa chiavi senza prefisso, gli altri "p.<id>.")
+  var t = "auto";
+  try { var a = localStorage.getItem("profile-active"); t = localStorage.getItem(a && a !== "default" ? "p." + a + ".theme" : "theme") || "auto"; } catch (e) {}
   if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
   var dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
   var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = dark ? "#070b16" : "#f3f5fa";

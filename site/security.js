@@ -1,10 +1,13 @@
 // Interfaccia di privacy e sicurezza: cassaforte (attivazione, sblocco, blocco automatico), condivisione con l'AI,
 // backup cifrato, cancellazione di tutti i dati, informativa.
 import { vault, strength, sealWithPassword, openWithPassword, PROTECTED } from "./vault.js";
+import { profiles, pls, MAX_PROFILES } from "./profiles.js";
 
 let H;
 const $ = (s) => document.querySelector(s);
 const STRENGTH = ["molto debole", "debole", "discreta", "buona", "ottima"];
+const escH = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const many = () => profiles.list().length > 1;
 
 // ---------- password: finestra generica ----------
 export function askPassword({ title, text = "", confirm = false, ok = "Conferma" }) {
@@ -33,6 +36,9 @@ export async function unlockFlow() {
   const d = $("#unlock-dialog");
   return new Promise((resolve) => {
     $("#unlock-pw").value = ""; $("#unlock-err").textContent = "";
+    $("#unlock-prof").hidden = $("#unlock-switch").hidden = !many();
+    $("#unlock-prof").innerHTML = `Profilo: <b>${escH(profiles.active().name)}</b>`;
+    $("#unlock-switch").onclick = (e) => { e.preventDefault(); d.close(); openProfiles(true).then(() => { if (vault.locked()) unlockFlow().then(renderLockState); }); };
     $("#unlock-ok").onclick = async (e) => {
       e.preventDefault();
       $("#unlock-ok").disabled = true; $("#unlock-err").textContent = "Verifica…";
@@ -55,6 +61,9 @@ export async function unlockFlow() {
 export function renderLockState() {
   const b = $("#sec-btn"), en = vault.enabled(), un = vault.unlocked();
   b.innerHTML = `<svg class="ic" aria-hidden="true"><use href="#i-${!en ? "shield" : un ? "unlock" : "lock"}"/></svg>`;
+  const p = profiles.active(), av = $("#prof-avatar");
+  av.textContent = profiles.initials(p); av.dataset.c = p.color ?? 0;
+  $("#prof-btn").title = $("#prof-btn").ariaLabel = `Profilo: ${p.name}`;
   b.title = b.ariaLabel = !en ? "Privacy e sicurezza" : un ? "Cassaforte sbloccata – tocca per le opzioni" : "Dati protetti bloccati – tocca per sbloccare";
   b.classList.toggle("locked", en && !un);
   document.body.classList.toggle("vault-locked", en && !un);
@@ -72,6 +81,7 @@ function renderSecurity() {
   $("#sec-lock").textContent = un ? "Blocca ora" : "Sblocca";
   for (const id of ["#sec-chpw", "#sec-disable", "#sec-autolock"]) $(id).disabled = !un;
   $("#sec-autolock").value = String(vault.autoLockMin());
+  $("#sec-wipe").textContent = many() ? `Elimina il profilo "${profiles.active().name}" e i suoi dati` : "Elimina tutti i miei dati da questo browser";
   $("#sec-share-favs").checked = H.store.get("share-favs", "0") === "1";
   $("#sec-share-confirm").checked = H.store.get("share-confirm", "1") === "1";
 }
@@ -82,7 +92,7 @@ async function exportBackup() {
   if (!pw) return;
   const data = {};
   for (const k of [...PROTECTED, "theme", "country", "mt-cur", "pendingAdds", "share-favs", "share-confirm", "ai-provider", "model", "model.openai", "model.gemini", "web"]) {
-    const v = PROTECTED.includes(k) ? vault.get(k) : localStorage.getItem(k);
+    const v = PROTECTED.includes(k) ? vault.get(k) : pls.get(k);
     if (v != null) data[k] = v;
   }
   const box = await sealWithPassword({ app: "BortEconomy", exported: new Date().toISOString(), data }, pw);
@@ -99,19 +109,86 @@ async function importBackup(file) {
     try { content = await openWithPassword(j.encrypted, pw); } catch { alert("Password errata o file danneggiato."); return; }
     if (vault.locked()) { await unlockFlow(); if (vault.locked()) return; }
     for (const [k, v] of Object.entries(content.data ?? {})) {
-      if (PROTECTED.includes(k)) vault.set(k, v); else localStorage.setItem(k, v);
+      if (PROTECTED.includes(k)) vault.set(k, v); else pls.set(k, v);
     }
     alert("Backup importato."); location.reload();
   } catch { alert("File non valido."); }
 }
 
 async function wipeAll() {
+  if (many()) {
+    const cur = profiles.active();
+    if (!confirm(`Eliminare il profilo "${cur.name}" e tutti i suoi dati (chiavi API, portafoglio, composizione, preferiti, impostazioni)?\n\nGli altri profili non vengono toccati. L'operazione non è reversibile.`)) return;
+    vault.destroy();
+    const next = profiles.list().find((x) => x.id !== cur.id);
+    profiles.activeId = next.id; profiles.remove(cur.id);
+    try { localStorage.setItem("profile-active", next.id); } catch {}
+    profiles.forgetChoice(); location.reload();
+    return;
+  }
   if (!confirm("Eliminare tutti i dati di BortEconomy da questo browser?\n\nChiavi API, portafoglio, composizione, preferiti, avvisi richiesti, impostazioni e dati salvati per l'uso offline verranno cancellati. L'operazione non è reversibile.")) return;
   vault.destroy();
   try { localStorage.clear(); sessionStorage.clear(); } catch {}
   try { for (const k of await caches.keys()) await caches.delete(k); } catch {}
   try { for (const r of (await navigator.serviceWorker?.getRegistrations()) ?? []) await r.unregister(); } catch {}
   location.reload();
+}
+
+// ---------- profili ----------
+// chooser = true: scelta del profilo all'apertura (o dalla finestra di sblocco), senza funzioni di gestione
+function renderProfiles(chooser) {
+  const cur = profiles.activeId, list = profiles.list();
+  $("#prof-title").textContent = chooser ? "Chi sta usando BortEconomy?" : "Profili";
+  $("#prof-sub").textContent = chooser ? "Scegli il tuo profilo: ognuno ha dati e password separati." : `Profilo in uso: ${profiles.active().name}.`;
+  $("#prof-new").hidden = chooser || list.length >= MAX_PROFILES;
+  $("#prof-list").innerHTML = list.map((p) => {
+    const on = p.id === cur, lock = profiles.protectedProfile(p.id);
+    const acts = chooser ? "" : on
+      ? `<button type="button" class="ghost" data-prof-rename="${p.id}">Rinomina</button>`
+      : `<button type="button" class="ghost" data-prof-use="${p.id}">Usa</button><button type="button" class="ghost danger" data-prof-del="${p.id}" aria-label="Elimina ${escH(p.name)}">Elimina</button>`;
+    const main = chooser ? `<button type="button" class="prof-pick" data-prof-use="${p.id}">` : `<div class="prof-pick">`;
+    return `<li class="${on ? "on" : ""}">${main}<span class="avatar" data-c="${p.color ?? 0}">${escH(profiles.initials(p))}</span>
+      <span class="prof-name">${escH(p.name)}${on ? ' <small class="meta">in uso</small>' : ""}</span>
+      ${lock ? '<svg class="ic" aria-label="Protetto da password"><use href="#i-lock"/></svg>' : ""}${chooser ? "</button>" : "</div>"}
+      ${acts ? `<span class="prof-acts">${acts}</span>` : ""}</li>`;
+  }).join("");
+}
+let profResolve = null;
+export function openProfiles(chooser = false) {
+  renderProfiles(chooser);
+  $("#prof-name").value = ""; $("#prof-err").textContent = "";
+  const d = $("#prof-dialog");
+  return new Promise((resolve) => { profResolve = resolve; d.showModal(); });
+}
+function useProfile(id) {
+  if (id === profiles.activeId) { $("#prof-dialog").close(); return; }
+  vault.lock(); profiles.switchTo(id); // ricarica: nulla del profilo corrente resta in memoria
+}
+async function createProfile() {
+  const name = $("#prof-name").value.trim();
+  if (!name) { $("#prof-err").textContent = "Inserisci un nome."; return; }
+  if (profiles.list().some((p) => p.name.toLowerCase() === name.toLowerCase())) { $("#prof-err").textContent = "Esiste già un profilo con questo nome."; return; }
+  let pw = null;
+  if ($("#prof-protect").checked) {
+    $("#prof-dialog").close();
+    pw = await askPassword({ title: `Password del profilo "${name}"`, text: "Serve per aprire questo profilo. Non è recuperabile: conservala in un gestore di password.", confirm: true, ok: "Crea profilo" });
+    if (!pw) return;
+  }
+  const id = profiles.create(name);
+  if (pw) await vault.createFor(id, pw);
+  useProfile(id);
+}
+async function deleteProfile(id) {
+  const p = profiles.get(id); if (!p) return;
+  if (profiles.protectedProfile(id)) {
+    $("#prof-dialog").close();
+    const pw = await askPassword({ title: `Elimina il profilo "${p.name}"`, text: "Inserisci la password di quel profilo.", ok: "Elimina" });
+    if (!pw) return;
+    if (!(await vault.check(id, pw))) { alert("Password errata."); return; }
+  } else if (!confirm(`Eliminare il profilo "${p.name}" e tutti i suoi dati? L'operazione non è reversibile.`)) return;
+  profiles.remove(id);
+  renderLockState();
+  if (!$("#prof-dialog").open) openProfiles(); else renderProfiles(false);
 }
 
 // Conferma prima di inviare dati personali a un assistente AI
@@ -156,6 +233,24 @@ export function initSecurity(helpers) {
   $("#sec-import").addEventListener("change", (e) => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ""; });
   $("#sec-wipe").addEventListener("click", wipeAll);
   for (const b of document.querySelectorAll("[data-open-sec]")) b.addEventListener("click", (e) => { e.preventDefault(); renderSecurity(); $("#sec-dialog").showModal(); });
+  // profili
+  const pd = $("#prof-dialog");
+  $("#prof-btn").addEventListener("click", () => openProfiles());
+  for (const b of document.querySelectorAll("[data-open-prof]")) b.addEventListener("click", (e) => { e.preventDefault(); $("#sec-dialog").close(); openProfiles(); });
+  $("#prof-create").addEventListener("click", createProfile);
+  $("#prof-name").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); createProfile(); } });
+  $("#prof-list").addEventListener("click", (e) => {
+    const u = e.target.closest("[data-prof-use]"), del = e.target.closest("[data-prof-del]"), rn = e.target.closest("[data-prof-rename]");
+    if (u) useProfile(u.dataset.profUse);
+    else if (del) deleteProfile(del.dataset.profDel);
+    else if (rn) {
+      const n = prompt("Nuovo nome del profilo", profiles.active().name);
+      if (n?.trim()) { profiles.rename(rn.dataset.profRename, n); renderProfiles(false); renderLockState(); }
+    }
+  });
+  pd.addEventListener("close", () => { profiles.markChosen(); profResolve?.(); profResolve = null; });
+
   renderLockState();
-  if (vault.locked()) unlockFlow().then(renderLockState);
+  if (profiles.needsChoice()) openProfiles(true).then(() => { if (vault.locked() && !$("#unlock-dialog").open) unlockFlow().then(renderLockState); });
+  else if (vault.locked()) unlockFlow().then(renderLockState);
 }

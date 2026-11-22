@@ -5,6 +5,17 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.15.0] - 2026-11-22
+
+### Aggiunto
+- **Profili utente sullo stesso dispositivo** (pulsante con l'iniziale in alto): fino a 8 profili, ognuno con preferiti, portafoglio, composizione, chiavi API, impostazioni, tema e cassaforte cifrata separati, con password distinte. Creazione con protezione a password consigliata, cambio profilo, rinomina, eliminazione (per un profilo protetto serve la sua password).
+- Con più profili, all'apertura dell'app si sceglie chi la sta usando; la finestra di sblocco mostra il profilo e permette di cambiarlo.
+
+### Modificato
+- Il cambio di profilo ricarica sempre l'app: nessun dato né chiave del profilo precedente resta in memoria.
+- Con più profili, "Elimina i miei dati" elimina solo il profilo in uso; backup cifrato e ripristino riguardano il profilo in uso.
+- Il profilo esistente diventa "Principale" senza alcuna migrazione dei dati.
+
 ## [1.14.0] - 2026-11-22
 
 ### Aggiunto
@@ -211,7 +222,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.14.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.15.0...HEAD
+[1.15.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.11.0...v1.12.0

@@ -370,4 +370,55 @@ export default [
       await page.evaluate(() => localStorage.clear());
     },
   },
+  {
+    name: "profili: dati separati, password distinte, scelta all'avvio ed eliminazione",
+    async run({ page, assert }) {
+      const PW = "Profilo-Bea-Sicuro-2026";
+      await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); localStorage.setItem("favs", JSON.stringify(["ENI.MI"])); localStorage.setItem("apiKey.openai", "sk-di-anna"); });
+      await page.reload();
+      // nuovo profilo protetto
+      await page.click("#prof-btn"); await page.waitForSelector("#prof-dialog[open]");
+      await page.fill("#prof-name", "Bea"); await page.click("#prof-create");
+      await page.waitForSelector("#pw-dialog[open]");
+      await page.fill("#pw-1", PW); await page.fill("#pw-2", PW);
+      await Promise.all([page.waitForEvent("load"), page.click("#pw-ok")]);
+      // il nuovo profilo è protetto: chiede la sua password
+      await page.waitForSelector("#unlock-dialog[open]");
+      assert((await page.textContent("#unlock-prof")).includes("Bea"), "nome del profilo non mostrato nello sblocco");
+      await page.fill("#unlock-pw", PW); await page.click("#unlock-ok");
+      await page.waitForFunction(() => !document.querySelector("#unlock-dialog").open);
+      // i dati del profilo principale non sono visibili
+      const favs = await page.evaluate(async () => (await import("./vault.js")).vault.get("favs"));
+      assert(!favs, "preferiti del profilo principale visibili in un altro profilo");
+      const key = await page.evaluate(async () => (await import("./ai.js")).aiSettings.key("openai"));
+      assert(!key, "chiave API del profilo principale visibile in un altro profilo");
+      await page.evaluate(async () => (await import("./vault.js")).vault.set("favs", JSON.stringify(["AAPL"])));
+      await page.waitForTimeout(300);
+      const raw = await page.evaluate(() => JSON.stringify({ ...localStorage }));
+      assert(!raw.includes("AAPL"), "dati del profilo protetto salvati in chiaro");
+      // riapertura: scelta del profilo
+      await page.evaluate(() => sessionStorage.clear());
+      await page.reload();
+      await page.waitForSelector("#prof-dialog[open] .prof-pick");
+      assert((await page.$$eval("#prof-list li", (l) => l.length)) === 2, "elenco profili errato");
+      await Promise.all([page.waitForEvent("load"), page.click('#prof-list li:not(.on) [data-prof-use]')]);
+      await page.waitForTimeout(300);
+      const back = await page.evaluate(async () => ({ f: (await import("./vault.js")).vault.get("favs"), k: (await import("./ai.js")).aiSettings.key("openai") }));
+      assert(back.f?.includes("ENI.MI") && back.k === "sk-di-anna", "dati del profilo principale non ripristinati");
+      // eliminazione del profilo protetto: serve la sua password
+      await page.click("#prof-btn");
+      await page.click("#prof-list [data-prof-del]");
+      await page.waitForSelector("#pw-dialog[open]");
+      page.once("dialog", (d) => d.accept());
+      await page.fill("#pw-1", "sbagliata"); await page.click("#pw-ok");
+      await page.waitForTimeout(300);
+      assert(await page.evaluate(() => JSON.parse(localStorage.getItem("profiles")).length === 2), "profilo eliminato con password errata");
+      await page.click("#prof-btn");
+      await page.click("#prof-list [data-prof-del]");
+      await page.fill("#pw-1", PW); await page.click("#pw-ok");
+      await page.waitForFunction(() => JSON.parse(localStorage.getItem("profiles")).length === 1);
+      assert(await page.evaluate(() => !Object.keys(localStorage).some((k) => k.startsWith("p."))), "dati del profilo eliminato rimasti nel browser");
+      await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+    },
+  },
 ];
