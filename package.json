@@ -1,0 +1,15 @@
+{
+  "name": "borteconomy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "News economiche, mercati mondiali e analisi AI con Claude",
+  "type": "module",
+  "scripts": {
+    "data": "node scripts/fetch-data.mjs",
+    "serve": "python3 -m http.server 8000 -d site",
+    "release:patch": "node scripts/bump.mjs patch",
+    "release:minor": "node scripts/bump.mjs minor",
+    "release:major": "node scripts/bump.mjs major"
+  },
+  "engines": { "node": ">=20" }
+}

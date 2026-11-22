@@ -31,3 +31,15 @@ cd site && python3 -m http.server 8000
 ```
 
 Paesi e titoli monitorati sono configurabili in `site/config.json`.
+
+## Versioni e release
+
+Versionamento [SemVer](https://semver.org/lang/it/); la versione è in `package.json` ed è mostrata nel piè di pagina dell'app. Le modifiche sono documentate in [`CHANGELOG.md`](CHANGELOG.md).
+
+Per pubblicare una nuova versione:
+
+1. Descrivi le modifiche nella sezione `## [Non rilasciato]` di `CHANGELOG.md` (`### Aggiunto`, `### Modificato`, `### Corretto`, `### Rimosso`).
+2. Esegui `npm run release:patch` (correzioni), `release:minor` (nuove funzioni) o `release:major` (modifiche incompatibili).
+3. Fai commit e merge su `main`.
+
+Il workflow `.github/workflows/release.yml` crea automaticamente il tag `vX.Y.Z` e la GitHub Release con le note prese dal changelog; il workflow Pages ripubblica il sito.

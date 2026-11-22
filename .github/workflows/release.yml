@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths: [package.json, CHANGELOG.md]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Leggi versione
+        id: v
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Crea tag e release se la versione è nuova
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          TAG="v$VERSION"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Il tag $TAG esiste già: nessuna release."; exit 0
+          fi
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\]" {on=1; next}
+            on && /^## \[/ {exit}
+            on && /^\[.*\]: / {exit}
+            on {print}
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ] || ! grep -q '[^[:space:]]' notes.md; then
+            echo "::error::Manca la sezione [$VERSION] in CHANGELOG.md"; exit 1
+          fi
+          gh release create "$TAG" --target "$GITHUB_SHA" --title "BortEconomy $TAG" --notes-file notes.md
