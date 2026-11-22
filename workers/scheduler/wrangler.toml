@@ -1,0 +1,13 @@
+name = "borteconomy-scheduler"
+main = "index.js"
+compatibility_date = "2026-11-01"
+workers_dev = false   # nessun indirizzo pubblico: il Worker gira solo col timer
+
+[triggers]
+crons = ["4,34 * * * *"]   # ogni 30 minuti
+
+[vars]
+REPO = "RickBortCost/BortEconomy"
+WORKFLOW = "pages.yml"
+DATA_URL = "https://rickbortcost.github.io/BortEconomy/data/meta.json"
+MAX_AGE_MIN = "25"

@@ -60,6 +60,7 @@ Il workflow **Pubblica su Cloudflare Pages** pubblica una copia del sito su `htt
 |---|---|
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Pubblicazione (token con Workers Scripts, Cloudflare Pages, Workers KV: Edit; Account Settings: Read) |
 | `BORT_ACCESS_CODES` | Codici di accesso al proxy, `nome:codice,nome2:codice2` (codici lunghi e casuali) |
+| `GH_DISPATCH_TOKEN` | Facoltativo: token GitHub (fine-grained, solo questo repository, Actions: Read and write) per il timer Cloudflare che avvia l'aggiornamento dei dati ogni 30 minuti |
 | `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` | Facoltativi: abilitano il fornitore sul proxy (la prima serve anche al punto del giorno) |
 
 Variabile facoltativa `BORT_DAILY_LIMIT` (richieste al giorno per persona, predefinito 60). Dopo aver cambiato un secret, rilancia il workflow da Actions.

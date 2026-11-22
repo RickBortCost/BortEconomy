@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.18.0] - 2026-11-22
+
+### Aggiunto
+- **Timer affidabile degli aggiornamenti**: Worker Cloudflare con Cron Trigger (`workers/scheduler`) che ogni 30 minuti controlla l'età dei dati e, se superano i 25 minuti, avvia l'aggiornamento su GitHub (`workflow_dispatch`). Le esecuzioni programmate di GitHub Actions possono essere ritardate o saltate. Richiede il secret `GH_DISPATCH_TOKEN` (token GitHub limitato al repository, permesso Actions: Read and write).
+
+### Modificato
+- La pianificazione interna di GitHub resta come riserva ogni 2 ore; un aggiornamento in corso non viene più interrotto da uno nuovo.
+
 ## [1.17.0] - 2026-11-22
 
 ### Modificato
@@ -239,7 +247,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.17.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.18.0...HEAD
+[1.18.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.17.0...v1.18.0
 [1.17.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.16.0...v1.17.0
 [1.16.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.15.0...v1.16.0
 [1.15.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.14.0...v1.15.0

@@ -85,5 +85,24 @@ check("valutazione robustezza password", strength("abc") === 0 && strength("Una-
   check("filtro notizie: scarta cronaca, sport, offerte e moda", no.every(([lang, title, source]) => !isFinance({ lang, title, source })));
 }
 
+// timer degli aggiornamenti (Worker Cloudflare)
+{
+  const { default: worker } = await import("../workers/scheduler/index.js");
+  const env = { GH_DISPATCH_TOKEN: "ghp_test", REPO: "o/r", WORKFLOW: "pages.yml", DATA_URL: "https://x/data/meta.json", MAX_AGE_MIN: "25" };
+  const real = globalThis.fetch; const calls = [];
+  const run = async (minutesAgo) => {
+    calls.length = 0;
+    globalThis.fetch = async (url, init) => { calls.push({ url: String(url), init });
+      return String(url).includes("meta.json") ? Response.json({ updated: new Date(Date.now() - minutesAgo * 60000).toISOString() }) : new Response(null, { status: 204 }); };
+    await worker.scheduled({}, env, {});
+  };
+  await run(10);
+  check("timer: dati recenti, nessun avvio", calls.length === 1);
+  await run(40);
+  const d = calls[1];
+  check("timer: dati vecchi, avvia pages.yml su main", d?.url === "https://api.github.com/repos/o/r/actions/workflows/pages.yml/dispatches" && JSON.parse(d.init.body).ref === "main" && d.init.headers.Authorization === "Bearer ghp_test");
+  globalThis.fetch = real;
+}
+
 console.log(failed ? `\n${failed} test falliti` : "\nTutti i test unitari superati");
 process.exit(failed ? 1 : 0);
