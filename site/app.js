@@ -1,4 +1,4 @@
-import { initDetail, openDetail } from "./detail.js";
+import { initDetail, openDetail, loadHist } from "./detail.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -138,12 +138,12 @@ function tiles(symbols) {
     </div>`).join("") || `<div class="empty">Dati non disponibili.</div>`;
 }
 
-function rows(quotes, { star = false, empty = "Dati non disponibili.", group = false } = {}) {
+function rows(quotes, { star = false, empty = "Dati non disponibili.", group = false, field = state.mkField } = {}) {
   return quotes.map((q) => `
     <li data-sym="${esc(q.symbol)}" tabindex="0" role="button" class="${star ? "has-star" : ""}">${star ? starBtn(q.symbol) : ""}
       <div class="nm"><b>${esc(q.name)}</b><small>${esc(q.symbol)}${group ? ` · <span class="grp">${esc(groupLabel(q))}</span>` : ""}${q.dir
         ? ` <span class="tag ${pending.get(q.symbol) ? "wait" : "new"}">${pending.get(q.symbol) ? "richiesto" : "non monitorato"}</span>` : ""}</small></div>
-      <div class="px">${nf(q.price, q.price < 10 ? 4 : 2)} <small>${esc(q.currency ?? "")}</small></div>${pctHtml(q[state.mkField])}</li>`).join("")
+      <div class="px">${nf(q.price, q.price < 10 ? 4 : 2)} <small>${esc(q.currency ?? "")}</small></div>${pctHtml(q[field])}</li>`).join("")
     || `<li class="empty">${empty}</li>`;
 }
 
@@ -215,6 +215,111 @@ function renderMarkets() {
   $("#mk-country").innerHTML = rows(c.stocks.map(bySymbol).filter(Boolean).sort((a, b) => (b[f] ?? -1e9) - (a[f] ?? -1e9)));
 }
 
+// ---------------- metalli preziosi ----------------
+const mt = { field: "changePct", cur: store.get("mt-cur", "EUR"), ratios: new Map() };
+const metal = (sym) => state.config.metals?.items.find((m) => m.symbol === sym);
+const eurusd = () => bySymbol(state.config.metals?.fx ?? "EURUSD=X")?.price; // USD per 1 EUR
+function inCur(usd, cur = mt.cur) {
+  if (usd == null) return null;
+  if (cur === "USD") return usd;
+  const r = eurusd();
+  return r ? usd / r : null;
+}
+const money = (v, cur = mt.cur, d) => v == null || !isFinite(v) ? "–" : `${nf(v, d ?? (Math.abs(v) < 10 ? 3 : 2))} ${cur === "EUR" ? "€" : "$"}`;
+const unitShort = (m) => (m.unit === "libbra" ? "lb" : "oz");
+
+// Rapporto tra due metalli su 1 anno (chiusure giornaliere allineate per data)
+async function ratioSeries(a, b) {
+  const key = `${a}/${b}`;
+  if (!mt.ratios.has(key)) {
+    mt.ratios.set(key, Promise.all([loadHist(a), loadHist(b)]).then(([ha, hb]) => {
+      if (!ha?.day?.length || !hb?.day?.length) return [];
+      const day = (t) => Math.floor(t / 86400);
+      const mb = new Map(hb.day.map((p) => [day(p[0]), p[1]]));
+      const from = ha.day.at(-1)[0] - 365 * 86400;
+      return ha.day.filter((p) => p[0] >= from && mb.has(day(p[0]))).map((p) => [p[0], p[1] / mb.get(day(p[0]))]);
+    }));
+  }
+  return mt.ratios.get(key);
+}
+
+function ratioSvg(series, avg) {
+  const vals = series.map((p) => p[1]);
+  const min = Math.min(...vals), max = Math.max(...vals), r = max - min || 1;
+  const y = (v) => 44 - ((v - min) / r) * 40;
+  const pts = vals.map((v, i) => `${(i / (vals.length - 1)) * 100},${y(v)}`).join(" ");
+  return `<svg viewBox="0 0 100 46" preserveAspectRatio="none" aria-hidden="true">
+    <line x1="0" x2="100" y1="${y(avg)}" y2="${y(avg)}" stroke="var(--muted)" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/>
+    <polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+async function renderMetals() {
+  const M = state.config.metals;
+  if (!M || !state.markets) return;
+  const f = mt.field, fx = eurusd();
+  const items = M.items.map((m) => ({ ...m, q: bySymbol(m.symbol) })).filter((x) => x.q);
+  const label = { changePct: "giornaliera", weekPct: "settimanale", monthPct: "mensile", yearPct: "annuale" }[f];
+  $("#mt-meta").textContent = `Future continui COMEX/NYMEX in USD${mt.cur === "EUR" && fx ? `, convertiti in euro al cambio EUR/USD ${nf(fx, 4)}` : ""} · variazione ${label} · aggiornato ${fmtTime(state.markets.updated)} · dati ritardati`;
+
+  $("#mt-cards").innerHTML = items.map(({ q, ...m }) => `
+    <div class="tile mt-card" data-sym="${esc(q.symbol)}" tabindex="0" role="button" title="Dettaglio ${esc(m.name)}">
+      <div class="hd"><span class="ic">${m.icon}</span>${esc(m.name)}${m.industrial ? ' <small class="tag">industriale</small>' : ""}</div>
+      <div class="p">${money(inCur(q.price))} <span class="u">/${unitShort(m)}</span></div>
+      ${pctHtml(q[f])}
+      <div class="g">${money(inCur(q.price) / m.grams, mt.cur, m.industrial ? 4 : undefined)} al grammo</div>
+      ${spark(q.spark, (q[f] ?? 0) >= 0)}
+    </div>`).join("") || `<div class="empty">Dati non disponibili.</div>`;
+
+  $("#mt-h-unit").textContent = "Oncia troy / libbra";
+  $("#mt-units").innerHTML = items.map(({ q, ...m }) => {
+    const u = inCur(q.price), g = u == null ? null : u / m.grams;
+    return `<tr data-sym="${esc(q.symbol)}"><td>${m.icon} ${esc(m.name)}</td><td>${money(u)} <small>/${unitShort(m)}</small></td><td>${money(g, mt.cur, g != null && g < 1 ? 4 : undefined)}</td><td>${money(g == null ? null : g * 1000)}</td></tr>`;
+  }).join("");
+
+  $("#mt-perf").innerHTML = items.map(({ q, ...m }) => `<tr data-sym="${esc(q.symbol)}"><td>${m.icon} ${esc(m.name)}</td>
+    <td>${pctHtml(q.changePct)}</td><td>${pctHtml(q.weekPct)}</td><td>${pctHtml(q.monthPct)}</td><td>${pctHtml(q.yearPct)}</td>
+    <td>${pctHtml(q.high52 ? (q.price / q.high52 - 1) * 100 : null)}</td></tr>`).join("");
+
+  $("#mt-etc").innerHTML = rows(M.etc.map(bySymbol).filter(Boolean), { star: true, field: f });
+  $("#mt-miners").innerHTML = rows(M.miners.map(bySymbol).filter(Boolean), { star: true, field: f });
+
+  // Rapporti tra metalli (storico giornaliero di 1 anno)
+  const box = $("#mt-ratios");
+  if (!box.dataset.ready) {
+    box.innerHTML = M.ratios.map(([, , name]) => `<div class="tile mt-ratio"><div class="n">${esc(name)}</div><div class="empty">Caricamento…</div></div>`).join("");
+  }
+  Promise.all(M.ratios.map(async ([a, b, name]) => {
+    const qa = bySymbol(a), qb = bySymbol(b);
+    const now = qa && qb ? qa.price / qb.price : null;
+    const s = await ratioSeries(a, b);
+    if (s.length < 2 || now == null) return `<div class="tile mt-ratio"><div class="n">${esc(name)}</div><div class="empty">Non disponibile</div></div>`;
+    const vals = s.map((p) => p[1]);
+    const avg = vals.reduce((x, y) => x + y, 0) / vals.length;
+    const vsAvg = (now / avg - 1) * 100;
+    const d = now < 10 ? 3 : 1;
+    return `<div class="tile mt-ratio"><div class="n">${esc(name)}</div>
+      <div class="p">${nf(now, d)}</div>
+      <small>media 1 anno ${nf(avg, d)} (${vsAvg >= 0 ? "+" : ""}${nf(vsAvg, 1)}%) · min ${nf(Math.min(...vals), d)} · max ${nf(Math.max(...vals), d)}</small>
+      ${ratioSvg(s, avg)}</div>`;
+  })).then((html) => { box.innerHTML = html.join(""); box.dataset.ready = "1"; });
+
+  const news = await loadNews("METALS");
+  $("#mt-news").innerHTML = news.items.length ? news.items.slice(0, 12).map((n) => `
+    <li><a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a>
+      <div class="src"><span>${esc(n.source)}</span><span>${ago(n.date)}</span><span class="tag">${esc(n.lang)}</span></div></li>`).join("")
+    : `<li class="empty">Nessuna notizia disponibile.</li>`;
+}
+
+function metalsContext() {
+  const M = state.config.metals;
+  if (!M) return "";
+  return M.items.map((m) => {
+    const q = bySymbol(m.symbol);
+    if (!q) return null;
+    return `${m.name}: ${nf(q.price)} USD/${unitShort(m)} (${money(inCur(q.price, "EUR") / m.grams, "EUR", 3)}/g; giorno ${nf(q.changePct)}%, settimana ${nf(q.weekPct)}%, mese ${nf(q.monthPct)}%, anno ${nf(q.yearPct)}%)`;
+  }).filter(Boolean).join("; ");
+}
+
 // ---------------- Claude ----------------
 let anthropicMod = null;
 const chat = { messages: [], busy: false };
@@ -248,6 +353,7 @@ async function buildContext() {
 <mercati aggiornati="${state.markets?.updated ?? "n/d"}">
 Indici: ${[c.index, ...state.config.globalIndices].map(q).filter(Boolean).join("; ")}
 Macro: ${state.config.macro.map(q).filter(Boolean).join("; ")}
+Metalli: ${metalsContext()}
 Preferiti dell'utente: ${favs.list().map(q).filter(Boolean).join("; ") || "nessuno"}
 Migliori titoli oggi: ${gainers.map((x) => `${x.name} ${nf(x.changePct)}%`).join(", ")}
 Peggiori titoli oggi: ${losers.map((x) => `${x.name} ${nf(x.changePct)}%`).join(", ")}
@@ -379,6 +485,7 @@ function setTab(t) {
   $$(".panel").forEach((p) => p.classList.toggle("active", p.id === `tab-${t}`));
   document.body.classList.toggle("ai", t === "ai");
   store.set("tab", t);
+  if (t === "metals") renderMetals();
 }
 
 function seg(id, onChange) {
@@ -403,6 +510,10 @@ async function init() {
   seg("#scope", (v) => { state.scope = v; state.shown = 40; renderNews(); });
   seg("#period", (v) => { state.period = v; state.shown = 40; renderNews(); });
   seg("#mk-period", (v) => { state.mkField = v; renderMarkets(); });
+  seg("#mt-period", (v) => { mt.field = v; renderMetals(); });
+  seg("#mt-cur", (v) => { mt.cur = v; store.set("mt-cur", v); renderMetals(); });
+  $$("#mt-cur button").forEach((b) => b.classList.toggle("on", b.dataset.v === mt.cur));
+  $("#mt-ask").addEventListener("click", () => { setTab("ai"); ask("Fai un'analisi del mercato dei metalli preziosi (oro, argento, platino, palladio, rame): andamento recente, rapporti oro/argento e platino/palladio, fattori che li muovono (tassi, dollaro, banche centrali, domanda industriale) e notizie della settimana. Cerca sul web le notizie più recenti."); });
   $("#search").addEventListener("input", (e) => { state.query = e.target.value; state.shown = 40; renderNews(); });
   $("#news-more").addEventListener("click", () => { state.shown += 40; renderNews(); });
 
@@ -417,8 +528,10 @@ async function init() {
     e.preventDefault();
     openDetail(el.dataset.sym, bySymbol(el.dataset.sym));
   };
-  $("#tab-markets").addEventListener("click", openFrom);
-  $("#tab-markets").addEventListener("keydown", openFrom);
+  for (const id of ["#tab-markets", "#tab-metals"]) {
+    $(id).addEventListener("click", openFrom);
+    $(id).addEventListener("keydown", openFrom);
+  }
 
   // Claude
   const dlg = $("#settings");
@@ -449,10 +562,21 @@ async function init() {
     $("#foot").innerHTML = `BortEconomy <a href="https://github.com/RickBortCost/BortEconomy/releases/tag/v${esc(m.version)}" target="_blank" rel="noopener">v${esc(m.version)}</a> · Dati: Google News, Yahoo Finance · Non è consulenza finanziaria`;
   }).catch(() => {});
   state.markets = await getJSON("data/markets.json").catch(() => null);
+  // Nomi italiani per i metalli (Yahoo usa il nome del contratto future, es. "Gold Dec 26")
+  for (const m of state.config.metals?.items ?? []) {
+    const q = state.markets?.quotes.find((x) => x.symbol === m.symbol);
+    if (q) { q.longName = `${m.name} – future ${q.name}`; q.name = m.name; }
+  }
   renderMarkets();
+  if (store.get("tab", "news") === "metals") renderMetals();
   pending.prune();
   if (favs.list().some((sym) => !isMonitored(sym))) loadDirectory().then(() => renderMarkets());
-  initDetail({ quoteFor: bySymbol, onAsk: (text) => { setTab("ai"); ask(text); }, favs,
+  initDetail({
+    extraStats: (q) => { const m = metal(q.symbol); if (!m) return [];
+      const eur = inCur(q.price, "EUR");
+      return [[`Prezzo €/${unitShort(m)}`, money(eur, "EUR")], ["€ al grammo", money(eur == null ? null : eur / m.grams, "EUR", m.industrial ? 4 : undefined)], ["$ al grammo", money(q.price / m.grams, "USD", m.industrial ? 4 : undefined)]]; },
+    askPrompt: (q) => { const m = metal(q.symbol); return m ? `Analizza il mercato di ${m.name.toLowerCase()} (${q.symbol}): prezzo attuale ${nf(q.price)} USD/${unitShort(m)}, variazioni giorno ${nf(q.changePct)}%, settimana ${nf(q.weekPct)}%, mese ${nf(q.monthPct)}%, anno ${nf(q.yearPct)}%. Spiega i fattori che lo muovono (tassi reali, dollaro, banche centrali, domanda industriale e da investimento), livelli tecnici e notizie recenti. Cerca sul web.` : null; },
+    quoteFor: bySymbol, onAsk: (text) => { setTab("ai"); ask(text); }, favs,
     onAdd: (sym) => { requestAdd(sym); renderSearch(); }, pendingSince: (sym) => pending.get(sym), loadDirectory });
   const qi = $("#q-input");
   qi.addEventListener("input", renderSearch);

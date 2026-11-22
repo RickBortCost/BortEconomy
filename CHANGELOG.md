@@ -5,6 +5,22 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.5.0] - 2026-11-22
+
+### Aggiunto
+- **Sezione Metalli** (nuova scheda 🥇): oro, argento, platino, palladio e rame (future continui COMEX/NYMEX).
+  - Schede con prezzo per oncia/libbra e al grammo, variazione e grafico a 1 mese; variazione selezionabile giorno / settimana / mese / anno; prezzi in **euro** (al cambio EUR/USD corrente) o dollari.
+  - Tabella prezzi per oncia, grammo e chilogrammo; tabella rendimenti 1G / 1S / 1M / 1A e distanza dal massimo a 52 settimane.
+  - **Rapporti** oro/argento, oro/platino, platino/palladio con grafico a 1 anno, media, minimo e massimo.
+  - ETC fisici (Borsa Italiana, Xetra) ed ETF; società minerarie e di royalty.
+  - Notizie dedicate ai metalli preziosi (italiano e inglese) e analisi con Claude.
+- Ogni metallo ha la stessa scheda di dettaglio dei titoli (grafico per ore, giorni, settimane, statistiche, storico, preferiti, Claude), con in più prezzo in €/oncia, € e $ al grammo.
+- I dati dei metalli sono inclusi nel contesto inviato a Claude.
+
+### Modificato
+- Nomi dei metalli in italiano anche nei Mercati (prima "Gold Dec 26", ora "Oro").
+- Barra delle schede su 4 voci, con etichette sotto le icone sugli schermi più stretti.
+
 ## [1.4.1] - 2026-11-22
 
 ### Corretto
@@ -72,7 +88,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.1...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.2.0...v1.3.0

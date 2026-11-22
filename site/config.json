@@ -905,6 +905,37 @@
     "SFER.MI",
     "DAN.MI"
    ]
+  },
+  "METALS": {
+   "name": "Metalli preziosi",
+   "symbols": [
+    "GC=F",
+    "SI=F",
+    "PL=F",
+    "PA=F",
+    "HG=F",
+    "PHAU.MI",
+    "SGLD.MI",
+    "PHAG.MI",
+    "PHPT.MI",
+    "PHPD.MI",
+    "4GLD.DE",
+    "GLD",
+    "SLV",
+    "PPLT",
+    "PALL",
+    "GDX",
+    "SIL",
+    "NEM",
+    "AEM",
+    "B",
+    "WPM",
+    "FNV",
+    "RGLD",
+    "KGC",
+    "PAAS",
+    "AG"
+   ]
   }
  },
  "aliases": {
@@ -961,7 +992,28 @@
   "VT": "etf mondo",
   "IWDA.AS": "etf msci world",
   "VWCE.DE": "etf ftse all world",
-  "GLD": "etf oro"
+  "GLD": "etf oro",
+  "PA=F": "palladio",
+  "PHAU.MI": "etc oro fisico",
+  "SGLD.MI": "etc oro fisico",
+  "PHAG.MI": "etc argento fisico",
+  "PHPT.MI": "etc platino fisico",
+  "PHPD.MI": "etc palladio fisico",
+  "4GLD.DE": "xetra gold oro fisico",
+  "SLV": "etf argento",
+  "PPLT": "etf platino",
+  "PALL": "etf palladio",
+  "GDX": "etf minatori oro miniere",
+  "SIL": "etf minatori argento miniere",
+  "NEM": "miniere oro newmont",
+  "AEM": "miniere oro",
+  "B": "barrick miniere oro",
+  "WPM": "streaming metalli preziosi",
+  "FNV": "royalty oro",
+  "RGLD": "royalty oro",
+  "KGC": "miniere oro",
+  "PAAS": "miniere argento",
+  "AG": "miniere argento"
  },
  "regions": {
   "us": "Stati Uniti",
@@ -997,5 +1049,104 @@
   "il": "Israele",
   "tr": "Turchia",
   "sa": "Arabia Saudita"
+ },
+ "metals": {
+  "items": [
+   {
+    "symbol": "GC=F",
+    "name": "Oro",
+    "icon": "🥇",
+    "unit": "oncia troy",
+    "grams": 31.1034768
+   },
+   {
+    "symbol": "SI=F",
+    "name": "Argento",
+    "icon": "🥈",
+    "unit": "oncia troy",
+    "grams": 31.1034768
+   },
+   {
+    "symbol": "PL=F",
+    "name": "Platino",
+    "icon": "💍",
+    "unit": "oncia troy",
+    "grams": 31.1034768
+   },
+   {
+    "symbol": "PA=F",
+    "name": "Palladio",
+    "icon": "🔘",
+    "unit": "oncia troy",
+    "grams": 31.1034768
+   },
+   {
+    "symbol": "HG=F",
+    "name": "Rame",
+    "icon": "🟠",
+    "unit": "libbra",
+    "grams": 453.59237,
+    "industrial": true
+   }
+  ],
+  "fx": "EURUSD=X",
+  "ratios": [
+   [
+    "GC=F",
+    "SI=F",
+    "Oro / Argento"
+   ],
+   [
+    "GC=F",
+    "PL=F",
+    "Oro / Platino"
+   ],
+   [
+    "PL=F",
+    "PA=F",
+    "Platino / Palladio"
+   ]
+  ],
+  "etc": [
+   "PHAU.MI",
+   "SGLD.MI",
+   "PHAG.MI",
+   "PHPT.MI",
+   "PHPD.MI",
+   "4GLD.DE",
+   "GLD",
+   "SLV",
+   "PPLT",
+   "PALL"
+  ],
+  "miners": [
+   "GDX",
+   "SIL",
+   "NEM",
+   "AEM",
+   "B",
+   "WPM",
+   "FNV",
+   "RGLD",
+   "KGC",
+   "PAAS",
+   "AG"
+  ],
+  "news": [
+   {
+    "lang": "it",
+    "q": "prezzo oro OR argento OR platino OR palladio OR metalli preziosi",
+    "hl": "it",
+    "gl": "IT",
+    "ceid": "IT:it"
+   },
+   {
+    "lang": "en",
+    "q": "gold price OR silver price OR platinum OR palladium OR precious metals",
+    "hl": "en-US",
+    "gl": "US",
+    "ceid": "US:en"
+   }
+  ]
  }
 }

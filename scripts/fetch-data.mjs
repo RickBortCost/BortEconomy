@@ -165,6 +165,13 @@ for (const [code, c] of Object.entries(config.countries)) {
   console.log(`news ${code}: ${items.length}`);
 }
 
+// Notizie sui metalli preziosi
+if (config.metals?.news) {
+  const items = await buildNews(config.metals.news);
+  await writeFile(join(OUT, "news-METALS.json"), JSON.stringify({ updated, items }));
+  console.log(`news METALS: ${items.length}`);
+}
+
 // Directory mondiale per la ricerca (con fallback sulle regioni non scaricate)
 try {
   const { items, failed } = await buildDirectory(() => {});

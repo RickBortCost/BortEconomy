@@ -34,7 +34,8 @@
   <nav class="tabs" role="tablist">
     <button role="tab" data-tab="news" aria-selected="true">📰<span>Notizie</span></button>
     <button role="tab" data-tab="markets">📈<span>Mercati</span></button>
-    <button role="tab" data-tab="ai">✨<span>Claude AI</span></button>
+    <button role="tab" data-tab="metals">🥇<span>Metalli</span></button>
+    <button role="tab" data-tab="ai">✨<span>Claude</span></button>
   </nav>
 
   <main>
@@ -84,6 +85,47 @@
     </section>
 
     <!-- CLAUDE -->
+    <!-- METALLI PREZIOSI -->
+    <section id="tab-metals" class="panel">
+      <div class="toolbar">
+        <div class="seg" id="mt-period">
+          <button data-v="changePct" class="on">Giorno</button>
+          <button data-v="weekPct">Settimana</button>
+          <button data-v="monthPct">Mese</button>
+          <button data-v="yearPct">Anno</button>
+        </div>
+        <div class="seg" id="mt-cur">
+          <button data-v="EUR" class="on">€</button>
+          <button data-v="USD">$</button>
+        </div>
+      </div>
+      <p class="meta" id="mt-meta"></p>
+      <div class="grid mt-grid" id="mt-cards"></div>
+
+      <h2>Prezzi per unità di peso</h2>
+      <div class="dt-table"><table class="mt-table">
+        <thead><tr><th>Metallo</th><th id="mt-h-unit">Oncia</th><th>Grammo</th><th>Kg</th></tr></thead>
+        <tbody id="mt-units"></tbody></table></div>
+
+      <h2>Rendimenti</h2>
+      <div class="dt-table"><table class="mt-table">
+        <thead><tr><th>Metallo</th><th>1G</th><th>1S</th><th>1M</th><th>1A</th><th title="Distanza dal massimo delle ultime 52 settimane">Dal max 52s</th></tr></thead>
+        <tbody id="mt-perf"></tbody></table></div>
+
+      <h2>Rapporti tra metalli</h2>
+      <p class="meta">Quante once del secondo metallo servono per acquistarne una del primo; linea su 1 anno, in tratteggio la media.</p>
+      <div class="grid mt-ratios" id="mt-ratios"></div>
+
+      <h2>ETC fisici ed ETF</h2>
+      <ul class="rows" id="mt-etc"></ul>
+      <h2>Società minerarie e royalty</h2>
+      <ul class="rows" id="mt-miners"></ul>
+
+      <h2>Notizie sui metalli preziosi</h2>
+      <ul class="news" id="mt-news"></ul>
+      <button class="primary mt-ask" id="mt-ask">✨ Analisi dei metalli preziosi con Claude</button>
+    </section>
+
     <section id="tab-ai" class="panel">
       <div class="ai-head">
         <p class="meta">Claude analizza le notizie caricate e può cercare sul web informazioni aggiornate.</p>
