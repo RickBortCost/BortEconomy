@@ -2,19 +2,14 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
+  <!-- Sicurezza: il sito può caricare solo i propri file e contattare solo le API degli assistenti AI -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>BortEconomy</title>
   <meta name="description" content="News economiche del giorno e della settimana, mercati mondiali e analisi AI con Claude, ChatGPT o Gemini.">
   <meta name="theme-color" content="#ffffff">
-  <script>
-    // Applica il tema salvato prima del rendering (evita il lampo di colore)
-    (function () {
-      var t = "auto"; try { t = localStorage.getItem("theme") || "auto"; } catch (e) {}
-      if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
-      var dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
-      document.querySelector('meta[name="theme-color"]').content = dark ? "#070b16" : "#f3f5fa";
-    })();
-  </script>
+  <script src="theme-init.js"></script>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
@@ -22,9 +17,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="BortEconomy">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -36,6 +29,9 @@
       <symbol id="i-metals" viewBox="0 0 24 24"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18M7 6h1v4M16.71 13.88l.7.71-2.82 2.82"/></symbol>
       <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
       <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/><path d="M20 3v4M22 5h-4"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+      <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></symbol>
       <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
       <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
       <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
@@ -50,6 +46,7 @@
   <header class="topbar">
     <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>BortEconomy</span></div>
     <button class="icon-btn" id="search-btn" aria-label="Cerca un titolo" title="Cerca un titolo"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+    <button class="icon-btn" id="sec-btn" aria-label="Privacy e sicurezza" title="Privacy e sicurezza"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></button>
     <button class="icon-btn" id="theme-btn" aria-label="Tema" title="Tema"><svg class="ic" aria-hidden="true"><use href="#i-auto"/></svg></button>
     <label class="country">
       <span class="sr">Paese</span>
@@ -224,6 +221,7 @@
 
     <!-- PORTAFOGLIO -->
     <section id="tab-portfolio" class="panel">
+      <div class="lock-card" hidden><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><p><b>Dati protetti bloccati.</b> Sblocca la cassaforte per vedere e modificare portafoglio e composizione.</p><button class="primary" data-unlock>Sblocca</button></div>
       <nav class="subnav" id="pf-subnav" aria-label="Sezioni del portafoglio">
         <button data-v="positions" class="on">Posizioni</button>
         <button data-v="composition">Composizione</button>
@@ -261,6 +259,7 @@
         <div class="toolbar pf-io">
           <button class="ghost" id="pf-export-json">⬇️ Esporta JSON</button>
           <button class="ghost" id="pf-export-csv">⬇️ Esporta CSV</button>
+          <button class="ghost" id="pf-export-enc">🔒 Backup cifrato</button>
           <label class="ghost pf-import-btn">📂 Importa<input type="file" accept=".json,.csv,.txt" id="pf-import" hidden></label>
         </div>
       </div>
@@ -323,6 +322,7 @@
     </section>
 
     <section id="tab-ai" class="panel">
+      <div class="lock-card" hidden><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><p><b>Dati protetti bloccati.</b> Sblocca la cassaforte per vedere e modificare le chiavi degli assistenti AI.</p><button class="primary" data-unlock>Sblocca</button></div>
       <div class="ai-head">
         <div class="seg" id="ai-provider" aria-label="Assistente AI"></div>
         <button class="ghost" id="ai-settings-btn"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> Impostazioni</button>
@@ -431,6 +431,67 @@
     </form>
   </dialog>
 
+  <dialog id="sec-dialog" class="sec-dialog">
+    <form method="dialog" class="settings">
+      <h3><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg> Privacy e sicurezza</h3>
+
+      <h4>Cassaforte cifrata</h4>
+      <p class="hint" id="sec-vault-status"></p>
+      <button type="button" class="primary" id="sec-enable">Proteggi con una password</button>
+      <div id="sec-on">
+        <div class="sec-row"><button type="button" class="ghost" id="sec-lock">Blocca ora</button><button type="button" class="ghost" id="sec-chpw">Cambia password</button></div>
+        <label>Blocco automatico dopo inattività
+          <select id="sec-autolock"><option value="5">5 minuti</option><option value="15">15 minuti</option><option value="30">30 minuti</option><option value="60">1 ora</option><option value="0">Mai</option></select>
+        </label>
+        <button type="button" class="ghost danger" id="sec-disable">Disattiva la cassaforte</button>
+      </div>
+      <p class="hint">Cifratura AES-256-GCM con chiave derivata dalla password (PBKDF2-SHA-256, 600.000 iterazioni). La password non lascia mai il dispositivo e non è recuperabile.</p>
+
+      <h4>Dati inviati agli assistenti AI</h4>
+      <label class="check"><input type="checkbox" id="sec-share-favs"> Includi i miei titoli preferiti nel contesto delle domande</label>
+      <label class="check"><input type="checkbox" id="sec-share-confirm"> Chiedi conferma prima di inviare portafoglio o composizione</label>
+      <p class="hint">Con ogni domanda l'assistente riceve notizie e quotazioni pubbliche del sito; i tuoi dati personali solo se li includi qui o usi i pulsanti di analisi del portafoglio. Le conversazioni non vengono salvate dal sito.</p>
+
+      <h4>I tuoi dati</h4>
+      <div class="sec-row">
+        <button type="button" class="ghost" id="sec-export">⬇️ Backup cifrato</button>
+        <label class="ghost pf-import-btn">⬆️ Ripristina backup<input type="file" accept=".json" id="sec-import" hidden></label>
+      </div>
+      <button type="button" class="ghost danger" id="sec-wipe">Elimina tutti i miei dati da questo browser</button>
+
+      <h4>Come sono trattati i dati</h4>
+      <ul class="sec-info">
+        <li><b>Sul tuo dispositivo:</b> chiavi API, portafoglio, composizione, preferiti e impostazioni restano nel browser (cifrati se attivi la cassaforte). Nessun account, nessun cookie, nessuna statistica di utilizzo.</li>
+        <li><b>Assistenti AI:</b> le domande partono dal browser direttamente verso Anthropic, OpenAI o Google con la tua chiave.</li>
+        <li><b>Hosting:</b> il sito è servito da GitHub Pages, che registra gli indirizzi IP per sicurezza. Caratteri e librerie sono ospitati sul sito stesso: nessuna richiesta a Google Fonts o ad altri CDN.</li>
+        <li><b>Richieste su GitHub</b> (aggiunta di titoli, avvisi di prezzo): diventano issue del repository e, se il repository è pubblico, sono visibili a chiunque, come l'elenco degli avvisi.</li>
+        <li><b>Protezioni del sito:</b> Content Security Policy che consente solo i file del sito e le API degli assistenti, nessun invio del referrer ai siti esterni, protezione dal clickjacking.</li>
+      </ul>
+      <div class="actions"><span></span><button value="close" class="primary">Chiudi</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="unlock-dialog">
+    <form method="dialog" class="settings">
+      <h3><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg> Sblocca i dati protetti</h3>
+      <label>Password della cassaforte <input id="unlock-pw" type="password" autocomplete="current-password"></label>
+      <p class="hint err-text" id="unlock-err"></p>
+      <div class="actions"><button type="button" class="ghost" id="unlock-forgot">Password dimenticata</button><span><button value="cancel" class="ghost" formnovalidate>Più tardi</button> <button class="primary" id="unlock-ok">Sblocca</button></span></div>
+    </form>
+  </dialog>
+
+  <dialog id="pw-dialog">
+    <form method="dialog" class="settings">
+      <h3 id="pw-title"></h3>
+      <p class="hint" id="pw-text"></p>
+      <label>Password <input id="pw-1" type="password" autocomplete="new-password"></label>
+      <div id="pw-meter-wrap"><meter id="pw-meter" min="0" max="4" low="2" high="3" optimum="4"></meter> <small id="pw-meter-l" class="meta"></small></div>
+      <label id="pw-2-wrap">Ripeti la password <input id="pw-2" type="password" autocomplete="new-password"></label>
+      <p class="hint err-text" id="pw-err"></p>
+      <div class="actions"><button value="cancel" class="ghost" formnovalidate>Annulla</button><button class="primary" id="pw-ok">Conferma</button></div>
+    </form>
+  </dialog>
+
   <dialog id="settings">
     <form method="dialog" class="settings">
       <div class="seg set-provider" id="set-provider" aria-label="Assistente da configurare"></div>
@@ -439,6 +500,7 @@
         <input id="api-key" type="password" autocomplete="off" placeholder="sk-ant-…">
       </label>
       <p class="hint" id="key-hint"></p>
+      <p class="hint key-warn" id="key-warn"></p>
       <label>Modello
         <select id="model"></select>
       </label>
@@ -446,6 +508,7 @@
       <label class="check"><input id="remember-key" type="checkbox" checked> Ricorda la chiave su questo dispositivo</label>
       <p class="hint">Se non selezionato, la chiave resta solo finché la scheda è aperta: consigliato sui dispositivi condivisi.</p>
       <label class="check"><input id="web" type="checkbox" checked> Consenti ricerca web</label>
+      <p class="hint"><a href="#" data-open-sec>Privacy e sicurezza: cassaforte cifrata, dati condivisi, backup</a></p>
       <div class="actions">
         <button value="clear" class="ghost" id="clear-key">Rimuovi chiave</button>
         <button value="save" class="primary">Salva</button>

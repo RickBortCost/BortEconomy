@@ -382,6 +382,7 @@ export function initLab(helpers) {
   $("#lab-macro").addEventListener("click", (e) => { const t = e.target.closest("[data-series]"); if (t) macroDetail(t.dataset.series); });
   $("#lab-macro-chart").addEventListener("click", (e) => { if (e.target.closest("#lab-mc-close")) $("#lab-macro-chart").hidden = true; });
   $("#lab-ask").addEventListener("click", async () => {
+    if (!H.confirmShare("la composizione del tuo portafoglio (asset e pesi) e le sue sensibilità")) return;
     const ws = activeWeights(), d = await loadMacro();
     const comp = ws.map((w) => `${niceName(w.sym)} (${w.sym}) ${H.nf(w.w * 100, 1)}%`).join("; ");
     const macro = d ? Object.values(d.series).filter((s) => s.data.length).map((s) => `${s.name}: ${s.data.at(-1)[1]}${s.unit === "pb" ? " pb" : "%"} (${s.data.at(-1)[0]})`).join("; ") : "";

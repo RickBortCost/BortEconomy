@@ -213,13 +213,13 @@ function renderExtra(q, h, noHist) {
     $("#dt-profile-wrap").hidden = false;
     $("#dt-profile").innerHTML = `${p.sector ? `<p><b>${esc(p.sector)}</b>${p.industry ? ` · ${esc(p.industry)}` : ""}${p.country ? ` · ${esc(p.country)}` : ""}${p.employees ? ` · ${compact(p.employees)} dipendenti` : ""}</p>` : ""}
       ${p.summary ? `<p class="dt-summary" lang="en">${esc(p.summary)}${p.summary.length >= 600 ? "…" : ""}</p>` : ""}
-      ${p.website ? `<p><a href="${esc(p.website)}" target="_blank" rel="noopener">${esc(p.website.replace(/^https?:\/\//, ""))}</a></p>` : ""}`;
+      ${p.website ? `<p><a href="${esc(/^https?:\/\//i.test(p.website) ? p.website : "#")}" target="_blank" rel="noopener noreferrer">${esc(p.website.replace(/^https?:\/\//, ""))}</a></p>` : ""}`;
   });
 
   const news = h?.news ?? [];
   $("#dt-news-title").hidden = $("#dt-news").hidden = !news.length;
   $("#dt-news").innerHTML = news.slice(0, 10).map((n) => `
-    <li><a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a>
+    <li><a href="${esc(/^https?:\/\//i.test(n.link) ? n.link : "#")}" target="_blank" rel="noopener noreferrer">${esc(n.title)}</a>
       <div class="src"><span>${esc(n.source)}</span><span>${new Date(n.date).toLocaleDateString("it-IT", { day: "numeric", month: "short" })}</span><span class="tag">${esc(n.lang)}</span></div></li>`).join("");
 }
 

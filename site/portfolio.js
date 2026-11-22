@@ -203,10 +203,11 @@ function exportCSV() {
     ...load().map((l) => [l.sym, l.qty, l.price, l.cur ?? "", l.date ?? ""].join(";"))];
   download(`portafoglio-${new Date().toISOString().slice(0, 10)}.csv`, lines.join("\n"), "text/csv");
 }
-function importText(text) {
+async function importText(text) {
   let lots = [];
   try {
-    const j = JSON.parse(text);
+    let j = JSON.parse(text);
+    if (j.encrypted) { j = await H.openImport(j.encrypted); if (!j) return; } // file cifrato: serve la password
     lots = (Array.isArray(j) ? j : j.positions ?? []).map((l) => ({ sym: l.sym ?? l.symbol, qty: +l.qty, price: +l.price, cur: l.cur, date: l.date }));
   } catch {
     const rows = text.trim().split(/\r?\n/).map((l) => l.split(/[;,\t]/).map((x) => x.trim()));
@@ -307,10 +308,15 @@ export function initPortfolio(helpers) {
   H.seg("#pf-range", (v) => { pf.range = +v; renderPortfolio(); });
   $("#pf-export-json").addEventListener("click", () => download(`portafoglio-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ app: "BortEconomy", exported: new Date().toISOString(), positions: load() }, null, 2), "application/json"));
   $("#pf-export-csv").addEventListener("click", exportCSV);
+  $("#pf-export-enc").addEventListener("click", async () => {
+    const box = await H.sealExport({ app: "BortEconomy", exported: new Date().toISOString(), positions: load() });
+    if (box) download(`portafoglio-${new Date().toISOString().slice(0, 10)}-cifrato.json`, JSON.stringify({ app: "BortEconomy", encrypted: box }), "application/json");
+  });
   for (const id of ["#pf-import", "#pf-import-empty"]) {
     $(id).addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) importText(await f.text()); e.target.value = ""; });
   }
   $("#pf-ask").addEventListener("click", () => {
+    if (!H.confirmShare("le tue posizioni (titoli, quantità, prezzi di carico e valori)")) return;
     const rows = rowsData(), total = rows.reduce((s, r) => s + (r.value ?? 0), 0);
     const lines = rows.map((r) => `- ${r.q?.name ?? r.sym} (${r.sym}): ${H.nf(r.qty, 4)} a ${H.nf(r.avg, 4)} ${r.cur}, prezzo ${H.nf(r.price, 4)}, valore ${eur(r.value)} (${total ? H.nf((r.value / total) * 100, 1) : 0}%), P/L ${r.plPct != null ? H.nf(r.plPct) : "–"}%`).join("\n");
     H.setTab("ai");

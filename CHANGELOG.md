@@ -5,6 +5,22 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.14.0] - 2026-11-22
+
+### Aggiunto
+- **Cassaforte cifrata** (pulsante con lo scudo in alto → Privacy e sicurezza): chiavi API, portafoglio, composizione e preferiti cifrati nel browser con AES-256-GCM e chiave derivata dalla password (PBKDF2-SHA-256, 600.000 iterazioni, sale e IV casuali). Da sbloccata la chiave resta solo in memoria; blocco manuale e automatico per inattività (5/15/30/60 minuti o mai), schermate di blocco su Portafoglio e AI, rallentamento dopo tentativi errati, cambio password, disattivazione, cancellazione in caso di password dimenticata.
+- **Backup cifrato** di tutti i dati (con password, anche diversa da quella della cassaforte) e ripristino; esportazione cifrata del solo portafoglio; l'importazione riconosce i file cifrati.
+- **Eliminazione di tutti i dati** dal browser (archivio locale, sessione, cache offline, service worker).
+- **Controllo dei dati inviati all'AI**: i preferiti non vengono più inclusi nel contesto senza consenso; conferma prima di inviare portafoglio o composizione.
+- Consigli per limitare le chiavi API di ogni fornitore (spesa, permessi, restrizione al dominio del sito per Google) e avviso sull'uso dei dati con il piano gratuito di Gemini.
+- Informativa sul trattamento dei dati nella finestra Privacy e sicurezza e nel nuovo `SECURITY.md`.
+
+### Sicurezza
+- **Content Security Policy**: script solo dal sito, connessioni solo verso il sito e le API di Anthropic, OpenAI e Google, nessun plugin.
+- **Nessuna terza parte**: SDK Anthropic e carattere Inter ospitati sul sito (`npm run vendor`) al posto di jsDelivr e Google Fonts, che ricevevano l'indirizzo IP dei visitatori.
+- Referrer disattivato verso i siti esterni; link esterni solo `http(s)` con `noopener noreferrer`; protezione dal clickjacking; script inline rimosso (`theme-init.js`).
+- Repository: azioni dei workflow bloccate per SHA, Dependabot per npm e azioni, credenziali Git non conservate nei job che non devono scrivere.
+
 ## [1.13.0] - 2026-11-22
 
 ### Aggiunto
@@ -195,7 +211,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.13.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.10.0...v1.11.0

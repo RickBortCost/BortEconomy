@@ -1,0 +1,15 @@
+# Aggiornamenti automatici di sicurezza: dipendenze npm e azioni dei workflow (bloccate per SHA)
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dipendenze:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
