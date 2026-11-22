@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="offline-bar" role="status">Sei offline: stai vedendo gli ultimi dati salvati.</div>
   <header class="topbar">
     <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>BortEconomy</span></div>
     <button class="icon-btn" id="search-btn" aria-label="Cerca un titolo" title="Cerca un titolo">🔍</button>
@@ -188,6 +189,8 @@
           <option value="claude-haiku-5-5">Claude Haiku 5.5 (economico)</option>
         </select>
       </label>
+      <label class="check"><input id="remember-key" type="checkbox" checked> Ricorda la chiave su questo dispositivo</label>
+      <p class="hint">Se non selezionato, la chiave resta solo finché la scheda è aperta: consigliato sui dispositivi condivisi.</p>
       <label class="check"><input id="web" type="checkbox" checked> Consenti ricerca web</label>
       <div class="actions">
         <button value="clear" class="ghost" id="clear-key">Rimuovi chiave</button>

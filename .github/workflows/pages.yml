@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: pages
@@ -27,6 +28,13 @@ jobs:
           node-version: 22
       - name: Scarica news e quotazioni
         run: node scripts/fetch-data.mjs
+      # Ai rilasci (push su main) l'interfaccia viene verificata con i dati appena scaricati prima di pubblicare
+      - name: Installa Playwright
+        if: github.event_name == 'push'
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Test dell'interfaccia
+        if: github.event_name == 'push'
+        run: node tests/smoke.mjs
       - name: Pubblica su gh-pages
         run: |
           cd site
@@ -37,3 +45,8 @@ jobs:
           git add -A
           git commit -q -m "Pubblicazione ${GITHUB_SHA::7} ($(date -u +%Y-%m-%dT%H:%MZ))"
           git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" gh-pages
+      - name: Avvisa se i dati sono degradati
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/health-alert.mjs

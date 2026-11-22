@@ -5,6 +5,21 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.6.0] - 2026-11-22
+
+### Aggiunto
+- **Avviso automatico sui dati**: se un aggiornamento scarica meno della metà delle quotazioni (o lo script si interrompe) viene aperta una issue "⚠️ Aggiornamento dati degradato" che menziona il proprietario (notifica GitHub anche sul telefono); si aggiorna al massimo ogni 3 ore e si chiude da sola quando i dati tornano regolari. Stato di ogni esecuzione in `data/health.json`.
+- **Test automatici** (Playwright, viewport mobile) su ogni pull request e prima di ogni pubblicazione dovuta a un rilascio: caricamento, mercati, dettaglio con grafici, ricerca, preferiti, metalli, tema scuro, assenza di scorrimento orizzontale ed errori JavaScript. `npm test` in locale.
+- **App offline**: service worker che conserva interfaccia e ultimi dati; barra di avviso quando si è offline.
+- **Stato del mercato**: indicatore aperto / chiuso / pre-apertura / after-hours su schede, elenchi e dettaglio.
+- **Chiave di Claude solo per la sessione**: opzione "Ricorda la chiave su questo dispositivo" (disattivandola la chiave si cancella alla chiusura della scheda).
+- Dati raccolti per le prossime funzioni: fondamentali (P/E, dividendo, EPS, rating analisti, medie mobili), profilo e settore delle società, calendario economico e degli utili, notizie per singola società.
+
+### Modificato
+- Prezzi in centesimi convertiti nella valuta principale: Londra in sterline (es. "134,12 GBP" invece di "13.412 GBp"), Johannesburg in rand, Tel Aviv in shekel.
+- Storici in formato compatto (colonne e date incrementali, senza volumi settimanali): circa il 35% in meno di dati.
+- Script di aggiornamento suddiviso in moduli (`scripts/lib/`).
+
 ## [1.5.0] - 2026-11-22
 
 ### Aggiunto
@@ -88,7 +103,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.5.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.3.0...v1.4.0

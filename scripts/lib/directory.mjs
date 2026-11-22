@@ -1,5 +1,6 @@
 // Directory mondiale delle azioni quotate (borsa principale di ogni paese), con prezzo e variazione.
 import { screener } from "./yahoo.mjs";
+import { CENT } from "./markets.mjs";
 
 // [regione, borse principali, valuta, USD per unità (approssimato, solo per la soglia), soglia minima in USD]
 export const REGIONS = [
@@ -51,8 +52,9 @@ async function region([reg, exchanges, , fx, minUsd]) {
     const res = await screener({ offset, size: 250, sortField: "intradaymarketcap", sortType: "DESC", quoteType: "EQUITY", query });
     if (!res) return out.length ? out : null;
     for (const q of res.quotes ?? []) {
-      out.push([q.symbol, q.longName || q.shortName || q.symbol, q.fullExchangeName || q.exchange, q.currency,
-        round(q.regularMarketPrice, 6), round(q.regularMarketChangePercent, 3), q.marketCap ?? null, reg, q.regularMarketVolume ?? 0]);
+      const k = CENT[q.currency] ? 100 : 1; // prezzi in centesimi → valuta principale
+      out.push([q.symbol, q.longName || q.shortName || q.symbol, q.fullExchangeName || q.exchange, CENT[q.currency] ?? q.currency,
+        round(q.regularMarketPrice / k, 6), round(q.regularMarketChangePercent, 3), q.marketCap ?? null, reg, q.regularMarketVolume ?? 0]);
     }
     if (offset + 250 >= (res.total ?? 0)) break;
     await new Promise((r) => setTimeout(r, 300));
@@ -67,7 +69,7 @@ export const normName = (n) => String(n).toLowerCase().normalize("NFD").replace(
 
 // USD per unità di valuta di quotazione (approssimato: serve solo a confrontare i controvalori)
 const FX = { USD: 1, EUR: 1.08, GBP: 1.27, GBp: 0.0127, CHF: 1.13, SEK: 0.095, DKK: 0.145, NOK: 0.093, PLN: 0.25,
-  JPY: 0.0066, HKD: 0.128, CNY: 0.138, INR: 0.012, KRW: 0.00072, TWD: 0.031, BRL: 0.18, CAD: 0.73, AUD: 0.65,
+  JPY: 0.0066, ZAR: 0.054, ILS: 0.27, HKD: 0.128, CNY: 0.138, INR: 0.012, KRW: 0.00072, TWD: 0.031, BRL: 0.18, CAD: 0.73, AUD: 0.65,
   SGD: 0.74, MXN: 0.055, ZAc: 0.00054, ILA: 0.0027, TRY: 0.029, SAR: 0.27 };
 
 // Restituisce { items, failed }; items: [simbolo, nome, borsa, valuta, prezzo, var%, capitalizzazione, regione]
