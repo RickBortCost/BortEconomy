@@ -74,6 +74,9 @@
       <nav class="subnav" id="mk-subnav" aria-label="Sezioni dei mercati">
         <button data-v="overview" class="on">Panoramica</button>
         <button data-v="calendar">📅 Calendario</button>
+        <button data-v="map">🗺️ Mappa</button>
+        <button data-v="forex">💱 Valute</button>
+        <button data-v="crypto">₿ Cripto</button>
       </nav>
       <div class="mk-view" id="mk-view-overview">
       <p class="meta" id="mk-meta"></p>
@@ -95,6 +98,39 @@
       </div>
       <h2 id="mk-country-title"></h2>
       <ul class="rows" id="mk-country"></ul>
+      </div>
+      <div class="mk-view" id="mk-view-map" hidden>
+        <div class="subnav hm-sel" id="hm-sel"></div>
+        <p class="meta" id="hm-meta"></p>
+        <div class="hm" id="hm"></div>
+        <div class="hm-legend"><span>−3%</span><i></i><span>0</span><i></i><span>+3%</span></div>
+      </div>
+      <div class="mk-view" id="mk-view-forex" hidden>
+        <div class="fx-conv">
+          <h2>Convertitore</h2>
+          <div class="fx-row">
+            <input id="fx-amount" type="number" step="any" min="0" inputmode="decimal" aria-label="Importo">
+            <select id="fx-from" aria-label="Da"></select>
+            <button class="ghost" id="fx-swap" aria-label="Inverti valute">⇄</button>
+            <select id="fx-to" aria-label="A"></select>
+          </div>
+          <div class="fx-result" id="fx-result"></div>
+          <p class="meta">Cambi di mercato ritardati, senza commissioni o spread di conversione.</p>
+        </div>
+        <h2>Principali coppie</h2>
+        <div class="grid" id="fx-majors"></div>
+        <h2>L'euro contro le altre valute</h2>
+        <ul class="rows" id="fx-crosses"></ul>
+      </div>
+      <div class="mk-view" id="mk-view-crypto" hidden>
+        <div class="toolbar"><div class="seg" id="cr-period">
+          <button data-v="changePct" class="on">Giorno</button><button data-v="weekPct">Settimana</button><button data-v="monthPct">Mese</button><button data-v="yearPct">Anno</button>
+        </div></div>
+        <p class="meta" id="cr-meta"></p>
+        <div class="grid mt-grid" id="cr-cards"></div>
+        <h2>Le principali criptovalute</h2>
+        <div class="dt-table"><table class="mt-table cr-table"><tbody id="cr-rows"></tbody></table></div>
+        <p class="meta" id="cr-btc"></p>
       </div>
       <div class="mk-view" id="mk-view-calendar" hidden>
         <div class="toolbar">

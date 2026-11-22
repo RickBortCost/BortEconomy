@@ -2,7 +2,7 @@ import { sma, bollinger, rsi } from "./indicators.js";
 // Vista di dettaglio di un titolo: grafico interattivo (ore / giorni / settimane), statistiche e storico.
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const nf = (v, d = 2) => v == null || !isFinite(v) ? "–" : v.toLocaleString("it-IT", { minimumFractionDigits: d, maximumFractionDigits: d });
-const dec = (v) => (v != null && Math.abs(v) < 10 ? 4 : 2);
+const dec = (v) => { const a = Math.abs(v ?? 0); return a >= 10 ? 2 : a >= 1 ? 4 : a > 0 ? Math.min(10, Math.max(4, 3 - Math.floor(Math.log10(a)))) : 2; };
 const pct = (v) => v == null || !isFinite(v) ? '<span class="chg">–</span>'
   : `<span class="chg ${v >= 0 ? "pos" : "neg"}">${v >= 0 ? "+" : ""}${nf(v)}%</span>`;
 const compact = (v) => v == null ? "–" : v.toLocaleString("it-IT", { notation: "compact", maximumFractionDigits: 1 });

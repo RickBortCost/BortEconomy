@@ -961,7 +961,42 @@
     "EURZAR=X",
     "EURILS=X",
     "EURTRY=X",
-    "EURSAR=X"
+    "EURSAR=X",
+    "GBPUSD=X",
+    "USDJPY=X",
+    "USDCHF=X",
+    "AUDUSD=X",
+    "USDCAD=X",
+    "NZDUSD=X",
+    "USDCNY=X"
+   ]
+  },
+  "CRYPTO": {
+   "name": "Criptovalute",
+   "symbols": [
+    "BTC-USD",
+    "ETH-USD",
+    "XRP-USD",
+    "BNB-USD",
+    "SOL-USD",
+    "USDT-USD",
+    "USDC-USD",
+    "TRX-USD",
+    "DOGE-USD",
+    "ADA-USD",
+    "TON11419-USD",
+    "LINK-USD",
+    "AVAX-USD",
+    "XLM-USD",
+    "SUI20947-USD",
+    "BCH-USD",
+    "HBAR-USD",
+    "LTC-USD",
+    "SHIB-USD",
+    "DOT-USD",
+    "UNI7083-USD",
+    "NEAR-USD",
+    "ATOM-USD"
    ]
   }
  },
@@ -1040,7 +1075,16 @@
   "RGLD": "royalty oro",
   "KGC": "miniere oro",
   "PAAS": "miniere argento",
-  "AG": "miniere argento"
+  "AG": "miniere argento",
+  "ADA-USD": "cardano cripto",
+  "DOGE-USD": "dogecoin cripto",
+  "USDT-USD": "tether stablecoin",
+  "USDC-USD": "usdc stablecoin",
+  "TON11419-USD": "toncoin telegram cripto",
+  "SUI20947-USD": "sui cripto",
+  "UNI7083-USD": "uniswap cripto",
+  "USDCHF=X": "dollaro franco svizzero cambio",
+  "NZDUSD=X": "dollaro neozelandese cambio"
  },
  "regions": {
   "us": "Stati Uniti",
@@ -1174,6 +1218,73 @@
     "gl": "US",
     "ceid": "US:en"
    }
+  ]
+ },
+ "crypto": {
+  "items": [
+   "BTC-USD",
+   "ETH-USD",
+   "XRP-USD",
+   "BNB-USD",
+   "SOL-USD",
+   "USDT-USD",
+   "USDC-USD",
+   "TRX-USD",
+   "DOGE-USD",
+   "ADA-USD",
+   "TON11419-USD",
+   "LINK-USD",
+   "AVAX-USD",
+   "XLM-USD",
+   "SUI20947-USD",
+   "BCH-USD",
+   "HBAR-USD",
+   "LTC-USD",
+   "SHIB-USD",
+   "DOT-USD",
+   "UNI7083-USD",
+   "NEAR-USD",
+   "ATOM-USD"
+  ]
+ },
+ "forex": {
+  "majors": [
+   "EURUSD=X",
+   "GBPUSD=X",
+   "USDJPY=X",
+   "USDCHF=X",
+   "AUDUSD=X",
+   "USDCAD=X",
+   "NZDUSD=X",
+   "USDCNY=X",
+   "EURGBP=X",
+   "EURJPY=X",
+   "EURCHF=X",
+   "DX-Y.NYB"
+  ],
+  "crosses": [
+   "EURUSD=X",
+   "EURGBP=X",
+   "EURCHF=X",
+   "EURJPY=X",
+   "EURSEK=X",
+   "EURDKK=X",
+   "EURNOK=X",
+   "EURPLN=X",
+   "EURHKD=X",
+   "EURCNY=X",
+   "EURINR=X",
+   "EURKRW=X",
+   "EURTWD=X",
+   "EURBRL=X",
+   "EURCAD=X",
+   "EURAUD=X",
+   "EURSGD=X",
+   "EURMXN=X",
+   "EURZAR=X",
+   "EURILS=X",
+   "EURTRY=X",
+   "EURSAR=X"
   ]
  }
 }

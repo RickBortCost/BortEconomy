@@ -11,6 +11,7 @@ Web app (anche mobile, installabile come PWA) con:
 - **Tema chiaro/scuro**: automatico secondo il sistema o scelto manualmente (pulsante 🌓 in alto).
 - **Portafoglio**: posizioni salvate nel browser, valore e guadagni in euro, ripartizione, andamento, import/export.
 - **Avvisi di prezzo**: notifiche GitHub quando un titolo supera una soglia o si muove oltre una percentuale.
+- **Mappa, valute, cripto**: mappa delle società per capitalizzazione e variazione, convertitore e cambi, 23 criptovalute.
 - **Calendario economico**: dati macro della settimana e utili societari.
 - **Il punto del giorno**: riepilogo mattutino scritto da Claude.
 - **Claude AI**: chat con analisi basata sulle notizie e i dati caricati, con ricerca web.

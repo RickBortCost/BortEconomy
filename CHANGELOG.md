@@ -5,6 +5,16 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.10.0] - 2026-11-22
+
+### Aggiunto
+- **Mappa dei mercati** (Mercati → 🗺️ Mappa): riquadri delle società più grandi di Italia, Stati Uniti, Europa, Asia o mondo, con dimensione proporzionale alla capitalizzazione (convertita in euro) e colore in base alla variazione di oggi; media ponderata del mercato; tocco per aprire il titolo.
+- **Valute** (Mercati → 💱 Valute): convertitore tra 23 valute, principali coppie (EUR/USD, GBP/USD, USD/JPY, indice del dollaro…) con grafico, euro contro tutte le altre valute.
+- **Criptovalute** (Mercati → ₿ Cripto): 23 criptovalute (Bitcoin, Ethereum, XRP, Solana, stablecoin…) con prezzo in dollari ed euro, variazioni giorno/settimana/mese/anno e scheda di dettaglio con le stesse analisi dei titoli.
+
+### Modificato
+- Decimali dei prezzi in base all'ordine di grandezza (es. valute e criptovalute con prezzi molto piccoli).
+
 ## [1.9.0] - 2026-11-22
 
 ### Aggiunto
@@ -140,7 +150,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.9.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.6.0...v1.7.0

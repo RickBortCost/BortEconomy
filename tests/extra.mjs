@@ -133,4 +133,44 @@ export default [
       await page.fill("#q-input", "");
     },
   },
+  {
+    name: "mappa dei mercati: riquadri per capitalizzazione e apertura titolo",
+    async run({ page, assert }) {
+      await page.click("[data-tab=markets]");
+      await page.click('#mk-subnav button[data-v="map"]');
+      await page.waitForSelector("#hm .hm-cell", { timeout: 15000 });
+      assert(await page.$$eval("#hm .hm-cell", (c) => c.length) >= 20, "pochi riquadri nella mappa");
+      await page.click('#hm-sel button[data-v="world"]');
+      await page.waitForSelector("#hm .hm-cell");
+      await page.click("#hm .hm-cell >> nth=0");
+      await page.waitForSelector("#detail:not([hidden])");
+      await page.click("#dt-back");
+    },
+  },
+  {
+    name: "valute: convertitore e coppie",
+    async run({ page, assert }) {
+      await page.click("[data-tab=markets]");
+      await page.click('#mk-subnav button[data-v="forex"]');
+      await page.waitForSelector("#fx-majors .tile");
+      await page.fill("#fx-amount", "100");
+      await page.selectOption("#fx-from", "EUR");
+      await page.selectOption("#fx-to", "USD");
+      await page.dispatchEvent("#fx-to", "input");
+      const r = await page.textContent("#fx-result");
+      assert(/\d+,\d+ USD/.test(r), `conversione assente: ${r}`);
+      await page.click("#fx-swap");
+      assert((await page.textContent("#fx-result")).includes("EUR"), "inversione non riuscita");
+    },
+  },
+  {
+    name: "cripto: schede, tabella e dettaglio",
+    async run({ page, assert }) {
+      await page.click("[data-tab=markets]");
+      await page.click('#mk-subnav button[data-v="crypto"]');
+      await page.waitForSelector("#cr-cards .tile");
+      assert(await page.$$eval("#cr-rows tr[data-sym]", (r) => r.length) >= 5, "tabella cripto incompleta");
+      await page.click('#mk-subnav button[data-v="overview"]');
+    },
+  },
 ];
