@@ -11,11 +11,12 @@ const owner = process.env.GITHUB_REPOSITORY_OWNER;
 const run = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
 const open = findOpenIssue(TITLE);
 const m = health.markets ?? {};
-const summary = `- Quotazioni aggiornate: **${m.fresh}/${m.total}** (riprese dalla pubblicazione precedente: ${m.reused}, mancanti: ${m.missing})
-- Notizie mondo: ${health.news?.WORLD ?? 0} · Directory: ${health.directory?.items ?? "errore"} titoli · Fondamentali: ${health.fundamentals}
-${health.warnings.map((w) => `- ⚠️ ${w}`).join("\n")}
-
-[Dettagli dell'esecuzione](${run})`;
+const summary = [
+  m.total != null ? `- Quotazioni aggiornate: **${m.fresh}/${m.total}** (riprese dalla pubblicazione precedente: ${m.reused}, mancanti: ${m.missing})` : null,
+  health.news ? `- Notizie mondo: ${health.news.WORLD ?? 0} · Directory: ${health.directory?.items ?? "errore"} titoli · Fondamentali: ${health.fundamentals ?? "n/d"}` : null,
+  ...health.warnings.map((w) => `- ⚠️ ${w}`),
+  "", `[Dettagli dell'esecuzione](${run})`,
+].filter((x) => x != null).join("\n");
 
 if (health.status === "degraded") {
   if (!open) {
