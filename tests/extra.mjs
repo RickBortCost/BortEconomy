@@ -1,6 +1,39 @@
 // Test aggiuntivi per le funzioni più recenti (importati da smoke.mjs).
 export default [
   {
+    name: "calendario: dati macro tradotti, filtri e utili societari",
+    async run({ page, assert }) {
+      await page.click("[data-tab=markets]");
+      await page.click('#mk-subnav button[data-v="calendar"]');
+      await page.waitForSelector("#cal-list .cal-ev, #cal-list .empty");
+      await page.click('#cal-impact button[data-v="0"]');
+      const n = await page.$$eval("#cal-list .cal-ev", (l) => l.length);
+      const meta = await page.textContent("#cal-meta");
+      assert(n > 0 || meta.includes("aggiornato"), "calendario vuoto");
+      await page.click('#cal-kind button[data-v="earnings"]');
+      await page.waitForSelector("#cal-list .cal-ev, #cal-list .empty");
+      await page.click('#mk-subnav button[data-v="overview"]');
+      assert(!(await page.isHidden("#mk-view-overview")), "panoramica non ripristinata");
+    },
+  },
+  {
+    name: "il punto del giorno (se pubblicato)",
+    async run({ page, assert }) {
+      const has = await page.evaluate(async () => (await fetch("data/brief.json")).ok);
+      if (!has) return;
+      await page.click("[data-tab=news]");
+      await page.reload();
+      const gen = await page.evaluate(async () => (await (await fetch("data/brief.json")).json()).generatedAt);
+      if (Date.now() - Date.parse(gen) > 3 * 864e5) {
+        await page.waitForSelector("#news-list li");
+        return assert(await page.isHidden("#brief"), "riepilogo vecchio mostrato");
+      }
+      await page.waitForSelector("#brief:not([hidden])", { timeout: 5000 });
+      await page.click("#brief-toggle");
+      assert(await page.evaluate(() => document.querySelector("#brief").classList.contains("open")), "espansione non funzionante");
+    },
+  },
+  {
     name: "portafoglio: aggiunta posizioni, riepilogo in euro, ripartizione e andamento",
     async run({ page, assert }) {
       await page.evaluate(() => localStorage.removeItem("portfolio"));

@@ -261,3 +261,34 @@ body.offline .offline-bar { display: block; }
 .al-list li.done { opacity: .7; }
 .pf-table td:last-child, .pf-table th:last-child { padding-left: 0; padding-right: 4px; width: 30px; }
 .pf-table .icon-btn { width: 28px; height: 28px; }
+
+/* Il punto del giorno */
+.brief { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--star); border-radius: 12px; padding: 12px 14px; margin: 4px 0 14px; }
+.brief header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.brief h2 { margin: 0; }
+.brief-body { max-height: 11.5em; overflow: hidden; position: relative; }
+.brief-body::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3em; background: linear-gradient(transparent, var(--card)); }
+.brief.open .brief-body { max-height: none; }
+.brief.open .brief-body::after { display: none; }
+.brief-body h4 { margin: 10px 0 2px; font-size: 14.5px; }
+.brief-body p, .brief-body ul { margin: 4px 0; }
+.brief-body ul { padding-left: 20px; }
+.brief-toggle { margin: 6px 0 2px; }
+.brief footer { font-size: 12px; }
+.brief footer a { color: var(--muted); }
+
+/* Sotto-navigazione dei mercati */
+.subnav { display: flex; gap: 6px; overflow-x: auto; margin: 2px 0 8px; padding-bottom: 2px; }
+.subnav button { flex: none; border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 14px; cursor: pointer; color: var(--muted); }
+.subnav button.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+/* Calendario */
+.cal-cur { padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); }
+.cal-day { font-size: 14px; margin: 16px 0 6px; }
+.cal-rows li { grid-template-columns: 52px 1fr; }
+.cal-time { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; align-self: start; padding-top: 2px; }
+.cal-ev .nm b { white-space: normal; }
+.cal-ev small b { color: var(--text); display: inline; font-weight: 700; }
+.imp-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; background: var(--line); }
+.imp3 .imp-dot { background: var(--down); } .imp2 .imp-dot { background: var(--star); } .imp1 .imp-dot { background: var(--muted); }
+.imp3 { border-left: 3px solid var(--down); }

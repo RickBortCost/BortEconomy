@@ -1,5 +1,6 @@
 import { initDetail, openDetail, loadHist } from "./detail.js";
 import { initPortfolio, renderPortfolio, openPositionForm, openAlertForm } from "./portfolio.js";
+import { initCalendar, renderCalendar, upcoming } from "./calendar.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -243,6 +244,21 @@ function renderMarkets() {
   $("#mk-country").innerHTML = rows(c.stocks.map(bySymbol).filter(Boolean).sort((a, b) => (b[f] ?? -1e9) - (a[f] ?? -1e9)));
 }
 
+// ---------------- il punto del giorno ----------------
+async function renderBrief() {
+  const b = await getJSON("data/brief.json").catch(() => null);
+  if (!b?.markdown) return;
+  const days = (Date.now() - Date.parse(b.generatedAt)) / 864e5;
+  if (days > 3) return; // troppo vecchio: meglio non mostrarlo
+  $("#brief").hidden = false;
+  $("#brief-date").textContent = new Date(b.generatedAt).toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" });
+  $("#brief-body").innerHTML = md(b.markdown);
+  $("#brief-foot").innerHTML = `Scritto da Claude alle ${new Date(b.generatedAt).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })} dai dati e dalle notizie del sito${b.sources?.length ? ` · Fonti: ${b.sources.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>`).join(" · ")}` : ""} · Non è consulenza finanziaria.`;
+  const open = store.get("brief-open", "0") === "1";
+  $("#brief").classList.toggle("open", open);
+  $("#brief-toggle").textContent = open ? "Riduci" : "Leggi tutto";
+}
+
 // ---------------- metalli preziosi ----------------
 const mt = { field: "changePct", cur: store.get("mt-cur", "EUR"), ratios: new Map() };
 const metal = (sym) => state.config.metals?.items.find((m) => m.symbol === sym);
@@ -382,6 +398,7 @@ async function buildContext() {
 Indici: ${[c.index, ...state.config.globalIndices].map(q).filter(Boolean).join("; ")}
 Macro: ${state.config.macro.map(q).filter(Boolean).join("; ")}
 Metalli: ${metalsContext()}
+${await upcoming(7)}
 Preferiti dell'utente: ${favs.list().map(q).filter(Boolean).join("; ") || "nessuno"}
 Migliori titoli oggi: ${gainers.map((x) => `${x.name} ${nf(x.changePct)}%`).join(", ")}
 Peggiori titoli oggi: ${losers.map((x) => `${x.name} ${nf(x.changePct)}%`).join(", ")}
@@ -602,6 +619,22 @@ async function init() {
   }
   renderMarkets();
   if (store.get("tab", "news") === "metals") renderMetals();
+  initCalendar({ $, esc, seg });
+  const showView = (v) => {
+    $$("#mk-subnav button").forEach((b) => b.classList.toggle("on", b.dataset.v === v));
+    $$(".mk-view").forEach((el) => { el.hidden = el.id !== `mk-view-${v}`; });
+    store.set("mk-view", v);
+    if (v === "calendar") renderCalendar();
+  };
+  $("#mk-subnav").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showView(b.dataset.v); });
+  showView(store.get("mk-view", "overview"));
+  renderBrief();
+  $("#brief-toggle").addEventListener("click", () => {
+    const open = !$("#brief").classList.contains("open");
+    store.set("brief-open", open ? "1" : "0");
+    $("#brief").classList.toggle("open", open);
+    $("#brief-toggle").textContent = open ? "Riduci" : "Leggi tutto";
+  });
   initPortfolio({
     $, esc, nf, pctHtml, store, seg, bySymbol, searchQuotes, setTab, ask, openDetail, config: state.config,
     sectorOf: (sym) => bySymbol(sym)?.sector,

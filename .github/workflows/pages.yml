@@ -9,6 +9,11 @@ on:
   schedule:
     - cron: "17,47 * * * *"   # ogni 30 minuti
   workflow_dispatch:
+    inputs:
+      brief:
+        description: "Rigenera subito il punto del giorno"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -26,12 +31,23 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          cache: npm
+      - name: Installa dipendenze
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
       - name: Scarica news e quotazioni
         run: node scripts/fetch-data.mjs
+      - name: Il punto del giorno (Claude)
+        continue-on-error: true
+        run: node scripts/brief.mjs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BRIEF_FORCE: ${{ inputs.brief && '1' || '' }}
       # Ai rilasci (push su main) l'interfaccia viene verificata con i dati appena scaricati prima di pubblicare
       - name: Installa Playwright
         if: github.event_name == 'push'
-        run: npm ci && npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium
       - name: Test dell'interfaccia
         if: github.event_name == 'push'
         run: node tests/smoke.mjs
