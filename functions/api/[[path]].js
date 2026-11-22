@@ -78,8 +78,13 @@ export async function onRequest({ request, env, params }) {
   const key = env[P.secret];
   if (!key) return err(503, "Questo assistente non è configurato sul server.");
 
+  // Tentativi falliti per indirizzo IP: al massimo 20 all'ora, poi blocco temporaneo
+  const ip = request.headers.get("cf-connecting-ip") ?? "local", fk = `f:${ip}:${new Date().toISOString().slice(0, 13)}`;
+  const fails = env.USAGE ? +((await env.USAGE.get(fk)) ?? 0) : 0;
+  if (fails >= 20) return err(429, "Troppi tentativi con codici non validi. Riprova più tardi.");
   const who = await whoIs(request.headers.get("x-bort-code"), env);
   if (!who) {
+    if (env.USAGE) await env.USAGE.put(fk, String(fails + 1), { expirationTtl: 7200 });
     await new Promise((r) => setTimeout(r, 600)); // rallenta i tentativi di indovinare il codice
     return err(401, "Codice di accesso non valido.");
   }

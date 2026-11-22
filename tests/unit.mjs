@@ -69,6 +69,17 @@ check("valutazione robustezza password", strength("abc") === 0 && strength("Una-
   check("proxy: inoltro con chiave del server, senza codice né parametro key", ok.status === 200 && sent.url === "https://api.openai.com/v1/responses" && h.authorization === "Bearer sk-server" && !JSON.stringify(h).includes("codice") && !ok.headers.get("set-cookie"));
   await call("openai/v1/responses", { code: "codice-anna-123" });
   check("proxy: limite giornaliero per persona", (await call("openai/v1/responses", { code: "codice-anna-123" })).status === 429 && (await call("openai/v1/responses", { code: "codice-bea-456" })).status === 200);
+  for (let i = 0; i < 25; i++) await call("openai/v1/responses", { code: "tentativo-" + i });
+  check("proxy: blocco dopo troppi codici errati dallo stesso IP", (await call("openai/v1/responses", { code: "codice-bea-456" })).status === 429);
+  globalThis.fetch = real;
+}
+{
+  const { onRequestGet } = await import("../functions/data/[[path]].js");
+  const real = globalThis.fetch; let url = null;
+  globalThis.fetch = async (u) => { url = String(u); return new Response("{}"); };
+  const r1 = await onRequestGet({ env: {}, params: { path: ["", "", "evil.example", "a.json"] }, request: new Request("https://x/") });
+  const r2 = await onRequestGet({ env: {}, params: { path: ["meta.json"] }, request: new Request("https://x/") });
+  check("dati: nessuna richiesta fuori dall'origine dei dati", r1.status === 404 && r2.status === 200 && url === "https://rickbortcost.github.io/BortEconomy/data/meta.json");
   globalThis.fetch = real;
 }
 
