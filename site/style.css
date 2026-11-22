@@ -594,3 +594,13 @@ dialog::backdrop { background: rgb(7 11 22 / .5); backdrop-filter: blur(3px); }
 .lab-sens-t td:first-child { white-space: normal; min-width: 0; }
 .lab-sens-t td, .lab-sens-t th { white-space: normal; }
 .lab-sens-t td:nth-child(2), .lab-sens-t td:nth-child(3) { white-space: nowrap; }
+
+/* Assistenti AI */
+.ai-head { align-items: center; }
+#ai-provider button small { color: var(--muted); }
+.set-provider { margin: 8px 0 2px; display: flex; }
+.set-provider button { flex: 1; }
+.model-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: -4px; }
+.model-tools small { font-size: 12px; }
+.ai-who { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.msg.bot .ai-who { display: block; }

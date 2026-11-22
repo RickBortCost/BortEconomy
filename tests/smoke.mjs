@@ -19,7 +19,7 @@ const results = [];
 async function test(name, fn) {
   const t = Date.now();
   try { await fn(); results.push([true, name]); console.log(`✓ ${name} (${Date.now() - t} ms)`); }
-  catch (e) { results.push([false, name]); console.log(`✗ ${name}\n    ${String(e.message).split("\n")[0]}`); }
+  catch (e) { results.push([false, name]); console.log(`✗ ${name}\n    ${String(e.message).split("\n")[0]}`); if (process.env.DEBUG) console.log(e.stack); }
   // pulizia: chiude eventuali schede o finestre rimaste aperte, così un errore non si propaga ai test successivi
   await page.keyboard.press("Escape").catch(() => {});
   await page.evaluate(() => { document.querySelectorAll("dialog[open]").forEach((d) => d.close()); }).catch(() => {});
@@ -98,7 +98,10 @@ await test("nessuno scorrimento orizzontale su mobile", async () => {
   }
 });
 
-for (const extra of (await import("./extra.mjs").catch(() => ({ default: [] }))).default) await test(extra.name, () => extra.run({ page, ctx, BASE, assert }));
+for (const extra of (await import("./extra.mjs").catch(() => ({ default: [] }))).default) {
+  if (process.env.ONLY && !extra.name.includes(process.env.ONLY)) continue; // ONLY=testo esegue solo i test aggiuntivi che lo contengono
+  await test(extra.name, () => extra.run({ page, ctx, BASE, assert }));
+}
 
 await test("nessun errore JavaScript", async () => assert(!errors.length, errors.join(" | ")));
 

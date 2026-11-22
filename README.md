@@ -16,7 +16,7 @@ Web app (anche mobile, installabile come PWA) con:
 - **Mappa, valute, cripto**: mappa delle società per capitalizzazione e variazione, convertitore e cambi, 23 criptovalute.
 - **Calendario economico**: dati macro della settimana e utili societari.
 - **Il punto del giorno**: riepilogo mattutino scritto da Claude.
-- **Claude AI**: chat con analisi basata sulle notizie e i dati caricati, con ricerca web.
+- **Assistenti AI** (Claude, ChatGPT, Gemini): chat con analisi basata sulle notizie e i dati caricati, con ricerca web.
 
 ## Come funziona
 
@@ -39,6 +39,10 @@ Dalla scheda di un titolo tocca 🔔, scegli la condizione e conferma la richies
 ## Il punto del giorno
 
 Per attivarlo aggiungi una chiave API Anthropic come secret del repository: **Settings → Secrets and variables → Actions → New repository secret**, nome `ANTHROPIC_API_KEY`. Il riepilogo viene generato al primo aggiornamento dopo le 7:00 (ora italiana), una volta al giorno (`scripts/brief.mjs`, modello `claude-opus-5-5`, ricerca web limitata a 4 interrogazioni). Per rigenerarlo subito: Actions → "Aggiorna dati e pubblica su GitHub Pages" → Run workflow → "Rigenera subito il punto del giorno". Senza chiave il sito funziona normalmente e il riquadro non compare.
+
+## Assistenti AI
+
+Nella scheda **AI** scegli Claude, ChatGPT o Gemini e inserisci la chiave del fornitore in Impostazioni (console.anthropic.com, platform.openai.com, aistudio.google.com). Le chiamate partono dal browser direttamente verso l'API del fornitore. "Carica modelli" mostra i modelli attivi sul tuo account.
 
 ## Claude
 
