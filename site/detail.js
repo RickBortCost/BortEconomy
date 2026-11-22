@@ -167,6 +167,7 @@ function render() {
     ["1 mese", pct(q.monthPct)],
     ["1 anno", pct(q.yearPct)],
     ["Borsa", esc(q.exchange ?? "–")],
+    ...(st.extraStats?.(q) ?? []),
     ...(q.marketCap ? [["Capitalizzazione", `${compact(q.marketCap)} ${esc(q.currency ?? "")}`]] : []),
   ];
   $("#dt-stats").innerHTML = stats.filter(([, v]) => !/^(–|– – –|<span class="chg">–<\/span>)$/.test(v)).map(([k, v]) => `<div><small>${k}</small><b>${v}</b></div>`).join("");
@@ -180,7 +181,7 @@ function render() {
   $("#dt-hist-more").hidden = noHist || st.showAll || rows.length <= 30;
 }
 
-async function loadHist(sym) {
+export async function loadHist(sym) {
   if (!cache.has(sym)) {
     const file = sym.replace(/[^A-Za-z0-9.-]/g, "_");
     cache.set(sym, fetch(`data/hist/${file}.json?t=${Math.floor(Date.now() / 300000)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
@@ -221,7 +222,8 @@ export function closeDetail(fromPop = false) {
   if (!fromPop && location.hash.startsWith("#q=")) history.back();
 }
 
-export function initDetail({ onAsk, quoteFor, favs, onAdd, pendingSince, loadDirectory }) {
+export function initDetail({ onAsk, quoteFor, favs, onAdd, pendingSince, loadDirectory, extraStats, askPrompt }) {
+  st.extraStats = extraStats; st.askPrompt = askPrompt;
   st.onAsk = onAsk; st.favs = favs; st.onAdd = onAdd; st.pendingSince = pendingSince;
   $("#dt-fav").addEventListener("click", () => { favs.toggle(st.sym); setFavBtn(); });
   $("#dt-back").addEventListener("click", () => closeDetail());
@@ -238,7 +240,7 @@ export function initDetail({ onAsk, quoteFor, favs, onAdd, pendingSince, loadDir
   $("#dt-ask").addEventListener("click", () => {
     const q = st.quote ?? {};
     closeDetail();
-    st.onAsk?.(`Analizza ${q.longName || q.name || st.sym} (${st.sym}): andamento recente (oggi ${nf(q.changePct)}%, 1 settimana ${nf(q.weekPct)}%, 1 mese ${nf(q.monthPct)}%, 1 anno ${nf(q.yearPct)}%), notizie e fattori che lo influenzano. Cerca sul web le notizie più recenti.`);
+    st.onAsk?.(st.askPrompt?.(q) ?? `Analizza ${q.longName || q.name || st.sym} (${st.sym}): andamento recente (oggi ${nf(q.changePct)}%, 1 settimana ${nf(q.weekPct)}%, 1 mese ${nf(q.monthPct)}%, 1 anno ${nf(q.yearPct)}%), notizie e fattori che lo influenzano. Cerca sul web le notizie più recenti.`);
   });
   addEventListener("popstate", () => {
     const m = location.hash.match(/^#q=(.+)$/);

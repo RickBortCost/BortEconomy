@@ -6,6 +6,7 @@ Web app (anche mobile, installabile come PWA) con:
 - **Mercati**: indici mondiali, valute/materie prime/tassi, migliori e peggiori titoli mondiali (giorno/settimana), titoli principali del paese. Fonte: Yahoo Finance (dati ritardati).
 - **Ricerca e preferiti**: ricerca tra i titoli monitorati (indici, valute, materie prime, cripto, ETF, azioni) e una directory mondiale di oltre 11.000 azioni; preferiti salvati nel browser.
 - **Nuovi titoli**: "➕ Aggiungi al monitoraggio" apre una richiesta su GitHub; il workflow `Aggiungi titoli` aggiunge il titolo al catalogo e ripubblica il sito con storico e grafico (solo proprietario/collaboratori del repository).
+- **Metalli preziosi**: oro, argento, platino, palladio e rame in € o $ per oncia e grammo, rendimenti, rapporti oro/argento e altri, ETC fisici, società minerarie, notizie dedicate; stessa scheda di dettaglio dei titoli.
 - **Dettaglio titolo**: grafico interattivo per ore, giorni e settimane, statistiche e storico per ogni simbolo (link diretto `#q=SIMBOLO`).
 - **Tema chiaro/scuro**: automatico secondo il sistema o scelto manualmente (pulsante 🌓 in alto).
 - **Claude AI**: chat con analisi basata sulle notizie e i dati caricati, con ricerca web.
