@@ -237,4 +237,65 @@ export default [
       await page.waitForSelector("#lab-stress tr");
     },
   },
+  {
+    name: "assistenti AI: ChatGPT e Gemini (API simulate) con modelli, risposta, fonti ed errori",
+    async run({ page, ctx, assert }) {
+      const sse = (events) => events.map((e) => `data: ${JSON.stringify(e)}\n\n`).join("") + "data: [DONE]\n\n";
+      let openaiBody = null, geminiBody = null;
+      await ctx.route("https://api.openai.com/**", async (r) => {
+        const url = r.request().url();
+        if (url.endsWith("/v1/models")) return r.fulfill({ json: { data: [{ id: "gpt-test-1" }, { id: "chat-latest" }, { id: "text-embedding-3" }] } });
+        openaiBody = JSON.parse(r.request().postData());
+        if (openaiBody.model === "modello-inesistente") return r.fulfill({ status: 404, json: { error: { message: "model not found" } } });
+        return r.fulfill({ headers: { "content-type": "text/event-stream", "access-control-allow-origin": "*" }, body: sse([
+          { type: "response.output_text.delta", delta: "Risposta " }, { type: "response.output_text.delta", delta: "di **ChatGPT**." },
+          { type: "response.completed", response: { status: "completed", output: [{ type: "message", content: [{ type: "output_text", annotations: [{ type: "url_citation", url: "https://esempio.it/a", title: "Fonte OpenAI" }] }] }] } }]) });
+      });
+      await ctx.route("https://generativelanguage.googleapis.com/**", async (r) => {
+        const url = r.request().url();
+        if (url.includes("/models?")) return r.fulfill({ json: { models: [{ name: "models/gemini-test", displayName: "Gemini Test", supportedGenerationMethods: ["generateContent"] }, { name: "models/text-embedding", supportedGenerationMethods: ["embedContent"] }] } });
+        geminiBody = JSON.parse(r.request().postData());
+        return r.fulfill({ headers: { "content-type": "text/event-stream", "access-control-allow-origin": "*" }, body: sse([
+          { candidates: [{ content: { parts: [{ text: "Risposta di " }] } }] },
+          { candidates: [{ content: { parts: [{ text: "Gemini." }] }, finishReason: "STOP", groundingMetadata: { groundingChunks: [{ web: { uri: "https://esempio.it/g", title: "Fonte Google" } }] } }] }]) });
+      });
+      await page.evaluate(() => { for (const k of ["apiKey.openai", "apiKey.gemini", "model.openai", "model.gemini", "ai-provider"]) localStorage.removeItem(k); });
+      await page.reload();
+      await page.click("[data-tab=ai]");
+      // ChatGPT: configurazione e caricamento modelli
+      await page.click('#ai-provider button[data-v="openai"]');
+      await page.waitForSelector("#settings[open]");
+      await page.fill("#api-key", "sk-test");
+      await page.click("#load-models");
+      await page.waitForSelector('#model option[value="gpt-test-1"]', { state: "attached" });
+      assert(!(await page.$('#model option[value="text-embedding-3"]')), "modelli non pertinenti non filtrati");
+      await page.selectOption("#model", "gpt-test-1");
+      await page.click('#settings button[value="save"]');
+      await page.fill("#prompt", "Come va il mercato?");
+      await page.click("#send");
+      await page.waitForFunction(() => document.querySelector("#chat .msg.bot:last-child")?.textContent.includes("Fonte OpenAI"));
+      const t1 = await page.textContent("#chat .msg.bot:last-child");
+      assert(t1.includes("Risposta di ChatGPT") && t1.includes("gpt-test-1"), `risposta ChatGPT inattesa: ${t1}`);
+      assert(openaiBody.model === "gpt-test-1" && openaiBody.instructions.length > 100 && openaiBody.input.at(-1).content === "Come va il mercato?", "richiesta OpenAI non corretta");
+      // Gemini
+      await page.click('#ai-provider button[data-v="gemini"]');
+      await page.waitForSelector("#settings[open]");
+      await page.fill("#api-key", "AIza-test");
+      await page.click("#load-models");
+      await page.waitForSelector('#model option[value="gemini-test"]', { state: "attached" });
+      await page.click('#settings button[value="save"]');
+      await page.fill("#prompt", "E l'oro?");
+      await page.click("#send");
+      await page.waitForFunction(() => document.querySelector("#chat .msg.bot:last-child")?.textContent.includes("Fonte Google"));
+      assert((await page.textContent("#chat .msg.bot:last-child")).includes("Risposta di Gemini."), "risposta Gemini inattesa");
+      assert(geminiBody.systemInstruction.parts[0].text.length > 100 && geminiBody.tools?.[0]?.google_search, "richiesta Gemini non corretta");
+      // errore: modello inesistente su OpenAI
+      await page.evaluate(() => { localStorage.setItem("model.openai", "modello-inesistente"); localStorage.setItem("ai-provider", "openai"); });
+      await page.reload(); await page.click("[data-tab=ai]");
+      await page.fill("#prompt", "test errore"); await page.click("#send");
+      await page.waitForSelector("#chat .msg.err");
+      assert((await page.textContent("#chat .msg.err")).includes("Carica modelli"), "messaggio d'errore 404 non chiaro");
+      await page.evaluate(() => { for (const k of ["apiKey.openai", "apiKey.gemini", "model.openai", "model.gemini", "ai-provider"]) localStorage.removeItem(k); });
+    },
+  },
 ];

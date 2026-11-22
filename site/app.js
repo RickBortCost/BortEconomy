@@ -1,6 +1,7 @@
 import { initDetail, openDetail, loadHist } from "./detail.js";
 import { initPortfolio, renderPortfolio, openPositionForm, openAlertForm, positionWeights, positionsValue, donut } from "./portfolio.js";
 import { initLab, renderComposition, renderLab } from "./lab.js";
+import { PROVIDERS, aiSettings, errorText } from "./ai.js";
 import { initCalendar, renderCalendar, upcoming } from "./calendar.js";
 import { initMarketsExtra, renderHeatmap, renderForex, renderCrypto, renderEtf } from "./markets-extra.js";
 
@@ -9,17 +10,6 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 const store = {
   get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
   set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
-};
-// Chiave API di Claude: salvata nel browser oppure solo per la sessione corrente (sessionStorage)
-const apiKey = {
-  get() { try { return sessionStorage.getItem("apiKey") || localStorage.getItem("apiKey") || ""; } catch { return ""; } },
-  persistent() { try { return !!localStorage.getItem("apiKey"); } catch { return false; } },
-  set(v, persist) {
-    try {
-      localStorage.removeItem("apiKey"); sessionStorage.removeItem("apiKey");
-      if (v) (persist ? localStorage : sessionStorage).setItem("apiKey", v);
-    } catch {}
-  },
 };
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const DAY = 864e5;
@@ -382,8 +372,8 @@ function metalsContext() {
 }
 
 // ---------------- Claude ----------------
-let anthropicMod = null;
-const chat = { messages: [], busy: false };
+// conversazioni separate per fornitore (ognuna nel formato della propria API)
+const chat = { conv: { claude: [], openai: [], gemini: [] }, busy: false };
 
 function md(text) {
   const inline = (s) => esc(s)
@@ -447,74 +437,60 @@ function addMsg(cls, html) {
 }
 
 async function ask(text) {
-  const key = apiKey.get();
-  if (!key) { $("#settings").showModal(); return; }
+  const p = aiSettings.provider(), P = PROVIDERS[p];
+  const key = aiSettings.key(p);
+  if (!key) { openSettings(p); return; }
   if (chat.busy || !text.trim()) return;
   chat.busy = true; $("#send").disabled = true;
   addMsg("user", esc(text).replace(/\n/g, "<br>"));
-  const bot = addMsg("bot", '<span class="status">Claude sta analizzando…</span>');
-  chat.messages.push({ role: "user", content: text });
-
+  const bot = addMsg("bot", `<span class="ai-who">${esc(P.label)}</span><span class="status">${esc(P.label)} sta analizzando…</span>`);
+  const head = `<span class="ai-who">${esc(P.label)} · ${esc(aiSettings.model(p))}</span>`;
   try {
-    anthropicMod ??= await import("https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@1.6.0/+esm");
-    const Anthropic = anthropicMod.default ?? anthropicMod.Anthropic;
-    const client = new Anthropic({ apiKey: key, dangerouslyAllowBrowser: true });
-    const model = store.get("model", "claude-opus-5-5");
-    const isHaiku = model.startsWith("claude-haiku");
-    const params = {
-      model,
-      max_tokens: 16000,
-      system: systemPrompt(await buildContext()),
-      output_config: { effort: "medium" },
-      messages: chat.messages,
-    };
-    if (store.get("web", "1") === "1") {
-      params.tools = [{ type: isHaiku ? "web_search_20250305" : "web_search_20260209", name: "web_search", max_uses: 5 }];
-    }
-    if (!isHaiku) { params.betas = ["server-side-fallback-2026-07-01"]; params.fallbacks = "default"; }
-
-    let final, live = "";
-    for (let turn = 0; turn < 4; turn++) {
-      const stream = client.beta.messages.stream(params);
-      stream.on("text", (d) => { live += d; bot.innerHTML = md(live); });
-      stream.on("contentBlock", (b) => {
-        if (b.type === "server_tool_use" && !live) bot.innerHTML = '<span class="status">Ricerca sul web in corso…</span>';
-      });
-      final = await stream.finalMessage();
-      chat.messages.push({ role: "assistant", content: final.content });
-      if (final.stop_reason !== "pause_turn") break;
-      live += "\n";
-    }
-
-    if (final.stop_reason === "refusal") {
-      bot.classList.add("err");
-      bot.textContent = "Claude ha declinato questa richiesta. Prova a riformularla.";
-      chat.messages.splice(chat.messages.findLastIndex((m) => m.role === "user"));
-    } else {
-      // Mostra solo il testo dopo un eventuale passaggio al modello di fallback
-      const blocks = final.content;
-      const lastFb = blocks.map((b) => b.type).lastIndexOf("fallback");
-      const text = blocks.slice(lastFb + 1).filter((b) => b.type === "text").map((b) => b.text).join("") || live;
-      const sources = new Map();
-      for (const b of blocks) {
-        for (const c of b.citations ?? []) if (c.url) sources.set(c.url, c.title || c.url);
-      }
-      bot.innerHTML = md(text) + (sources.size
-        ? `<div class="sources"><b>Fonti:</b> ${[...sources].slice(0, 8).map(([u, t]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}</div>`
-        : "");
-      if (final.stop_reason === "max_tokens") bot.innerHTML += '<p class="status">Risposta troncata.</p>';
-    }
+    const r = await P.send({
+      key, model: aiSettings.model(p), system: systemPrompt(await buildContext()), conv: chat.conv[p], text,
+      web: store.get("web", "1") === "1",
+      onText: (t) => { bot.innerHTML = head + md(t); },
+      onStatus: (msg) => { bot.innerHTML = `${head}<span class="status">${esc(msg)}</span>`; },
+    });
+    if (r.refused) { bot.classList.add("err"); bot.textContent = `${P.label} ha declinato questa richiesta. Prova a riformularla.`; return; }
+    bot.innerHTML = head + md(r.text) + (r.sources?.size
+      ? `<div class="sources"><b>Fonti:</b> ${[...r.sources].slice(0, 8).map(([u, t]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}</div>`
+      : "");
+    if (r.truncated) bot.innerHTML += '<p class="status">Risposta troncata.</p>';
   } catch (e) {
-    chat.messages.splice(chat.messages.findLastIndex((m) => m.role === "user"));
     bot.classList.add("err");
-    const status = e?.status;
-    bot.textContent = status === 401 ? "Chiave API non valida. Controlla le impostazioni."
-      : status === 429 ? "Limite di richieste raggiunto. Riprova tra poco."
-      : status === 529 || status >= 500 ? "Servizio Claude momentaneamente sovraccarico. Riprova."
-      : `Errore: ${e?.message ?? e}`;
+    bot.textContent = errorText(e, p);
   } finally {
     chat.busy = false; $("#send").disabled = false;
   }
+}
+
+// ---------------- impostazioni AI ----------------
+let setP = "claude"; // fornitore mostrato nella finestra impostazioni
+function fillModels(p, list) {
+  const cur = aiSettings.model(p);
+  const opts = list.some(([id]) => id === cur) ? list : [[cur, `${cur} (attuale)`], ...list];
+  $("#model").innerHTML = opts.map(([id, label]) => `<option value="${esc(id)}" ${id === cur ? "selected" : ""}>${esc(label)}</option>`).join("");
+}
+function showSettingsFor(p) {
+  setP = p; const P = PROVIDERS[p];
+  $$("#set-provider button").forEach((b) => b.classList.toggle("on", b.dataset.v === p));
+  $("#set-title").textContent = `Collegamento a ${P.label}`;
+  $("#api-key-label").firstChild.textContent = `Chiave API ${P.vendor} `;
+  $("#api-key").placeholder = P.keyHint;
+  $("#api-key").value = aiSettings.key(p);
+  $("#remember-key").checked = !aiSettings.key(p) || aiSettings.persistent(p);
+  $("#key-hint").innerHTML = `La chiave resta solo in questo browser e viene inviata direttamente a ${esc(P.host)}. Usa una chiave con limite di spesa. Creala su <b>${esc(P.keyUrl)}</b>.`;
+  $("#load-models").hidden = p === "claude";
+  $("#models-msg").textContent = p === "claude" ? "" : `Predefinito: ${P.defaultModel} (punta sempre al modello più recente). Tocca "Carica modelli" per scegliere tra quelli attivi sul tuo account.`;
+  fillModels(p, p === "claude" ? P.models : []);
+}
+function openSettings(p = aiSettings.provider()) { showSettingsFor(p); $("#settings").showModal(); }
+function renderProviderBar() {
+  const p = aiSettings.provider(), ok = aiSettings.configured();
+  $("#ai-provider").innerHTML = Object.values(PROVIDERS).map((P) => `<button data-v="${P.id}" class="${P.id === p ? "on" : ""}">${esc(P.label)}${ok.includes(P.id) ? "" : ' <small title="Chiave non configurata">·</small>'}</button>`).join("");
+  $("#ai-intro").textContent = `${PROVIDERS[p].label} (${PROVIDERS[p].vendor}) analizza le notizie e i dati caricati e può cercare sul web informazioni aggiornate. Modello: ${aiSettings.model(p)}.`;
+  $("#prompt").placeholder = `Chiedi a ${PROVIDERS[p].label}…`;
 }
 
 // ---------------- tema ----------------
@@ -541,7 +517,8 @@ function initTheme() {
   darkMQ.addEventListener("change", () => applyTheme(t));
 }
 
-// Sotto-sezioni del portafoglio
+// Sotto-sezioni del portafoglio (disponibili solo dopo l'inizializzazione dei moduli)
+let pfReady = false;
 function showPfView(v) {
   $$("#pf-subnav button").forEach((b) => b.classList.toggle("on", b.dataset.v === v));
   $$(".pf-view").forEach((el) => { el.hidden = el.id !== `pf-view-${v}`; });
@@ -558,7 +535,7 @@ function setTab(t) {
   document.body.classList.toggle("ai", t === "ai");
   store.set("tab", t);
   if (t === "metals") renderMetals();
-  if (t === "portfolio") showPfView(store.get("pf-view", "positions"));
+  if (t === "portfolio" && pfReady) showPfView(store.get("pf-view", "positions"));
 }
 
 function seg(id, onChange) {
@@ -609,22 +586,39 @@ async function init() {
     $(id).addEventListener("keydown", openFrom);
   }
 
-  // Claude
+  // Assistenti AI
   const dlg = $("#settings");
-  $("#ai-settings-btn").addEventListener("click", () => dlg.showModal());
+  $("#ai-settings-btn").addEventListener("click", () => openSettings());
+  $("#set-provider").innerHTML = Object.values(PROVIDERS).map((P) => `<button type="button" data-v="${P.id}">${esc(P.label)}</button>`).join("");
+  $("#set-provider").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showSettingsFor(b.dataset.v); });
+  $("#load-models").addEventListener("click", async () => {
+    const key = $("#api-key").value.trim();
+    if (!key) { $("#models-msg").textContent = "Inserisci prima la chiave API."; return; }
+    $("#models-msg").textContent = "Caricamento dei modelli…";
+    try {
+      const list = await PROVIDERS[setP].listModels(key);
+      fillModels(setP, list);
+      $("#models-msg").textContent = `${list.length} modelli disponibili sul tuo account.`;
+    } catch (e) { $("#models-msg").textContent = errorText(e, setP); }
+  });
   dlg.addEventListener("close", () => {
     if (dlg.returnValue === "save") {
-      apiKey.set($("#api-key").value.trim(), $("#remember-key").checked);
-      store.set("model", $("#model").value);
+      aiSettings.setKey(setP, $("#api-key").value.trim(), $("#remember-key").checked);
+      aiSettings.setModel(setP, $("#model").value);
       store.set("web", $("#web").checked ? "1" : "0");
+      if ($("#api-key").value.trim()) aiSettings.setProvider(setP);
     } else if (dlg.returnValue === "clear") {
-      apiKey.set(null); $("#api-key").value = "";
+      aiSettings.setKey(setP, null); $("#api-key").value = "";
     }
+    renderProviderBar();
   });
-  $("#api-key").value = apiKey.get();
-  $("#remember-key").checked = !apiKey.get() || apiKey.persistent();
-  $("#model").value = store.get("model", "claude-opus-5-5");
   $("#web").checked = store.get("web", "1") === "1";
+  $("#ai-provider").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    aiSettings.setProvider(b.dataset.v); renderProviderBar();
+    if (!aiSettings.key(b.dataset.v)) openSettings(b.dataset.v);
+  });
+  renderProviderBar();
   $("#ai-chips").addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
     ask(b.dataset.p.replaceAll("{country}", state.config.countries[state.country].name));
@@ -633,7 +627,7 @@ async function init() {
   ta.addEventListener("input", () => { ta.style.height = "auto"; ta.style.height = `${ta.scrollHeight}px`; });
   ta.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#composer").requestSubmit(); } });
   $("#composer").addEventListener("submit", (e) => { e.preventDefault(); const v = ta.value; ta.value = ""; ta.style.height = "auto"; ask(v); });
-  if (!apiKey.get()) addMsg("bot", "<p>Per usare Claude inserisci la tua chiave API Anthropic in <b>⚙️ Impostazioni</b>.</p>");
+  if (!aiSettings.configured().length) addMsg("bot", "<p>Scegli un assistente (Claude, ChatGPT o Gemini) e inserisci la sua chiave API in <b>Impostazioni</b>. Puoi configurarne più di uno e passare dall'uno all'altro.</p>");
 
   getJSON("data/meta.json").then((m) => {
     $("#foot").innerHTML = `BortEconomy <a href="https://github.com/RickBortCost/BortEconomy/releases/tag/v${esc(m.version)}" target="_blank" rel="noopener">v${esc(m.version)}</a> · Dati: Google News, Yahoo Finance · Non è consulenza finanziaria`;
@@ -681,6 +675,7 @@ async function init() {
   try { if (JSON.parse(store.get("portfolio", "[]")).some((l) => !isMonitored(l.sym))) loadDirectory().then(() => { if (store.get("tab") === "portfolio") renderPortfolio(); }); } catch {}
   initLab({ $, esc, nf, store, seg, bySymbol, searchQuotes, setTab, ask, openDetail, config: state.config, donut, positionWeights, positionsValue });
   $("#pf-subnav").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showPfView(b.dataset.v); });
+  pfReady = true;
   if (store.get("tab", "news") === "portfolio") showPfView(store.get("pf-view", "positions"));
   pending.prune();
   if (favs.list().some((sym) => !isMonitored(sym))) loadDirectory().then(() => renderMarkets());

@@ -5,6 +5,22 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.13.0] - 2026-11-22
+
+### Aggiunto
+- **Più assistenti AI**: oltre a Claude (Anthropic) ora si possono usare **ChatGPT** (OpenAI) e **Gemini** (Google), ciascuno con la propria chiave API (salvata solo nel browser, anche solo per la sessione) e la scelta del modello. Selettore dell'assistente in cima alla chat; ogni assistente ha la propria conversazione.
+  - ChatGPT: API Responses di OpenAI con ricerca web (`web_search`) e fonti citate; modello predefinito `chat-latest`.
+  - Gemini: API Gemini di Google con ricerca Google integrata (`google_search`) e fonti; modello predefinito `gemini-flash-latest`.
+  - Pulsante "Carica modelli" che elenca i modelli disponibili sul proprio account; messaggi d'errore specifici per chiave non valida, modello non disponibile, limite o credito esaurito.
+- Ogni risposta indica assistente e modello usati.
+
+### Modificato
+- La scheda "Claude" diventa "AI"; i pulsanti "Chiedi a Claude" diventano "Chiedi all'AI" e usano l'assistente selezionato. Il punto del giorno resta generato da Claude.
+- Le chiavi e il modello di Claude già salvati restano validi.
+
+### Corretto
+- Riaprendo l'app direttamente sulla scheda Portafoglio la vista poteva generare un errore prima del caricamento dei moduli.
+
 ## [1.12.0] - 2026-11-22
 
 ### Aggiunto
@@ -179,7 +195,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.12.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.9.0...v1.10.0

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>BortEconomy</title>
-  <meta name="description" content="News economiche del giorno e della settimana, mercati mondiali e analisi AI con Claude.">
+  <meta name="description" content="News economiche del giorno e della settimana, mercati mondiali e analisi AI con Claude, ChatGPT o Gemini.">
   <meta name="theme-color" content="#ffffff">
   <script>
     // Applica il tema salvato prima del rendering (evita il lampo di colore)
@@ -64,7 +64,7 @@
     <button role="tab" data-tab="markets"><svg class="ic" aria-hidden="true"><use href="#i-markets"/></svg><span>Mercati</span></button>
     <button role="tab" data-tab="metals"><svg class="ic" aria-hidden="true"><use href="#i-metals"/></svg><span>Metalli</span></button>
     <button role="tab" data-tab="portfolio"><svg class="ic" aria-hidden="true"><use href="#i-briefcase"/></svg><span>Portafoglio</span></button>
-    <button role="tab" data-tab="ai"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span>Claude</span></button>
+    <button role="tab" data-tab="ai"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span>AI</span></button>
   </nav>
 
   <main>
@@ -219,7 +219,7 @@
 
       <h2>Notizie sui metalli preziosi</h2>
       <ul class="news" id="mt-news"></ul>
-      <button class="primary mt-ask" id="mt-ask"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Analisi dei metalli preziosi con Claude</button>
+      <button class="primary mt-ask" id="mt-ask"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Analisi dei metalli preziosi con l'AI</button>
     </section>
 
     <!-- PORTAFOGLIO -->
@@ -239,7 +239,7 @@
       <div id="pf-body" hidden>
         <div class="toolbar pf-tools">
           <button class="primary" id="pf-add">＋ Posizione</button>
-          <button class="ghost" id="pf-ask"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Analizza con Claude</button>
+          <button class="ghost" id="pf-ask"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Analizza con l'AI</button>
         </div>
         <div class="grid pf-summary" id="pf-summary"></div>
         <h2>Posizioni</h2>
@@ -317,16 +317,17 @@
           </div>
           <h3>Come avrebbe reagito nelle crisi passate</h3>
           <div class="dt-table"><table class="mt-table lab-stress-t"><thead><tr><th>Periodo</th><th>Portafoglio</th><th>Azioni mondo</th><th>Obbligazioni globali</th></tr></thead><tbody id="lab-stress"></tbody></table></div>
-          <button class="primary mt-ask" id="lab-ask"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Spiega con Claude come mi influenzano</button>
+          <button class="primary mt-ask" id="lab-ask"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Spiega con l'AI come mi influenzano</button>
         </div>
       </div>
     </section>
 
     <section id="tab-ai" class="panel">
       <div class="ai-head">
-        <p class="meta">Claude analizza le notizie caricate e può cercare sul web informazioni aggiornate.</p>
+        <div class="seg" id="ai-provider" aria-label="Assistente AI"></div>
         <button class="ghost" id="ai-settings-btn"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> Impostazioni</button>
       </div>
+      <p class="meta" id="ai-intro"></p>
       <div class="chips" id="ai-chips">
         <button data-p="Riassumi le notizie economiche più importanti di oggi per {country} e nel mondo, con i punti chiave.">Riassunto di oggi</button>
         <button data-p="Fai un'analisi della settimana economica: eventi principali, mercati, banche centrali, con focus su {country}.">Analisi settimana</button>
@@ -335,7 +336,7 @@
       </div>
       <div class="chat" id="chat"></div>
       <form class="composer" id="composer">
-        <textarea id="prompt" rows="1" placeholder="Chiedi a Claude…" aria-label="Domanda per Claude"></textarea>
+        <textarea id="prompt" rows="1" placeholder="Chiedi all'AI…" aria-label="Domanda per l'assistente AI"></textarea>
         <button type="submit" id="send">Invia</button>
       </form>
     </section>
@@ -350,7 +351,7 @@
           <button class="ghost" id="dt-fav" aria-pressed="false" aria-label="Aggiungi ai preferiti"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><span class="lbl">Preferito</span></button>
           <button class="ghost" id="dt-pf" aria-label="Aggiungi al portafoglio" title="Aggiungi al portafoglio"><svg class="ic" aria-hidden="true"><use href="#i-briefcase"/></svg></button>
           <button class="ghost" id="dt-alert" aria-label="Crea un avviso di prezzo" title="Crea un avviso di prezzo"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></button>
-          <button class="ghost" id="dt-ask" aria-label="Chiedi a Claude"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span class="lbl">Chiedi a Claude</span></button>
+          <button class="ghost" id="dt-ask" aria-label="Chiedi all'AI"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span class="lbl">Chiedi all'AI</span></button>
         </span>
       </header>
       <h2 id="dt-name" class="dt-name"></h2>
@@ -432,18 +433,16 @@
 
   <dialog id="settings">
     <form method="dialog" class="settings">
-      <h3>Collegamento a Claude</h3>
-      <label>Chiave API Anthropic
+      <div class="seg set-provider" id="set-provider" aria-label="Assistente da configurare"></div>
+      <h3 id="set-title">Collegamento a Claude</h3>
+      <label id="api-key-label">Chiave API Anthropic
         <input id="api-key" type="password" autocomplete="off" placeholder="sk-ant-…">
       </label>
-      <p class="hint">La chiave resta solo in questo browser (localStorage) e viene inviata direttamente a api.anthropic.com. Usa una chiave con limite di spesa. Creala su console.anthropic.com.</p>
+      <p class="hint" id="key-hint"></p>
       <label>Modello
-        <select id="model">
-          <option value="claude-opus-5-5">Claude Opus 5.5 (consigliato)</option>
-          <option value="claude-sonnet-5-5">Claude Sonnet 5.5</option>
-          <option value="claude-haiku-5-5">Claude Haiku 5.5 (economico)</option>
-        </select>
+        <select id="model"></select>
       </label>
+      <div class="model-tools"><button type="button" class="ghost" id="load-models">↻ Carica modelli</button><small class="meta" id="models-msg"></small></div>
       <label class="check"><input id="remember-key" type="checkbox" checked> Ricorda la chiave su questo dispositivo</label>
       <p class="hint">Se non selezionato, la chiave resta solo finché la scheda è aperta: consigliato sui dispositivi condivisi.</p>
       <label class="check"><input id="web" type="checkbox" checked> Consenti ricerca web</label>
