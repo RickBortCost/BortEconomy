@@ -31,6 +31,7 @@
       <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/><path d="M20 3v4M22 5h-4"/></symbol>
       <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
       <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></symbol>
       <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
       <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></symbol>
       <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
@@ -59,7 +60,8 @@
   <div class="ticker" id="ticker" aria-label="Indici in tempo reale" hidden><div class="ticker-track" id="ticker-track"></div></div>
 
   <nav class="tabs" role="tablist">
-    <button role="tab" data-tab="news" aria-selected="true"><svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>Notizie</span></button>
+    <button role="tab" data-tab="home" aria-selected="true"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg><span>Home</span></button>
+    <button role="tab" data-tab="news"><svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>Notizie</span></button>
     <button role="tab" data-tab="markets"><svg class="ic" aria-hidden="true"><use href="#i-markets"/></svg><span>Mercati</span></button>
     <button role="tab" data-tab="metals"><svg class="ic" aria-hidden="true"><use href="#i-metals"/></svg><span>Metalli</span></button>
     <button role="tab" data-tab="portfolio"><svg class="ic" aria-hidden="true"><use href="#i-briefcase"/></svg><span>Portafoglio</span></button>
@@ -68,7 +70,25 @@
 
   <main>
     <!-- NOTIZIE -->
-    <section id="tab-news" class="panel active">
+    <section id="tab-home" class="panel active">
+      <div class="home-bar">
+        <h2 class="home-title">La tua Home</h2>
+        <button type="button" class="ghost" id="home-edit">✏️ Personalizza</button>
+        <div class="home-tools" id="home-tools" hidden>
+          <button type="button" class="primary" id="home-add" aria-expanded="false" aria-controls="home-catalog">＋ Aggiungi widget</button>
+          <button type="button" class="ghost" id="home-reset">Ripristina</button>
+          <button type="button" class="primary" id="home-done">Fine</button>
+        </div>
+      </div>
+      <div class="home-catalog" id="home-catalog" hidden>
+        <input type="search" id="hc-search" placeholder="Cerca un widget: grafico, notizie, tabella, metalli…" aria-label="Cerca un widget">
+        <p class="hint">Scegli la posizione e tocca <b>Aggiungi</b>, oppure trascina la riga nella griglia (da computer). Nella griglia usa ◀ ▶ o trascina per spostare, scegli la larghezza e ↕ per l'altezza.</p>
+        <div class="hw-table hc-table"><table><thead><tr><th>Widget</th><th>Dimensione</th><th>Posizione</th><th></th></tr></thead><tbody id="hc-rows"></tbody></table></div>
+      </div>
+      <div class="home-grid" id="home-grid"></div>
+    </section>
+
+    <section id="tab-news" class="panel">
       <article class="brief" id="brief" hidden>
         <header><h2 class="h-icon"><svg class="ic h-ic" aria-hidden="true"><use href="#i-sun"/></svg>Il punto del giorno</h2><span class="meta" id="brief-date"></span></header>
         <div class="brief-body" id="brief-body"></div>
@@ -476,6 +496,14 @@
         <li><b>Protezioni del sito:</b> Content Security Policy che consente solo i file del sito e le API degli assistenti, nessun invio del referrer ai siti esterni, protezione dal clickjacking.</li>
       </ul>
       <div class="actions"><span></span><button value="close" class="primary">Chiudi</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="hw-cfg">
+    <form method="dialog" class="settings">
+      <h3 id="hcfg-title">Impostazioni del widget</h3>
+      <div id="hcfg-fields"></div>
+      <div class="actions"><button value="cancel" class="ghost" formnovalidate>Annulla</button><button value="save" class="primary">Salva</button></div>
     </form>
   </dialog>
 

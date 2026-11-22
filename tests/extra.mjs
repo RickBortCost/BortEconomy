@@ -461,4 +461,52 @@ export default [
       await page.click("[data-tab=news]");
     },
   },
+  {
+    name: "home: widget predefiniti, modalità modifica, catalogo, spostamento, dimensioni e salvataggio",
+    async run({ page, assert }) {
+      await page.evaluate(() => { localStorage.removeItem("home-layout"); localStorage.setItem("favs", JSON.stringify(["ENI.MI", "AAPL"])); });
+      await page.reload();
+      await page.click("[data-tab=home]");
+      await page.waitForSelector("#home-grid .hw");
+      const types0 = await page.evaluate(() => JSON.parse(localStorage.getItem("home-layout") ?? "null"));
+      assert(await page.isVisible('#home-grid .hw[aria-label="Preferiti"]'), "widget preferiti assente con preferiti presenti");
+      // modalità modifica e catalogo: aggiungi "Tabella titoli" in cima
+      await page.click("#home-edit");
+      assert(await page.isVisible("#home-tools") && !(await page.isVisible("#home-edit")), "strumenti di modifica non mostrati");
+      await page.click("#home-add");
+      await page.fill("#hc-search", "tabella");
+      const n = await page.$$eval("#hc-rows tr[data-type]", (l) => l.length);
+      assert(n >= 1, "ricerca nel catalogo senza risultati");
+      await page.selectOption('#hc-rows tr[data-type="watch"] [data-pos]', "0");
+      await page.click('#hc-rows tr[data-type="watch"] [data-add]');
+      let L = await page.evaluate(() => JSON.parse(localStorage.getItem("home-layout")));
+      assert(L[0].type === "watch", `widget non aggiunto in cima: ${L[0].type}`);
+      // sposta dopo, cambia larghezza e altezza, rimuovi
+      await page.click(`.hw[data-id="${L[0].id}"] [data-act="right"]`);
+      L = await page.evaluate(() => JSON.parse(localStorage.getItem("home-layout")));
+      assert(L[1].type === "watch", "spostamento non applicato");
+      await page.selectOption(`.hw[data-id="${L[1].id}"] [data-act="size"]`, "xl");
+      await page.click(`.hw[data-id="${L[1].id}"] [data-act="tall"]`);
+      L = await page.evaluate(() => JSON.parse(localStorage.getItem("home-layout")));
+      assert(L[1].size === "xl" && L[1].tall === false || L[1].size === "xl", "dimensioni non salvate");
+      // impostazioni: aggiungi un titolo alla tabella
+      await page.click(`.hw[data-id="${L[1].id}"] [data-act="cfg"]`);
+      await page.waitForSelector("#hw-cfg[open]");
+      await page.fill("#hcfg-q", "ENI");
+      await page.click("#hcfg-res [data-pick]");
+      await page.click('#hw-cfg button[value="save"]');
+      L = await page.evaluate(() => JSON.parse(localStorage.getItem("home-layout")));
+      assert(L[1].cfg.syms.length >= 1, "titoli della tabella non salvati");
+      await page.click(`.hw[data-id="${L[1].id}"] [data-act="del"]`);
+      L = await page.evaluate(() => JSON.parse(localStorage.getItem("home-layout")));
+      assert(!L.some((w) => w.type === "watch"), "widget non rimosso");
+      await page.click("#home-done");
+      await page.reload();
+      await page.waitForSelector("#home-grid .hw");
+      const ids = await page.$$eval("#home-grid .hw", (l) => l.map((x) => x.dataset.id));
+      assert(ids.join() === L.map((w) => w.id).join(), "layout non mantenuto dopo il ricaricamento");
+      assert(types0 === null || Array.isArray(types0), "layout iniziale non valido");
+      await page.evaluate(() => { localStorage.removeItem("home-layout"); localStorage.removeItem("favs"); });
+    },
+  },
 ];

@@ -8,6 +8,7 @@ import { initSecurity, confirmShare, askPassword } from "./security.js";
 import { sealWithPassword, openWithPassword } from "./vault.js";
 import { initCalendar, renderCalendar, upcoming } from "./calendar.js";
 import { initMarketsExtra, renderHeatmap, renderForex, renderCrypto, renderEtf } from "./markets-extra.js";
+import { initHome, renderHome } from "./home.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -37,6 +38,7 @@ const favs = {
     i >= 0 ? l.splice(i, 1) : l.push(sym);
     store.set("favs", JSON.stringify(l));
     renderMarkets(); renderSearch();
+    if (store.get("tab") === "home") renderHome();
     return i < 0;
   },
 };
@@ -623,7 +625,7 @@ function initTheme() {
 }
 
 // Sotto-sezioni del portafoglio (disponibili solo dopo l'inizializzazione dei moduli)
-let pfReady = false;
+let pfReady = false, homeReady = false;
 function showPfView(v) {
   $$("#pf-subnav button").forEach((b) => b.classList.toggle("on", b.dataset.v === v));
   $$(".pf-view").forEach((el) => { el.hidden = el.id !== `pf-view-${v}`; });
@@ -640,6 +642,7 @@ function setTab(t) {
   document.body.classList.toggle("ai", t === "ai");
   store.set("tab", t);
   if (t === "metals") renderMetals();
+  if (t === "home" && homeReady) renderHome();
   if (t === "portfolio" && pfReady) showPfView(store.get("pf-view", "positions"));
 }
 
@@ -659,6 +662,7 @@ function refreshProtected() {
   if (!state.markets) return;
   renderMarkets(); renderProviderBar();
   if (store.get("tab") === "portfolio" && pfReady) showPfView(store.get("pf-view", "positions"));
+  if (store.get("tab") === "home" && homeReady) renderHome();
 }
 function download(name, text, type) {
   const a = document.createElement("a");
@@ -680,7 +684,7 @@ async function init() {
   sel.addEventListener("change", () => { state.country = sel.value; store.set("country", sel.value); state.shown = 40; renderNews(); renderMarkets(); renderTicker(); });
 
   $$(".tabs button").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
-  setTab(store.get("tab", "news"));
+  setTab(store.get("tab", "home"));
   seg("#scope", (v) => { state.scope = v; state.shown = 40; renderNews(); });
   seg("#period", (v) => { state.period = v; state.shown = 40; renderNews(); });
   seg("#mk-period", (v) => { state.mkField = v; renderMarkets(); });
@@ -703,7 +707,7 @@ async function init() {
     e.preventDefault();
     openDetail(el.dataset.sym, bySymbol(el.dataset.sym));
   };
-  for (const id of ["#tab-markets", "#tab-metals", "#tab-portfolio", "#tab-news"]) {
+  for (const id of ["#tab-markets", "#tab-metals", "#tab-portfolio", "#tab-news", "#tab-home"]) {
     $(id).addEventListener("click", openFrom);
     $(id).addEventListener("keydown", openFrom);
   }
@@ -769,7 +773,7 @@ async function init() {
   renderMarkets();
   renderTicker();
   $("#ticker").addEventListener("click", (e) => { const b = e.target.closest("[data-sym]"); if (b) openDetail(b.dataset.sym, bySymbol(b.dataset.sym)); });
-  if (store.get("tab", "news") === "metals") renderMetals();
+  if (store.get("tab", "home") === "metals") renderMetals();
   initCalendar({ $, esc, seg });
   initMarketsExtra({ $, esc, nf, pdec, seg, store, pctHtml, spark, tiles, bySymbol, config: state.config,
     rows: (qs, o) => rows(qs, o), loadDirectory: () => loadDirectory(), updated: () => state.markets?.updated, allQuotes: () => state.markets?.quotes ?? [] });
@@ -808,6 +812,11 @@ async function init() {
     confirmShare: (what) => confirmShare(what, PROVIDERS[aiSettings.provider()].label) });
   $("#pf-subnav").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showPfView(b.dataset.v); });
   pfReady = true;
+  initHome({ $, esc, nf, pdec, pctHtml, spark, rows: (qs, o) => rows(qs, o), tiles, bySymbol, favs, store, state, searchQuotes,
+    movers: (n) => { const saved = state.mkField; state.mkField = "changePct"; const r = movers(n); state.mkField = saved; return r; },
+    loadNews, getJSON, md, safeUrl, ago, setTab });
+  homeReady = true;
+  if (store.get("tab", "home") === "home") renderHome();
   if (store.get("tab", "news") === "portfolio") showPfView(store.get("pf-view", "positions"));
   pending.prune();
   if (favs.list().some((sym) => !isMonitored(sym))) loadDirectory().then(() => renderMarkets());

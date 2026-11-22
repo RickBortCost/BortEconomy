@@ -5,6 +5,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.20.0] - 2026-11-22
+
+### Aggiunto
+- **Home personalizzabile** (nuova prima scheda): griglia di widget scelti dall'utente, diversa per ogni profilo. Widget disponibili: Preferiti, Tabella titoli (titoli a scelta con rendimenti giorno/settimana/mese/anno), Grafico (1S/1M/3M/1A/5A), Scheda titolo, Notizie dei preferiti, Notizie (paese o mondo), Indici principali, Migliori e peggiori, Metalli, Valute, Cripto, Il punto del giorno, Prossimi eventi, Portafoglio.
+- **Modalità modifica** della Home (tasto Personalizza): catalogo dei widget con ricerca e scelta della posizione, trascinamento dal catalogo alla griglia e tra i widget (da computer), frecce per spostare (da telefono), larghezza 1/4–1/2–3/4–intera, altezza doppia, impostazioni per widget (titolo, titoli della tabella, periodo, notizie paese/mondo), rimozione e ripristino del layout predefinito.
+- Layout predefinito basato sui preferiti; incluso nel backup cifrato.
+
 ## [1.19.1] - 2026-11-22
 
 ### Sicurezza
@@ -263,7 +270,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.1...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.0...HEAD
+[1.20.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.1...v1.20.0
 [1.19.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.0...v1.19.1
 [1.19.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.18.0...v1.19.0
 [1.18.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.17.0...v1.18.0
