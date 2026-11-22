@@ -442,4 +442,23 @@ export default [
       await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
     },
   },
+  {
+    name: "notizie: in evidenza, argomenti filtrabili e sezione acciaio nei metalli",
+    async run({ page, assert }) {
+      await page.click("[data-tab=news]");
+      await page.click('#period button[data-v="week"]');
+      await page.waitForSelector("#news-list .nw-hero");
+      const chip = await page.$('#news-topics button[data-topic]:not([data-topic="all"])');
+      assert(chip, "nessun argomento disponibile");
+      const k = await chip.getAttribute("data-topic");
+      await chip.click();
+      const topics = await page.$$eval("#news-list li.nw", (l) => [...new Set(l.map((x) => x.dataset.topic))]);
+      assert(topics.length === 1 && topics[0] === k, `filtro per argomento non applicato: ${topics}`);
+      await page.click('#news-topics button[data-topic="all"]');
+      await page.click("[data-tab=metals]");
+      await page.waitForSelector("#mt-special li");
+      assert(await page.isVisible("#mt-steel"), "sezione acciaio assente");
+      await page.click("[data-tab=news]");
+    },
+  },
 ];

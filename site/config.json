@@ -925,7 +925,7 @@
    ]
   },
   "METALS": {
-   "name": "Metalli preziosi",
+   "name": "Metalli",
    "symbols": [
     "GC=F",
     "SI=F",
@@ -952,7 +952,26 @@
     "RGLD",
     "KGC",
     "PAAS",
-    "AG"
+    "AG",
+    "HRC=F",
+    "ALI=F",
+    "APAM.AS",
+    "OUT1V.HE",
+    "ACX.MC",
+    "ALLEI.ST",
+    "ATI",
+    "CRS",
+    "VOE.VI",
+    "MT",
+    "NUE",
+    "STLD",
+    "TKA.DE",
+    "SSAB-A.ST",
+    "5401.T",
+    "005490.KS",
+    "TX",
+    "TEN.MI",
+    "SLX"
    ]
   },
   "FX": {
@@ -1269,6 +1288,25 @@
     "unit": "libbra",
     "grams": 453.59237,
     "industrial": true
+   },
+   {
+    "symbol": "HRC=F",
+    "name": "Acciaio",
+    "sub": "coils laminati a caldo (USA)",
+    "icon": "🏗️",
+    "unit": "tonnellata corta",
+    "short": "t",
+    "grams": 907184.74,
+    "industrial": true
+   },
+   {
+    "symbol": "ALI=F",
+    "name": "Alluminio",
+    "icon": "✈️",
+    "unit": "tonnellata",
+    "short": "t",
+    "grams": 1000000,
+    "industrial": true
    }
   ],
   "fx": "EURUSD=X",
@@ -1328,8 +1366,45 @@
     "hl": "en-US",
     "gl": "US",
     "ceid": "US:en"
+   },
+   {
+    "lang": "it",
+    "q": "prezzo acciaio OR acciaio inox OR siderurgia OR acciaierie",
+    "hl": "it",
+    "gl": "IT",
+    "ceid": "IT:it"
+   },
+   {
+    "lang": "en",
+    "q": "steel prices OR stainless steel OR steelmakers",
+    "hl": "en-US",
+    "gl": "US",
+    "ceid": "US:en"
    }
-  ]
+  ],
+  "steel": {
+   "special": [
+    "APAM.AS",
+    "OUT1V.HE",
+    "ACX.MC",
+    "ALLEI.ST",
+    "ATI",
+    "CRS",
+    "VOE.VI"
+   ],
+   "producers": [
+    "MT",
+    "NUE",
+    "STLD",
+    "TKA.DE",
+    "SSAB-A.ST",
+    "5401.T",
+    "005490.KS",
+    "TX",
+    "TEN.MI",
+    "SLX"
+   ]
+  }
  },
  "crypto": {
   "items": [

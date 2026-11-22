@@ -24,7 +24,7 @@ const DAY = 864e5;
 const state = {
   config: null, markets: null, news: {},
   country: store.get("country", "IT"),
-  scope: "country", period: "day", query: "", shown: 40,
+  scope: "country", period: "day", query: "", shown: 40, topic: "all",
   mkField: "changePct",
 };
 
@@ -97,16 +97,97 @@ async function filteredNews(key = currentNewsKey(), period = state.period) {
   return { data, items: data.items.filter((n) => Date.now() - new Date(n.date) < limit && (!q || `${n.title} ${n.source}`.toLowerCase().includes(q))) };
 }
 
+// ---------------- notizie: argomenti, fonti, titoli citati ----------------
+// [chiave, etichetta del filtro, regex, etichetta breve sulla notizia]
+const TOPICS = [
+  ["borsa", "Borsa", /borsa|borse|piazza affari|ftse|nasdaq|dow jones|s&p|wall street|stocks?\b|azion[ei]|titoli|listino|rally|sell-?off|börse|dax|aktie|bourse|cac 40|bolsa|ibex|ibovespa|nikkei|sensex|株|증시|코스피|股市|港股/i],
+  ["tassi", "Tassi e banche centrali", /\bbce\b|\becb\b|\bfed\b|federal reserve|tass[oi]|interest rate|rate (cut|hike)|rendiment|yields?\b|spread|\bbtp|\bbund|bonds?\b|treasur|obbligaz|lagarde|powell|banca centrale|central bank|zins|ezb|\btaux\b|tipos de interés|juros|selic|日銀|금리|央行/i],
+  ["macro", "Macroeconomia", /inflazion|inflation|\bpil\b|\bgdp\b|recession|occupazion|disoccupaz|unemployment|payrolls|jobs report|istat|consumi|\bcpi\b|\bpmi\b|konjunktur|\bbip\b|\bpib\b|dazi|tariff|debito pubblico|deficit|manovra|legge di bilancio|budget|crescita|growth|景気|물가|经济/i],
+  ["aziende", "Aziende e utili", /utili|ricavi|fatturato|trimestral|semestral|bilancio|earnings|revenue|profit|guidance|dividend|\bipo\b|\bopa\b|fusion[ei]|acquisizion|merger|acquisition|takeover|buyback|quotazione|gewinn|umsatz|übernahme|résultats|beneficio|lucro|決算|실적|财报/i],
+  ["energia", "Energia e materie prime", /petrolio|\boil\b|crude|brent|\bwti\b|\bgas\b|energia|energy|bollett|\boro\b|gold|argento|silver|rame|copper|acciaio|steel|commodit|materie prime|ölpreis|pétrole|petróleo|原油|유가/i],
+  ["cripto", "Cripto", /bitcoin|crypto|cripto|ether(eum)?\b|stablecoin|blockchain|krypto/i],
+  ["valute", "Valute", /euro\/dollaro|dollaro|\bdollar\b|\byen\b|sterlina|forex|tasso di cambio|valut[ae]|devisen|currency|円安|円高|환율|汇率/i],
+];
+const SHORT = { borsa: "Borsa", tassi: "Tassi", macro: "Macro", aziende: "Aziende", energia: "Materie prime", cripto: "Cripto", valute: "Valute", altro: "Economia" };
+const topicOf = (t) => { const k = (TOPICS.find(([, , re]) => re.test(t)) ?? ["altro"])[0]; return [k, SHORT[k]]; };
+const cleanSource = (s) => String(s).split(/\s+[-|–]\s+/)[0].trim();
+const hueOf = (s) => { let h = 0; for (const c of String(s)) h = (h * 31 + c.codePointAt(0)) % 360; return h; };
+const initialsOf = (s) => {
+  const w = cleanSource(s).replace(/\.(com|it|de|net|org|co\.uk|fr|es)\b/gi, "").replace(/^(the|il|la|le|lo|der|die|das)\s+/i, "")
+    .split(/\s+/).filter((x) => /^\p{L}/u.test(x));
+  return (w.length >= 2 ? w[0][0] + w[1][0] : (w[0] ?? "•").slice(0, 2)).toUpperCase();
+};
+
+// Titoli monitorati citati nel titolo della notizia (per nome della società)
+const NAME_STOP = new Set(["banca", "banco", "bank", "general", "american", "united", "first", "china", "international", "global", "national", "royal", "deutsche", "new", "the", "group", "energy", "holdings", "capital", "financial", "media", "health", "digital", "intesa", "unicredit"]);
+let nameIndex = null;
+function buildNameIndex() {
+  const out = [];
+  for (const q of state.markets?.quotes ?? []) {
+    if (q.type !== "EQUITY") continue;
+    const clean = String(q.longName || q.name).replace(/,?\s+(S\.?p\.?A\.?|Inc\.?|Corp(oration)?\.?|plc|N\.?V\.?|S\.?A\.?|AG|SE|Ltd\.?|Limited|Holdings?|Group|Company|Co\.?|& Co\.?|New|Oyj|AB|ASA|\(publ\))\b\.?/gi, "").replace(/[,.]+$/, "").trim();
+    const names = new Set([clean]);
+    const first = clean.split(/\s+/)[0];
+    if (first.length >= 4 && !NAME_STOP.has(first.toLowerCase())) names.add(first);
+    if (["intesa", "unicredit"].includes(first.toLowerCase())) names.add(first);
+    // maiuscole rispettate e niente apostrofo dopo il nome: "Dell" non deve coincidere con "dell'"
+    for (const n of names) if (n.length >= 3) out.push([new RegExp(`(?<![\\p{L}])${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}'’])`, "u"), q.symbol]);
+  }
+  return out;
+}
+function mentions(title) {
+  nameIndex ??= buildNameIndex();
+  const found = [];
+  for (const [re, sym] of nameIndex) if (!found.includes(sym) && re.test(title)) { found.push(sym); if (found.length === 3) break; }
+  return found;
+}
+function tickerChip(sym) {
+  const q = bySymbol(sym); if (!q) return "";
+  const v = q.changePct;
+  return `<button class="nw-tk ${v == null ? "" : v >= 0 ? "pos" : "neg"}" data-sym="${esc(sym)}" title="${esc(q.longName || q.name)}">${esc(q.name.replace(/,?\s+(S\.p\.A\.|Inc\.|Corporation|plc|N\.V\.|S\.A\.|AG|SE)\.?$/i, ""))} <b>${v == null ? "" : `${v >= 0 ? "+" : ""}${nf(v)}%`}</b></button>`;
+}
+const dayLabel = (iso) => {
+  const d = new Date(iso), now = new Date(), min = (now - d) / 60000;
+  if (min < 60) return "Ultima ora";
+  const k = (x) => x.toDateString(), y = new Date(now - DAY);
+  if (k(d) === k(now)) return "Oggi";
+  if (k(d) === k(y)) return "Ieri";
+  return d.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" });
+};
+function newsCard(n, hero = false) {
+  const [tk, tl] = topicOf(n.title), tickers = mentions(n.title).map(tickerChip).join("");
+  return `<li class="nw${hero ? " nw-hero" : ""}" data-topic="${tk}">
+    <a class="nw-link" href="${esc(safeUrl(n.link))}" target="_blank" rel="noopener noreferrer">
+      <span class="nw-av" style="--h:${hueOf(n.source)}" aria-hidden="true">${esc(initialsOf(n.source))}</span>
+      <span class="nw-body">
+        <span class="nw-top"><span class="nw-cat c-${tk}">${esc(tl)}</span><span class="nw-src">${esc(cleanSource(n.source))}</span><span class="nw-time">${ago(n.date)}</span></span>
+        <span class="nw-title">${esc(n.title)}</span>
+      </span>
+    </a>${tickers ? `<div class="nw-tks">${tickers}</div>` : ""}</li>`;
+}
+
 async function renderNews() {
   const list = $("#news-list");
-  const { data, items } = await filteredNews();
+  const { data, items: all } = await filteredNews();
   const c = state.scope === "world" ? state.config.world : state.config.countries[state.country];
+  const counts = {};
+  for (const n of all) { const t = topicOf(n.title)[0]; counts[t] = (counts[t] ?? 0) + 1; }
+  if (state.topic !== "all" && !counts[state.topic]) state.topic = "all";
+  $("#news-topics").innerHTML = [["all", "Tutte", all.length], ...TOPICS.map(([k, l]) => [k, l, counts[k] ?? 0]), ["altro", "Economia", counts.altro ?? 0]]
+    .filter(([k, , n]) => k === "all" || n)
+    .map(([k, l, n]) => `<button class="chip c-${k}${state.topic === k ? " on" : ""}" data-topic="${k}" aria-pressed="${state.topic === k}">${esc(l)} <small>${n}</small></button>`).join("");
+  const items = state.topic === "all" ? all : all.filter((n) => topicOf(n.title)[0] === state.topic);
   $("#news-meta").textContent = `${c.flag} ${c.name} · ${state.period === "day" ? "ultime 24 ore" : "ultimi 7 giorni"} · ${items.length} notizie` +
     (data.updated ? ` · aggiornato ${fmtTime(data.updated)}` : "");
-  list.innerHTML = items.length ? items.slice(0, state.shown).map((n) => `
-    <li><a href="${esc(safeUrl(n.link))}" target="_blank" rel="noopener noreferrer">${esc(n.title)}</a>
-      <div class="src"><span>${esc(n.source)}</span><span>${ago(n.date)}</span><span class="tag">${esc(n.lang)}</span></div></li>`).join("")
-    : `<li class="empty">Nessuna notizia trovata.</li>`;
+  if (!items.length) { list.innerHTML = `<li class="empty">Nessuna notizia trovata.</li>`; $("#news-more").hidden = true; return; }
+  const shown = items.slice(0, state.shown);
+  let html = newsCard(shown[0], true), last = null;
+  for (const n of shown.slice(1)) {
+    const g = dayLabel(n.date);
+    if (g !== last) { html += `<li class="nw-day" role="presentation">${esc(g)}</li>`; last = g; }
+    html += newsCard(n);
+  }
+  list.innerHTML = html;
   $("#news-more").hidden = items.length <= state.shown;
 }
 
@@ -284,7 +365,9 @@ function inCur(usd, cur = mt.cur) {
   return r ? usd / r : null;
 }
 const money = (v, cur = mt.cur, d) => v == null || !isFinite(v) ? "–" : `${nf(v, d ?? (Math.abs(v) < 10 ? 3 : 2))} ${cur === "EUR" ? "€" : "$"}`;
-const unitShort = (m) => (m.unit === "libbra" ? "lb" : "oz");
+const unitShort = (m) => m.short ?? (m.unit === "libbra" ? "lb" : "oz");
+// Prezzo per unità piccola: grammo per i metalli preziosi, kg per quelli quotati a tonnellata
+const perSmall = (m) => (m.grams >= 1e5 ? ["kg", 1000] : ["grammo", 1]);
 
 // Rapporto tra due metalli su 1 anno (chiusure giornaliere allineate per data)
 async function ratioSeries(a, b) {
@@ -317,18 +400,19 @@ async function renderMetals() {
   const f = mt.field, fx = eurusd();
   const items = M.items.map((m) => ({ ...m, q: bySymbol(m.symbol) })).filter((x) => x.q);
   const label = { changePct: "giornaliera", weekPct: "settimanale", monthPct: "mensile", yearPct: "annuale" }[f];
-  $("#mt-meta").textContent = `Future continui COMEX/NYMEX in USD${mt.cur === "EUR" && fx ? `, convertiti in euro al cambio EUR/USD ${nf(fx, 4)}` : ""} · variazione ${label} · aggiornato ${fmtTime(state.markets.updated)} · dati ritardati`;
+  $("#mt-meta").textContent = `Future continui COMEX/NYMEX in USD (acciaio: coils laminati a caldo, tonnellata corta USA = 907 kg)${mt.cur === "EUR" && fx ? `, convertiti in euro al cambio EUR/USD ${nf(fx, 4)}` : ""} · variazione ${label} · aggiornato ${fmtTime(state.markets.updated)} · dati ritardati`;
 
   $("#mt-cards").innerHTML = items.map(({ q, ...m }) => `
     <div class="tile mt-card" data-sym="${esc(q.symbol)}" tabindex="0" role="button" title="Dettaglio ${esc(m.name)}">
       <div class="hd"><span class="ic">${m.icon}</span>${esc(m.name)}${m.industrial ? ' <small class="tag">industriale</small>' : ""}</div>
+      ${m.sub ? `<small class="mt-sub">${esc(m.sub)}</small>` : ""}
       <div class="p">${money(inCur(q.price))} <span class="u">/${unitShort(m)}</span></div>
       ${pctHtml(q[f])}
-      <div class="g">${money(inCur(q.price) / m.grams, mt.cur, m.industrial ? 4 : undefined)} al grammo</div>
+      <div class="g">${(() => { const [u, k] = perSmall(m); const v = inCur(q.price) / m.grams * k; return `${money(v, mt.cur, v < 1 ? 4 : undefined)} al ${u}`; })()}</div>
       ${spark(q.spark, (q[f] ?? 0) >= 0)}
     </div>`).join("") || `<div class="empty">Dati non disponibili.</div>`;
 
-  $("#mt-h-unit").textContent = "Oncia troy / libbra";
+  $("#mt-h-unit").textContent = "Unità di quotazione";
   $("#mt-units").innerHTML = items.map(({ q, ...m }) => {
     const u = inCur(q.price), g = u == null ? null : u / m.grams;
     return `<tr data-sym="${esc(q.symbol)}"><td>${m.icon} ${esc(m.name)}</td><td>${money(u)} <small>/${unitShort(m)}</small></td><td>${money(g, mt.cur, g != null && g < 1 ? 4 : undefined)}</td><td>${money(g == null ? null : g * 1000)}</td></tr>`;
@@ -340,6 +424,10 @@ async function renderMetals() {
 
   $("#mt-etc").innerHTML = rows(M.etc.map(bySymbol).filter(Boolean), { star: true, field: f });
   $("#mt-miners").innerHTML = rows(M.miners.map(bySymbol).filter(Boolean), { star: true, field: f });
+  if (M.steel) {
+    $("#mt-special").innerHTML = rows(M.steel.special.map(bySymbol).filter(Boolean), { star: true, field: f }) || '<li class="empty">Dati non disponibili.</li>';
+    $("#mt-steel").innerHTML = rows(M.steel.producers.map(bySymbol).filter(Boolean), { star: true, field: f }) || '<li class="empty">Dati non disponibili.</li>';
+  }
 
   // Rapporti tra metalli (storico giornaliero di 1 anno)
   const box = $("#mt-ratios");
@@ -604,6 +692,7 @@ async function init() {
   $("#mt-ask").addEventListener("click", () => { setTab("ai"); ask("Fai un'analisi del mercato dei metalli preziosi (oro, argento, platino, palladio, rame): andamento recente, rapporti oro/argento e platino/palladio, fattori che li muovono (tassi, dollaro, banche centrali, domanda industriale) e notizie della settimana. Cerca sul web le notizie più recenti."); });
   $("#search").addEventListener("input", (e) => { state.query = e.target.value; state.shown = 40; renderNews(); });
   $("#news-more").addEventListener("click", () => { state.shown += 40; renderNews(); });
+  $("#news-topics").addEventListener("click", (e) => { const b = e.target.closest("[data-topic]"); if (!b) return; state.topic = b.dataset.topic; state.shown = 40; renderNews(); });
 
   // Dettaglio titoli
   const openFrom = (e) => {
@@ -616,7 +705,7 @@ async function init() {
     e.preventDefault();
     openDetail(el.dataset.sym, bySymbol(el.dataset.sym));
   };
-  for (const id of ["#tab-markets", "#tab-metals", "#tab-portfolio"]) {
+  for (const id of ["#tab-markets", "#tab-metals", "#tab-portfolio", "#tab-news"]) {
     $(id).addEventListener("click", openFrom);
     $(id).addEventListener("keydown", openFrom);
   }

@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.19.0] - 2026-11-22
+
+### Aggiunto
+- **Acciaio e leghe speciali** nella sezione Metalli: acciaio (coils laminati a caldo, future COMEX HRC) e alluminio con prezzo per tonnellata e al kg; produttori di acciai inox, speciali e superleghe (Aperam, Outokumpu, Acerinox, Alleima, ATI, Carpenter, voestalpine) e grandi produttori di acciaio (ArcelorMittal, Nucor, Steel Dynamics, thyssenkrupp, SSAB, Nippon Steel, POSCO, Ternium, Tenaris, ETF VanEck Steel). Notizie su acciaio e siderurgia.
+
+### Modificato
+- **Nuova grafica delle notizie**: notizia in evidenza, raggruppamento per Ultima ora / Oggi / Ieri / giorni, etichetta colorata per argomento (Borsa, Tassi, Macro, Aziende, Materie prime, Cripto, Valute) con filtro rapido e conteggi, icona con le iniziali della fonte, titoli citati nella notizia con variazione del giorno (si apre il dettaglio), due colonne su schermi larghi.
+
 ## [1.18.0] - 2026-11-22
 
 ### Aggiunto
@@ -247,7 +255,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.18.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.0...HEAD
+[1.19.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.18.0...v1.19.0
 [1.18.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.17.0...v1.18.0
 [1.17.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.16.0...v1.17.0
 [1.16.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.15.0...v1.16.0
