@@ -12,39 +12,66 @@
       var t = "auto"; try { t = localStorage.getItem("theme") || "auto"; } catch (e) {}
       if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
       var dark = t === "dark" || (t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
-      document.querySelector('meta[name="theme-color"]').content = dark ? "#111827" : "#ffffff";
+      document.querySelector('meta[name="theme-color"]').content = dark ? "#070b16" : "#f3f5fa";
     })();
   </script>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BortEconomy">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="grad-stroke" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset=".5" stop-color="#8b5cf6"/><stop offset="1" stop-color="#06b6d4"/></linearGradient>
+      <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 22h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></symbol>
+      <symbol id="i-markets" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+      <symbol id="i-metals" viewBox="0 0 24 24"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18M7 6h1v4M16.71 13.88l.7.71-2.82 2.82"/></symbol>
+      <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+      <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/><path d="M20 3v4M22 5h-4"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+      <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18Z" fill="currentColor"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="M11.53 2.3a.53.53 0 0 1 .95 0l2.31 4.68a2.12 2.12 0 0 0 1.6 1.16l5.16.76a.53.53 0 0 1 .3.9l-3.74 3.64a2.12 2.12 0 0 0-.61 1.88l.88 5.14a.53.53 0 0 1-.77.56l-4.62-2.43a2.12 2.12 0 0 0-1.97 0L6.4 21.02a.53.53 0 0 1-.77-.56l.88-5.14a2.12 2.12 0 0 0-.61-1.88L2.16 9.8a.53.53 0 0 1 .3-.9l5.16-.76a2.12 2.12 0 0 0 1.6-1.16z"/></symbol>
+      <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+    </defs>
+  </svg>
   <div class="offline-bar" role="status">Sei offline: stai vedendo gli ultimi dati salvati.</div>
   <header class="topbar">
     <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>BortEconomy</span></div>
-    <button class="icon-btn" id="search-btn" aria-label="Cerca un titolo" title="Cerca un titolo">🔍</button>
-    <button class="icon-btn" id="theme-btn" aria-label="Tema" title="Tema">🌓</button>
+    <button class="icon-btn" id="search-btn" aria-label="Cerca un titolo" title="Cerca un titolo"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+    <button class="icon-btn" id="theme-btn" aria-label="Tema" title="Tema"><svg class="ic" aria-hidden="true"><use href="#i-auto"/></svg></button>
     <label class="country">
       <span class="sr">Paese</span>
       <select id="country"></select>
     </label>
   </header>
 
+  <div class="ticker" id="ticker" aria-label="Indici in tempo reale" hidden><div class="ticker-track" id="ticker-track"></div></div>
+
   <nav class="tabs" role="tablist">
-    <button role="tab" data-tab="news" aria-selected="true">📰<span>Notizie</span></button>
-    <button role="tab" data-tab="markets">📈<span>Mercati</span></button>
-    <button role="tab" data-tab="metals">🥇<span>Metalli</span></button>
-    <button role="tab" data-tab="portfolio">💼<span>Portafoglio</span></button>
-    <button role="tab" data-tab="ai">✨<span>Claude</span></button>
+    <button role="tab" data-tab="news" aria-selected="true"><svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>Notizie</span></button>
+    <button role="tab" data-tab="markets"><svg class="ic" aria-hidden="true"><use href="#i-markets"/></svg><span>Mercati</span></button>
+    <button role="tab" data-tab="metals"><svg class="ic" aria-hidden="true"><use href="#i-metals"/></svg><span>Metalli</span></button>
+    <button role="tab" data-tab="portfolio"><svg class="ic" aria-hidden="true"><use href="#i-briefcase"/></svg><span>Portafoglio</span></button>
+    <button role="tab" data-tab="ai"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span>Claude</span></button>
   </nav>
 
   <main>
     <!-- NOTIZIE -->
     <section id="tab-news" class="panel active">
       <article class="brief" id="brief" hidden>
-        <header><h2>☀️ Il punto del giorno</h2><span class="meta" id="brief-date"></span></header>
+        <header><h2 class="h-icon"><svg class="ic h-ic" aria-hidden="true"><use href="#i-sun"/></svg>Il punto del giorno</h2><span class="meta" id="brief-date"></span></header>
         <div class="brief-body" id="brief-body"></div>
         <button class="more brief-toggle" id="brief-toggle">Leggi tutto</button>
         <footer class="meta" id="brief-foot"></footer>
@@ -73,14 +100,14 @@
       </div>
       <nav class="subnav" id="mk-subnav" aria-label="Sezioni dei mercati">
         <button data-v="overview" class="on">Panoramica</button>
-        <button data-v="calendar">📅 Calendario</button>
-        <button data-v="map">🗺️ Mappa</button>
-        <button data-v="forex">💱 Valute</button>
-        <button data-v="crypto">₿ Cripto</button>
+        <button data-v="calendar">Calendario</button>
+        <button data-v="map">Mappa</button>
+        <button data-v="forex">Valute</button>
+        <button data-v="crypto">Cripto</button>
       </nav>
       <div class="mk-view" id="mk-view-overview">
       <p class="meta" id="mk-meta"></p>
-      <h2>⭐ Preferiti</h2>
+      <h2 class="h-icon"><svg class="ic h-ic" aria-hidden="true"><use href="#i-star"/></svg>Preferiti</h2>
       <ul class="rows" id="mk-favs"></ul>
       <h2>Indici principali</h2>
       <div class="grid" id="mk-indices"></div>
@@ -184,7 +211,7 @@
 
       <h2>Notizie sui metalli preziosi</h2>
       <ul class="news" id="mt-news"></ul>
-      <button class="primary mt-ask" id="mt-ask">✨ Analisi dei metalli preziosi con Claude</button>
+      <button class="primary mt-ask" id="mt-ask"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Analisi dei metalli preziosi con Claude</button>
     </section>
 
     <!-- PORTAFOGLIO -->
@@ -192,13 +219,13 @@
       <div id="pf-empty" class="pf-empty">
         <h2>Il tuo portafoglio</h2>
         <p class="meta">Registra le tue posizioni (azioni, ETF, metalli, valute, cripto): valore in euro, guadagni e perdite, ripartizione e andamento. I dati restano solo in questo browser; puoi esportarli e importarli.</p>
-        <button class="primary" id="pf-add-empty">➕ Aggiungi la prima posizione</button>
+        <button class="primary" id="pf-add-empty">＋ Aggiungi la prima posizione</button>
         <label class="ghost pf-import-btn">📂 Importa da file<input type="file" accept=".json,.csv,.txt" id="pf-import-empty" hidden></label>
       </div>
       <div id="pf-body" hidden>
         <div class="toolbar pf-tools">
-          <button class="primary" id="pf-add">➕ Posizione</button>
-          <button class="ghost" id="pf-ask">✨ Analizza con Claude</button>
+          <button class="primary" id="pf-add">＋ Posizione</button>
+          <button class="ghost" id="pf-ask"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Analizza con Claude</button>
         </div>
         <div class="grid pf-summary" id="pf-summary"></div>
         <h2>Posizioni</h2>
@@ -223,7 +250,7 @@
           <label class="ghost pf-import-btn">📂 Importa<input type="file" accept=".json,.csv,.txt" id="pf-import" hidden></label>
         </div>
       </div>
-      <h2>🔔 Avvisi di prezzo</h2>
+      <h2 class="h-icon"><svg class="ic h-ic" aria-hidden="true"><use href="#i-bell"/></svg>Avvisi di prezzo</h2>
       <p class="meta">Ricevi una notifica GitHub (anche sul telefono) quando un titolo supera o scende sotto una soglia, o si muove più di una certa percentuale in un giorno. Creali dalla scheda di un titolo con 🔔.</p>
       <ul class="rows al-list" id="al-list"></ul>
     </section>
@@ -231,7 +258,7 @@
     <section id="tab-ai" class="panel">
       <div class="ai-head">
         <p class="meta">Claude analizza le notizie caricate e può cercare sul web informazioni aggiornate.</p>
-        <button class="ghost" id="ai-settings-btn">⚙️ Impostazioni</button>
+        <button class="ghost" id="ai-settings-btn"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> Impostazioni</button>
       </div>
       <div class="chips" id="ai-chips">
         <button data-p="Riassumi le notizie economiche più importanti di oggi per {country} e nel mondo, con i punti chiave.">Riassunto di oggi</button>
@@ -251,12 +278,12 @@
   <section id="detail" class="detail" hidden aria-label="Dettaglio titolo">
     <div class="dt-wrap">
       <header class="dt-head">
-        <button class="ghost" id="dt-back" aria-label="Indietro">←<span class="lbl"> Indietro</span></button>
+        <button class="ghost" id="dt-back" aria-label="Indietro"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg><span class="lbl">Indietro</span></button>
         <span class="dt-actions">
-          <button class="ghost" id="dt-fav" aria-pressed="false" aria-label="Aggiungi ai preferiti">☆<span class="lbl"> Preferito</span></button>
-          <button class="ghost" id="dt-pf" aria-label="Aggiungi al portafoglio" title="Aggiungi al portafoglio">💼</button>
-          <button class="ghost" id="dt-alert" aria-label="Crea un avviso di prezzo" title="Crea un avviso di prezzo">🔔</button>
-          <button class="ghost" id="dt-ask" aria-label="Chiedi a Claude">✨<span class="lbl"> Chiedi a Claude</span></button>
+          <button class="ghost" id="dt-fav" aria-pressed="false" aria-label="Aggiungi ai preferiti"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><span class="lbl">Preferito</span></button>
+          <button class="ghost" id="dt-pf" aria-label="Aggiungi al portafoglio" title="Aggiungi al portafoglio"><svg class="ic" aria-hidden="true"><use href="#i-briefcase"/></svg></button>
+          <button class="ghost" id="dt-alert" aria-label="Crea un avviso di prezzo" title="Crea un avviso di prezzo"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></button>
+          <button class="ghost" id="dt-ask" aria-label="Chiedi a Claude"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span class="lbl">Chiedi a Claude</span></button>
         </span>
       </header>
       <h2 id="dt-name" class="dt-name"></h2>
@@ -270,7 +297,7 @@
       <div class="chips dt-ind" id="dt-ind" aria-label="Indicatori tecnici"></div>
       <div class="dt-cmp" id="dt-cmp">
         <span id="dt-cmp-list"></span>
-        <button class="ghost" id="dt-cmp-add">⚖️ Confronta</button>
+        <button class="ghost" id="dt-cmp-add">＋ Confronta</button>
         <div class="dt-cmp-box" id="dt-cmp-box" hidden>
           <input id="dt-cmp-q" type="search" placeholder="Titolo da confrontare (es. S&P 500, ENI)" autocomplete="off" aria-label="Titolo da confrontare">
           <ul class="pf-picks" id="dt-cmp-res"></ul>

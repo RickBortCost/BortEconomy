@@ -43,7 +43,7 @@ const favs = {
   },
 };
 const starBtn = (sym) => { const on = favs.has(sym);
-  return `<button class="star" data-star="${esc(sym)}" aria-pressed="${on}" aria-label="${on ? "Rimuovi dai" : "Aggiungi ai"} preferiti">${on ? "★" : "☆"}</button>`; };
+  return `<button class="star" data-star="${esc(sym)}" aria-pressed="${on}" aria-label="${on ? "Rimuovi dai" : "Aggiungi ai"} preferiti"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></button>`; };
 
 async function getJSON(url) {
   const res = await fetch(`${url}?t=${Math.floor(Date.now() / 300000)}`);
@@ -66,8 +66,22 @@ function ago(iso) {
 function spark(arr, up) {
   if (!arr || arr.length < 2) return "";
   const min = Math.min(...arr), max = Math.max(...arr), r = max - min || 1;
-  const pts = arr.map((v, i) => `${(i / (arr.length - 1)) * 100},${28 - ((v - min) / r) * 26}`).join(" ");
-  return `<svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="var(${up ? "--up" : "--down"})" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+  const pts = arr.map((v, i) => `${((i / (arr.length - 1)) * 100).toFixed(2)},${(28 - ((v - min) / r) * 26).toFixed(2)}`);
+  const col = `var(${up ? "--up" : "--down"})`;
+  return `<svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+    <polygon points="0,30 ${pts.join(" ")} 100,30" fill="${col}" opacity=".10"/>
+    <polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+// ---------------- nastro degli indici ----------------
+function renderTicker() {
+  const syms = [state.config.countries[state.country]?.index, "^GSPC", "^IXIC", "^STOXX50E", "FTSEMIB.MI", "^GDAXI", "^FTSE", "^N225", "^HSI", "EURUSD=X", "GC=F", "CL=F", "BTC-USD", "^TNX", "^VIX"];
+  const qs = [...new Set(syms)].map(bySymbol).filter(Boolean);
+  if (!qs.length) return;
+  const item = (q) => `<button data-sym="${esc(q.symbol)}"><b>${esc(q.name)}</b><span class="px">${nf(q.price, pdec(q.price))}</span>${pctHtml(q.changePct)}</button>`;
+  const html = qs.map(item).join("");
+  $("#ticker-track").innerHTML = html + html; // duplicato per lo scorrimento continuo
+  $("#ticker").hidden = false;
 }
 
 // ---------------- notizie ----------------
@@ -234,7 +248,7 @@ function renderMarkets() {
   const c = state.config.countries[state.country];
   $("#mk-meta").textContent = `Quotazioni ritardate · aggiornato ${fmtTime(state.markets.updated)} · variazione ${state.mkField === "changePct" ? "giornaliera" : "settimanale"}`;
   $("#mk-favs").innerHTML = rows(favs.list().map(bySymbol).filter(Boolean), { star: true, group: true,
-    empty: "Nessun preferito. Cerca un titolo o aprine uno e tocca ☆ per aggiungerlo qui." });
+    empty: "Nessun preferito. Cerca un titolo o aprine uno e tocca la stella per aggiungerlo qui." });
   const idx = [...new Set([c.index, ...state.config.globalIndices])];
   $("#mk-indices").innerHTML = tiles(idx);
   $("#mk-macro").innerHTML = tiles(state.config.macro);
@@ -503,15 +517,15 @@ async function ask(text) {
 }
 
 // ---------------- tema ----------------
-const THEMES = { auto: ["🌓", "automatico (sistema)"], light: ["☀️", "chiaro"], dark: ["🌙", "scuro"] };
+const THEMES = { auto: ["auto", "automatico (sistema)"], light: ["sun", "chiaro"], dark: ["moon", "scuro"] };
 const darkMQ = matchMedia("(prefers-color-scheme: dark)");
 function applyTheme(t) {
   if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
   else delete document.documentElement.dataset.theme;
   const dark = t === "dark" || (t === "auto" && darkMQ.matches);
-  document.querySelector('meta[name="theme-color"]').content = dark ? "#111827" : "#ffffff";
+  document.querySelector('meta[name="theme-color"]').content = dark ? "#070b16" : "#f3f5fa";
   const b = $("#theme-btn");
-  b.textContent = THEMES[t][0];
+  b.innerHTML = `<svg class="ic" aria-hidden="true"><use href="#i-${THEMES[t][0]}"/></svg>`;
   b.title = b.ariaLabel = `Tema: ${THEMES[t][1]} – tocca per cambiare`;
 }
 function initTheme() {
@@ -554,7 +568,7 @@ async function init() {
   const sel = $("#country");
   sel.innerHTML = Object.entries(state.config.countries).map(([k, c]) => `<option value="${k}">${c.flag} ${c.name}</option>`).join("");
   sel.value = state.country;
-  sel.addEventListener("change", () => { state.country = sel.value; store.set("country", sel.value); state.shown = 40; renderNews(); renderMarkets(); });
+  sel.addEventListener("change", () => { state.country = sel.value; store.set("country", sel.value); state.shown = 40; renderNews(); renderMarkets(); renderTicker(); });
 
   $$(".tabs button").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
   setTab(store.get("tab", "news"));
@@ -620,6 +634,8 @@ async function init() {
     if (q) { q.longName = `${m.name} – future ${q.name}`; q.name = m.name; }
   }
   renderMarkets();
+  renderTicker();
+  $("#ticker").addEventListener("click", (e) => { const b = e.target.closest("[data-sym]"); if (b) openDetail(b.dataset.sym, bySymbol(b.dataset.sym)); });
   if (store.get("tab", "news") === "metals") renderMetals();
   initCalendar({ $, esc, seg });
   initMarketsExtra({ $, esc, nf, pdec, seg, store, pctHtml, spark, tiles, bySymbol, config: state.config,

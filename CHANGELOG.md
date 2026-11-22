@@ -5,6 +5,19 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.11.0] - 2026-11-22
+
+### Modificato
+- **Nuova grafica**:
+  - carattere Inter; palette indaco/viola/ciano con sfumature; tema scuro più profondo;
+  - schede con angoli più ampi, ombre morbide e leggera elevazione al passaggio;
+  - variazioni percentuali come "pillole" colorate; controlli segmentati in stile iOS; pulsanti principali con sfumatura.
+- **Icone vettoriali** al posto delle emoji nella navigazione, nella barra superiore e nella scheda titolo; stella dei preferiti piena quando attiva.
+- **Navigazione in basso su telefono**, come in un'app, con barra superiore e inferiore traslucide; su desktop le schede restano in alto.
+- **Nastro scorrevole degli indici** sotto la barra superiore (indice del paese scelto, principali indici, euro/dollaro, oro, petrolio, Bitcoin, Treasury, VIX): si ferma al passaggio del mouse, tocco per aprire il titolo; statico se il sistema riduce le animazioni.
+- **Nuova icona dell'app**: sfumatura indaco-viola-ciano con barre ascendenti e linea di tendenza luminosa; versioni PNG per la schermata Home di iPhone (180 px, a tutta superficie perché iOS arrotonda da sé gli angoli) e Android (192/512 px), versione adattiva "maskable", favicon 32 px; manifest e meta tag iOS aggiornati.
+- Prima notizia in evidenza; riquadro "Il punto del giorno" con bordo sfumato; grafici sintetici con area ombreggiata; animazioni di apertura per schede, finestre e dettaglio.
+
 ## [1.10.0] - 2026-11-22
 
 ### Aggiunto
@@ -150,7 +163,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.10.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.7.0...v1.8.0
