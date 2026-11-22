@@ -2,15 +2,21 @@ import { initDetail, openDetail, loadHist } from "./detail.js";
 import { initPortfolio, renderPortfolio, openPositionForm, openAlertForm, positionWeights, positionsValue, donut } from "./portfolio.js";
 import { initLab, renderComposition, renderLab } from "./lab.js";
 import { PROVIDERS, aiSettings, errorText } from "./ai.js";
+import { vault, PROTECTED } from "./vault.js";
+import { initSecurity, confirmShare, askPassword } from "./security.js";
+import { sealWithPassword, openWithPassword } from "./vault.js";
 import { initCalendar, renderCalendar, upcoming } from "./calendar.js";
 import { initMarketsExtra, renderHeatmap, renderForex, renderCrypto, renderEtf } from "./markets-extra.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
+// Archivio locale: i dati personali (portafoglio, composizione, preferiti) passano dalla cassaforte cifrata se attiva
 const store = {
-  get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
-  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
+  get(k, d) { if (PROTECTED.includes(k)) return vault.get(k) ?? d; try { return localStorage.getItem(k) ?? d; } catch { return d; } },
+  set(k, v) { if (PROTECTED.includes(k)) { vault.set(k, v); return; } try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
 };
+// Link esterni: solo http(s), mai javascript: o altri schemi
+const safeUrl = (u) => (/^https?:\/\//i.test(String(u ?? "")) ? String(u) : "#");
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const DAY = 864e5;
 
@@ -97,7 +103,7 @@ async function renderNews() {
   $("#news-meta").textContent = `${c.flag} ${c.name} · ${state.period === "day" ? "ultime 24 ore" : "ultimi 7 giorni"} · ${items.length} notizie` +
     (data.updated ? ` · aggiornato ${fmtTime(data.updated)}` : "");
   list.innerHTML = items.length ? items.slice(0, state.shown).map((n) => `
-    <li><a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a>
+    <li><a href="${esc(safeUrl(n.link))}" target="_blank" rel="noopener noreferrer">${esc(n.title)}</a>
       <div class="src"><span>${esc(n.source)}</span><span>${ago(n.date)}</span><span class="tag">${esc(n.lang)}</span></div></li>`).join("")
     : `<li class="empty">Nessuna notizia trovata.</li>`;
   $("#news-more").hidden = items.length <= state.shown;
@@ -260,7 +266,7 @@ async function renderBrief() {
   $("#brief").hidden = false;
   $("#brief-date").textContent = new Date(b.generatedAt).toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" });
   $("#brief-body").innerHTML = md(b.markdown);
-  $("#brief-foot").innerHTML = `Scritto da Claude alle ${new Date(b.generatedAt).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })} dai dati e dalle notizie del sito${b.sources?.length ? ` · Fonti: ${b.sources.map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>`).join(" · ")}` : ""} · Non è consulenza finanziaria.`;
+  $("#brief-foot").innerHTML = `Scritto da Claude alle ${new Date(b.generatedAt).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })} dai dati e dalle notizie del sito${b.sources?.length ? ` · Fonti: ${b.sources.map((x) => `<a href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener noreferrer">${esc(x.title)}</a>`).join(" · ")}` : ""} · Non è consulenza finanziaria.`;
   const open = store.get("brief-open", "0") === "1";
   $("#brief").classList.toggle("open", open);
   $("#brief-toggle").textContent = open ? "Riduci" : "Leggi tutto";
@@ -356,7 +362,7 @@ async function renderMetals() {
 
   const news = await loadNews("METALS");
   $("#mt-news").innerHTML = news.items.length ? news.items.slice(0, 12).map((n) => `
-    <li><a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a>
+    <li><a href="${esc(safeUrl(n.link))}" target="_blank" rel="noopener noreferrer">${esc(n.title)}</a>
       <div class="src"><span>${esc(n.source)}</span><span>${ago(n.date)}</span><span class="tag">${esc(n.lang)}</span></div></li>`).join("")
     : `<li class="empty">Nessuna notizia disponibile.</li>`;
 }
@@ -377,7 +383,7 @@ const chat = { conv: { claude: [], openai: [], gemini: [] }, busy: false };
 
 function md(text) {
   const inline = (s) => esc(s)
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
     .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
     .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<i>$2</i>");
   let html = "", list = null;
@@ -406,7 +412,7 @@ Indici: ${[c.index, ...state.config.globalIndices].map(q).filter(Boolean).join("
 Macro: ${state.config.macro.map(q).filter(Boolean).join("; ")}
 Metalli: ${metalsContext()}
 ${await upcoming(7)}
-Preferiti dell'utente: ${favs.list().map(q).filter(Boolean).join("; ") || "nessuno"}
+${store.get("share-favs", "0") === "1" ? `Preferiti dell'utente: ${favs.list().map(q).filter(Boolean).join("; ") || "nessuno"}` : ""}
 Migliori titoli oggi: ${gainers.map((x) => `${x.name} ${nf(x.changePct)}%`).join(", ")}
 Peggiori titoli oggi: ${losers.map((x) => `${x.name} ${nf(x.changePct)}%`).join(", ")}
 Titoli ${c.name}: ${c.stocks.map(q).filter(Boolean).join("; ")}
@@ -438,6 +444,7 @@ function addMsg(cls, html) {
 
 async function ask(text) {
   const p = aiSettings.provider(), P = PROVIDERS[p];
+  if (vault.locked()) { document.querySelector("#sec-btn").click(); return; }
   const key = aiSettings.key(p);
   if (!key) { openSettings(p); return; }
   if (chat.busy || !text.trim()) return;
@@ -454,7 +461,7 @@ async function ask(text) {
     });
     if (r.refused) { bot.classList.add("err"); bot.textContent = `${P.label} ha declinato questa richiesta. Prova a riformularla.`; return; }
     bot.innerHTML = head + md(r.text) + (r.sources?.size
-      ? `<div class="sources"><b>Fonti:</b> ${[...r.sources].slice(0, 8).map(([u, t]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}</div>`
+      ? `<div class="sources"><b>Fonti:</b> ${[...r.sources].slice(0, 8).map(([u, t]) => `<a href="${esc(safeUrl(u))}" target="_blank" rel="noopener noreferrer">${esc(t)}</a>`).join(" · ")}</div>`
       : "");
     if (r.truncated) bot.innerHTML += '<p class="status">Risposta troncata.</p>';
   } catch (e) {
@@ -480,6 +487,9 @@ function showSettingsFor(p) {
   $("#api-key").placeholder = P.keyHint;
   $("#api-key").value = aiSettings.key(p);
   $("#remember-key").checked = !aiSettings.key(p) || aiSettings.persistent(p);
+  $("#key-warn").textContent = P.keyAdvice ?? "";
+  $("#key-warn").hidden = !P.keyAdvice;
+  if (vault.enabled()) { $("#remember-key").checked = true; $("#remember-key").disabled = true; } else $("#remember-key").disabled = false;
   $("#key-hint").innerHTML = `La chiave resta solo in questo browser e viene inviata direttamente a ${esc(P.host)}. Usa una chiave con limite di spesa. Creala su <b>${esc(P.keyUrl)}</b>.`;
   $("#load-models").hidden = p === "claude";
   $("#models-msg").textContent = p === "claude" ? "" : `Predefinito: ${P.defaultModel} (punta sempre al modello più recente). Tocca "Carica modelli" per scegliere tra quelli attivi sul tuo account.`;
@@ -544,6 +554,22 @@ function seg(id, onChange) {
     $$(`${id} button`).forEach((x) => x.classList.toggle("on", x === b));
     onChange(b.dataset.v);
   });
+}
+
+// Ridisegna le parti che dipendono dai dati protetti (dopo sblocco, blocco o cambio della cassaforte)
+function refreshProtected() {
+  const locked = vault.locked();
+  document.querySelectorAll(".lock-card").forEach((el) => { el.hidden = !locked; });
+  document.querySelectorAll("#tab-portfolio > :not(.lock-card), #tab-ai > :not(.lock-card)").forEach((el) => { el.classList.toggle("vault-hidden", locked); });
+  if (!state.markets) return;
+  renderMarkets(); renderProviderBar();
+  if (store.get("tab") === "portfolio" && pfReady) showPfView(store.get("pf-view", "positions"));
+}
+function download(name, text, type) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 async function init() {
@@ -619,6 +645,9 @@ async function init() {
     if (!aiSettings.key(b.dataset.v)) openSettings(b.dataset.v);
   });
   renderProviderBar();
+  initSecurity({ store, refresh: refreshProtected, download });
+  document.querySelectorAll("[data-unlock]").forEach((b) => b.addEventListener("click", () => document.querySelector("#sec-btn").click()));
+  refreshProtected();
   $("#ai-chips").addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
     ask(b.dataset.p.replaceAll("{country}", state.config.countries[state.country].name));
@@ -670,10 +699,14 @@ async function init() {
     ensureDirectory: () => loadDirectory(),
     ensureQuotes: async (syms) => { if (syms.some((x) => !isMonitored(x))) await loadDirectory(); },
     openIssue: (title, body) => window.open(issueUrl(title, body), "_blank", "noopener"),
+    confirmShare: (what) => confirmShare(what, PROVIDERS[aiSettings.provider()].label),
+    sealExport: async (obj) => { const pw = await askPassword({ title: "Password del file", text: "Il file sarà cifrato (AES-256): servirà questa password per reimportarlo.", confirm: true, ok: "Esporta" }); return pw ? sealWithPassword(obj, pw) : null; },
+    openImport: async (box) => { const pw = await askPassword({ title: "Password del file", ok: "Apri" }); if (!pw) return null; try { return await openWithPassword(box, pw); } catch { alert("Password errata o file danneggiato."); return null; } },
   });
   // posizioni su titoli non monitorati: serve la directory per il prezzo
   try { if (JSON.parse(store.get("portfolio", "[]")).some((l) => !isMonitored(l.sym))) loadDirectory().then(() => { if (store.get("tab") === "portfolio") renderPortfolio(); }); } catch {}
-  initLab({ $, esc, nf, store, seg, bySymbol, searchQuotes, setTab, ask, openDetail, config: state.config, donut, positionWeights, positionsValue });
+  initLab({ $, esc, nf, store, seg, bySymbol, searchQuotes, setTab, ask, openDetail, config: state.config, donut, positionWeights, positionsValue,
+    confirmShare: (what) => confirmShare(what, PROVIDERS[aiSettings.provider()].label) });
   $("#pf-subnav").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showPfView(b.dataset.v); });
   pfReady = true;
   if (store.get("tab", "news") === "portfolio") showPfView(store.get("pf-view", "positions"));

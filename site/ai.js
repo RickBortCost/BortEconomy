@@ -2,6 +2,8 @@
 // Le chiamate partono dal browser direttamente verso l'API del fornitore, con la chiave dell'utente.
 // Ogni fornitore mantiene la propria conversazione nel formato nativo della sua API.
 
+import { vault } from "./vault.js";
+
 const sse = async function* (res) {
   const reader = res.body.getReader(), dec = new TextDecoder();
   let buf = "";
@@ -33,7 +35,7 @@ const claude = {
   models: [["claude-opus-5-5", "Claude Opus 5.5 (consigliato)"], ["claude-sonnet-5-5", "Claude Sonnet 5.5"], ["claude-haiku-5-5", "Claude Haiku 5.5 (economico)"]],
   async listModels() { return this.models; },
   async send({ key, model, system, conv, text, web, onText, onStatus }) {
-    anthropicMod ??= await import("https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@1.6.0/+esm");
+    anthropicMod ??= await import("./vendor/anthropic-sdk.js");
     const Anthropic = anthropicMod.default ?? anthropicMod.Anthropic;
     const client = new Anthropic({ apiKey: key, dangerouslyAllowBrowser: true });
     const isHaiku = model.startsWith("claude-haiku");
@@ -131,6 +133,10 @@ const gemini = {
   },
 };
 
+claude.keyAdvice = "Consiglio: crea la chiave in un workspace dedicato con limite di spesa mensile (Console Anthropic → Workspaces → Limits).";
+openai.keyAdvice = "Consiglio: usa una chiave di un progetto dedicato con budget mensile e, se possibile, permessi limitati ai soli modelli (platform.openai.com → Projects → Limits).";
+gemini.keyAdvice = "Consiglio: limita la chiave al sito (Google Cloud → Credenziali → Restrizioni per siti web: rickbortcost.github.io/*) e alla sola Generative Language API. Con il piano gratuito Google può usare i contenuti per migliorare i propri servizi: per dati sensibili usa un progetto a pagamento.";
+
 export const PROVIDERS = { claude, openai, gemini };
 
 // ---------------------------------------------------------------- impostazioni (chiavi e modelli per fornitore)
@@ -142,9 +148,13 @@ const safe = (f, d) => { try { return f(); } catch { return d; } };
 export const aiSettings = {
   provider() { const p = safe(() => localStorage.getItem("ai-provider"), null); return PROVIDERS[p] ? p : "claude"; },
   setProvider(p) { safe(() => localStorage.setItem("ai-provider", p)); },
-  key(p) { return safe(() => sessionStorage.getItem(kKey(p)) || localStorage.getItem(kKey(p)) || "", ""); },
-  persistent(p) { return safe(() => !!localStorage.getItem(kKey(p)), false); },
+  key(p) {
+    if (vault.enabled()) return vault.get(kKey(p)) || ""; // cassaforte attiva: chiave cifrata, disponibile solo da sbloccata
+    return safe(() => sessionStorage.getItem(kKey(p)) || localStorage.getItem(kKey(p)) || "", "");
+  },
+  persistent(p) { return vault.enabled() || safe(() => !!localStorage.getItem(kKey(p)), false); },
   setKey(p, v, persist) {
+    if (vault.enabled()) { vault.set(kKey(p), v || null); return; }
     safe(() => {
       localStorage.removeItem(kKey(p)); sessionStorage.removeItem(kKey(p));
       if (v) (persist ? localStorage : sessionStorage).setItem(kKey(p), v);

@@ -48,6 +48,10 @@ Nella scheda **AI** scegli Claude, ChatGPT o Gemini e inserisci la chiave del fo
 
 In **Claude AI → ⚙️ Impostazioni** inserisci una chiave API Anthropic (console.anthropic.com). La chiave resta nel `localStorage` del browser e viene inviata solo a `api.anthropic.com`. Usa una chiave con limite di spesa. Modelli: Opus 5.5 (predefinito), Sonnet 5.5, Haiku 5.5.
 
+## Privacy e sicurezza
+
+Dal pulsante con lo scudo in alto: cassaforte cifrata con password (AES-256-GCM, PBKDF2 600.000 iterazioni) per chiavi API, portafoglio, composizione e preferiti; blocco automatico; backup cifrato; eliminazione di tutti i dati; scelta dei dati inviati agli assistenti AI. Il sito ha una Content Security Policy restrittiva e non contatta terze parti oltre alle API degli assistenti. Dettagli, limiti e segnalazione di vulnerabilità in [SECURITY.md](SECURITY.md).
+
 ## Affidabilità
 
 - `data/health.json` riporta l'esito di ogni aggiornamento; se è degradato si apre automaticamente una issue di avviso (chiusa da sola al ritorno alla normalità).

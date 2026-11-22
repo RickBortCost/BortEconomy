@@ -33,5 +33,18 @@ check("codifica/decodifica storici", JSON.stringify(decodeSeries(encodeSeries(pt
 check("decodifica formato classico", decodeSeries(pts) === pts);
 check("conversione da centesimi", scalePts([[1, 13412, 5]], 100)[0][1] === 134.12);
 
+// cifratura (stesse primitive WebCrypto del browser)
+const { sealWithPassword, openWithPassword, strength } = await import("../site/vault.js");
+const secret = { portafoglio: [{ sym: "ENI.MI", qty: 100 }], chiave: "sk-ant-segreta" };
+const box = await sealWithPassword(secret, "una frase lunga e sicura 2026!");
+check("il contenuto cifrato non contiene i dati in chiaro", !JSON.stringify(box).includes("sk-ant") && !JSON.stringify(box).includes("ENI"));
+check("decifratura con la password corretta", JSON.stringify(await openWithPassword(box, "una frase lunga e sicura 2026!")) === JSON.stringify(secret));
+check("password errata rifiutata", await openWithPassword(box, "sbagliata").then(() => false, () => true));
+const tampered = { ...box, ct: box.ct.slice(0, -4) + (box.ct.slice(-4) === "AAAA" ? "BBBB" : "AAAA") };
+check("dati manomessi rifiutati (autenticazione AES-GCM)", await openWithPassword(tampered, "una frase lunga e sicura 2026!").then(() => false, () => true));
+const box2 = await sealWithPassword(secret, "una frase lunga e sicura 2026!");
+check("sale e IV casuali a ogni cifratura", box2.salt !== box.salt && box2.iv !== box.iv);
+check("valutazione robustezza password", strength("abc") === 0 && strength("Una-Frase-Lunga-2026") >= 3);
+
 console.log(failed ? `\n${failed} test falliti` : "\nTutti i test unitari superati");
 process.exit(failed ? 1 : 0);

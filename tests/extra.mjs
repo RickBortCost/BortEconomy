@@ -298,4 +298,76 @@ export default [
       await page.evaluate(() => { for (const k of ["apiKey.openai", "apiKey.gemini", "model.openai", "model.gemini", "ai-provider"]) localStorage.removeItem(k); });
     },
   },
+  {
+    name: "sicurezza: cassaforte cifrata, blocco/sblocco, backup cifrato e nessun dato in chiaro",
+    async run({ page, assert }) {
+      const PW = "Frase-di-prova-Sicura-2026";
+      await page.evaluate(() => {
+        localStorage.clear();
+        localStorage.setItem("portfolio", JSON.stringify([{ id: "1", sym: "ENI.MI", qty: 100, price: 20, cur: "EUR" }]));
+        localStorage.setItem("apiKey.openai", "sk-segreta-di-prova");
+      });
+      await page.reload();
+      await page.click("#sec-btn");
+      await page.waitForSelector("#sec-dialog[open]");
+      await page.click("#sec-enable");
+      await page.waitForSelector("#pw-dialog[open]");
+      await page.fill("#pw-1", PW); await page.fill("#pw-2", PW); await page.click("#pw-ok");
+      await page.waitForFunction(() => !!localStorage.getItem("vault"));
+      const raw = await page.evaluate(() => JSON.stringify({ ...localStorage }));
+      assert(!raw.includes("sk-segreta") && !raw.includes("ENI.MI"), "dati personali ancora in chiaro nel browser");
+      await page.click('#sec-dialog button[value="close"]');
+      // i dati restano utilizzabili da sbloccata
+      await page.click("[data-tab=portfolio]"); await page.click('#pf-subnav button[data-v="positions"]');
+      await page.waitForSelector('#pf-rows tr[data-sym="ENI.MI"]');
+      // al ricaricamento la cassaforte è bloccata
+      await page.reload();
+      await page.waitForSelector("#unlock-dialog[open]");
+      await page.fill("#unlock-pw", "password-sbagliata"); await page.click("#unlock-ok");
+      await page.waitForFunction(() => document.querySelector("#unlock-err").textContent.includes("errata"));
+      await page.click('#unlock-dialog button[value="cancel"]');
+      await page.click("[data-tab=portfolio]");
+      assert(await page.isVisible("#tab-portfolio .lock-card"), "dati del portafoglio visibili con la cassaforte bloccata");
+      await page.click("#tab-portfolio [data-unlock]");
+      await page.fill("#unlock-pw", PW); await page.click("#unlock-ok");
+      await page.waitForSelector('#pf-rows tr[data-sym="ENI.MI"]');
+      // blocco manuale
+      await page.click("#sec-btn"); await page.click("#sec-lock");
+      assert(await page.isVisible("#tab-portfolio .lock-card"), "blocco manuale non applicato");
+      // backup cifrato
+      await page.click("#sec-btn"); await page.fill("#unlock-pw", PW); await page.click("#unlock-ok");
+      await page.waitForSelector('#pf-rows tr[data-sym="ENI.MI"]');
+      await page.click("#sec-btn");
+      const [dl] = await Promise.all([page.waitForEvent("download"), (async () => {
+        await page.click("#sec-export"); await page.fill("#pw-1", PW); await page.fill("#pw-2", PW); await page.click("#pw-ok");
+      })()]);
+      const text = await (await import("node:fs/promises")).readFile(await dl.path(), "utf8");
+      assert(text.includes('"encrypted"') && !text.includes("sk-segreta") && !text.includes("ENI.MI"), "backup non cifrato");
+      // cancellazione totale
+      page.once("dialog", (d) => d.accept());
+      await page.click("#sec-wipe");
+      await page.waitForLoadState("load");
+      await page.waitForTimeout(500);
+      assert(await page.evaluate(() => localStorage.length === 0 || !localStorage.getItem("vault")), "dati non cancellati");
+    },
+  },
+  {
+    name: "privacy: preferiti non inviati all'AI senza consenso; nessuna violazione della CSP",
+    async run({ page, ctx, assert }) {
+      let body = null;
+      await ctx.route("https://api.openai.com/v1/responses", async (r) => { body = r.request().postData(); return r.fulfill({ headers: { "content-type": "text/event-stream" }, body: 'data: {"type":"response.output_text.delta","delta":"ok"}\n\ndata: {"type":"response.completed","response":{"status":"completed","output":[]}}\n\n' }); });
+      await page.evaluate(() => { localStorage.clear(); localStorage.setItem("favs", JSON.stringify(["ENI.MI"])); localStorage.setItem("apiKey.openai", "sk-x"); localStorage.setItem("ai-provider", "openai"); });
+      const violations = [];
+      await page.exposeFunction("__cspViolation", (v) => violations.push(v)).catch(() => {});
+      await page.addInitScript(() => document.addEventListener("securitypolicyviolation", (e) => window.__cspViolation?.(`${e.violatedDirective} ${e.blockedURI}`)));
+      await page.reload();
+      await page.click("[data-tab=ai]"); await page.fill("#prompt", "test"); await page.click("#send");
+      await page.waitForFunction(() => document.querySelector("#chat .msg.bot:last-child")?.textContent.includes("ok"));
+      assert(body && !body.includes("Preferiti dell"), "preferiti inviati senza consenso");
+      for (const t of ["news", "markets", "metals", "portfolio"]) await page.click(`[data-tab=${t}]`);
+      await page.waitForTimeout(500);
+      assert(!violations.length, `violazioni CSP: ${violations.join(" | ")}`);
+      await page.evaluate(() => localStorage.clear());
+    },
+  },
 ];
