@@ -8,15 +8,15 @@
 // - La password non è recuperabile: senza di essa i dati protetti si possono solo cancellare.
 
 export const PROTECTED = ["portfolio", "composition", "favs", "apiKey", "apiKey.openai", "apiKey.gemini"];
+import { pls, pss, profiles } from "./profiles.js";
+
 const VKEY = "vault";
 const ITER = 600000;
 const enc = new TextEncoder(), dec = new TextDecoder();
 const b64 = (u8) => btoa(String.fromCharCode(...new Uint8Array(u8)));
 const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-const ls = {
-  get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
-  set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
-};
+// Archivio del profilo attivo: ogni profilo ha la propria cassaforte, con password e chiave distinte
+const ls = pls;
 
 async function deriveKey(password, salt, iter = ITER) {
   const base = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]);
@@ -81,11 +81,11 @@ export const vault = {
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const data = {};
     for (const k of PROTECTED) { const v = ls.get(k); if (v != null) data[k] = v; }
-    let ses = {}; try { ses = Object.fromEntries(PROTECTED.map((k) => [k, sessionStorage.getItem(k)]).filter(([, v]) => v)); } catch {}
+    const ses = Object.fromEntries(PROTECTED.map((k) => [k, pss.get(k)]).filter(([, v]) => v));
     Object.assign(data, ses); // le chiavi tenute solo per la sessione entrano nella cassaforte
     state.key = await deriveKey(password, salt); state.salt = salt; state.data = data;
     await this.persist();
-    for (const k of PROTECTED) { ls.set(k, null); try { sessionStorage.removeItem(k); } catch {} }
+    for (const k of PROTECTED) { ls.set(k, null); pss.set(k, null); }
     this.touch();
   },
 
@@ -120,6 +120,18 @@ export const vault = {
     for (const [k, v] of Object.entries(state.data)) ls.set(k, v);
     ls.set(VKEY, null);
     state.key = null; state.data = null; clearTimeout(state.timer);
+  },
+
+  // Nuovo profilo protetto: cassaforte vuota creata direttamente con la sua password
+  async createFor(id, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const box = await encryptJSON({}, await deriveKey(password, salt), salt);
+    try { localStorage.setItem(`${profiles.prefix(id)}${VKEY}`, JSON.stringify(box)); } catch {}
+  },
+  // Verifica la password della cassaforte di un altro profilo (es. per eliminarlo)
+  async check(id, password) {
+    const box = profiles.vaultBox(id); if (!box) return true;
+    try { await openWithPassword(box, password); return true; } catch { return false; }
   },
 
   // Password dimenticata: i dati protetti sono irrecuperabili, si possono solo eliminare

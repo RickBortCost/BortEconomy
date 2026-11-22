@@ -1,8 +1,8 @@
 // Service worker: app installabile e consultabile offline.
 // - Interfaccia (HTML, CSS, JS, icone): prima la rete, in mancanza la copia salvata (così gli aggiornamenti arrivano subito).
 // - Dati (data/*.json, config.json): prima la rete con timeout breve, in mancanza l'ultima copia salvata.
-const CACHE = "borteconomy-v11";
-const SHELL = ["./", "index.html", "style.css", "app.js", "detail.js", "portfolio.js", "calendar.js", "indicators.js", "markets-extra.js", "lab.js", "ai.js", "vault.js", "security.js", "theme-init.js", "config.json", "alerts.json", "icon.svg", "icon-192.png", "icon-512.png", "icon-180.png", "manifest.webmanifest"];
+const CACHE = "borteconomy-v12";
+const SHELL = ["./", "index.html", "style.css", "app.js", "detail.js", "portfolio.js", "calendar.js", "indicators.js", "markets-extra.js", "lab.js", "ai.js", "vault.js", "profiles.js", "security.js", "theme-init.js", "config.json", "alerts.json", "icon.svg", "icon-192.png", "icon-512.png", "icon-180.png", "manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

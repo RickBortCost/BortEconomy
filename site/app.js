@@ -3,6 +3,7 @@ import { initPortfolio, renderPortfolio, openPositionForm, openAlertForm, positi
 import { initLab, renderComposition, renderLab } from "./lab.js";
 import { PROVIDERS, aiSettings, errorText } from "./ai.js";
 import { vault, PROTECTED } from "./vault.js";
+import { pls } from "./profiles.js";
 import { initSecurity, confirmShare, askPassword } from "./security.js";
 import { sealWithPassword, openWithPassword } from "./vault.js";
 import { initCalendar, renderCalendar, upcoming } from "./calendar.js";
@@ -10,10 +11,10 @@ import { initMarketsExtra, renderHeatmap, renderForex, renderCrypto, renderEtf }
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
-// Archivio locale: i dati personali (portafoglio, composizione, preferiti) passano dalla cassaforte cifrata se attiva
+// Archivio locale del profilo attivo: i dati personali (portafoglio, composizione, preferiti) passano dalla cassaforte cifrata se attiva
 const store = {
-  get(k, d) { if (PROTECTED.includes(k)) return vault.get(k) ?? d; try { return localStorage.getItem(k) ?? d; } catch { return d; } },
-  set(k, v) { if (PROTECTED.includes(k)) { vault.set(k, v); return; } try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
+  get(k, d) { if (PROTECTED.includes(k)) return vault.get(k) ?? d; return pls.get(k) ?? d; },
+  set(k, v) { if (PROTECTED.includes(k)) { vault.set(k, v); return; } pls.set(k, v); },
 };
 // Link esterni: solo http(s), mai javascript: o altri schemi
 const safeUrl = (u) => (/^https?:\/\//i.test(String(u ?? "")) ? String(u) : "#");

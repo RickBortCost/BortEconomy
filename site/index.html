@@ -31,6 +31,7 @@
       <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/><path d="M20 3v4M22 5h-4"/></symbol>
       <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
       <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
       <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></symbol>
       <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
       <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
@@ -46,6 +47,7 @@
   <header class="topbar">
     <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>BortEconomy</span></div>
     <button class="icon-btn" id="search-btn" aria-label="Cerca un titolo" title="Cerca un titolo"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+    <button class="icon-btn prof-btn" id="prof-btn" aria-label="Profilo" title="Profilo"><span class="avatar" id="prof-avatar">P</span></button>
     <button class="icon-btn" id="sec-btn" aria-label="Privacy e sicurezza" title="Privacy e sicurezza"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></button>
     <button class="icon-btn" id="theme-btn" aria-label="Tema" title="Tema"><svg class="ic" aria-hidden="true"><use href="#i-auto"/></svg></button>
     <label class="country">
@@ -458,6 +460,7 @@
         <label class="ghost pf-import-btn">⬆️ Ripristina backup<input type="file" accept=".json" id="sec-import" hidden></label>
       </div>
       <button type="button" class="ghost danger" id="sec-wipe">Elimina tutti i miei dati da questo browser</button>
+      <p class="hint">Più persone sullo stesso dispositivo? Crea un <a href="#" data-open-prof>profilo per ciascuno</a>, ognuno con la propria password.</p>
 
       <h4>Come sono trattati i dati</h4>
       <ul class="sec-info">
@@ -471,11 +474,30 @@
     </form>
   </dialog>
 
+  <dialog id="prof-dialog" class="sec-dialog">
+    <form method="dialog" class="settings">
+      <h3><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg> <span id="prof-title">Profili</span></h3>
+      <p class="hint" id="prof-sub"></p>
+      <ul class="prof-list" id="prof-list"></ul>
+      <div id="prof-new">
+        <h4>Nuovo profilo</h4>
+        <label>Nome <input id="prof-name" maxlength="24" autocomplete="off"></label>
+        <label class="check"><input type="checkbox" id="prof-protect" checked> Proteggi con una password (consigliato)</label>
+        <p class="hint err-text" id="prof-err"></p>
+        <button type="button" class="primary" id="prof-create">Crea profilo</button>
+        <p class="hint">Ogni profilo ha preferiti, portafoglio, composizione, chiavi API, impostazioni e cassaforte separati. In chiaro restano solo nome e colore dei profili. Avvisi di prezzo e titoli richiesti su GitHub sono comuni e pubblici.</p>
+      </div>
+      <div class="actions"><span></span><button value="close" class="primary">Chiudi</button></div>
+    </form>
+  </dialog>
+
   <dialog id="unlock-dialog">
     <form method="dialog" class="settings">
       <h3><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg> Sblocca i dati protetti</h3>
+      <p class="hint" id="unlock-prof" hidden></p>
       <label>Password della cassaforte <input id="unlock-pw" type="password" autocomplete="current-password"></label>
       <p class="hint err-text" id="unlock-err"></p>
+      <button type="button" class="ghost" id="unlock-switch" hidden>Cambia profilo</button>
       <div class="actions"><button type="button" class="ghost" id="unlock-forgot">Password dimenticata</button><span><button value="cancel" class="ghost" formnovalidate>Più tardi</button> <button class="primary" id="unlock-ok">Sblocca</button></span></div>
     </form>
   </dialog>
