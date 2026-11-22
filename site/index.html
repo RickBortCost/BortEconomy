@@ -43,6 +43,12 @@
   <main>
     <!-- NOTIZIE -->
     <section id="tab-news" class="panel active">
+      <article class="brief" id="brief" hidden>
+        <header><h2>☀️ Il punto del giorno</h2><span class="meta" id="brief-date"></span></header>
+        <div class="brief-body" id="brief-body"></div>
+        <button class="more brief-toggle" id="brief-toggle">Leggi tutto</button>
+        <footer class="meta" id="brief-foot"></footer>
+      </article>
       <div class="toolbar">
         <div class="seg" id="scope">
           <button data-v="country" class="on">Paese</button>
@@ -65,6 +71,11 @@
         <input id="q-input" type="search" placeholder="Cerca titolo (es. Ferrari, AAPL, oro)" aria-label="Cerca un titolo" autocomplete="off" enterkeyhint="search">
         <ul class="rows q-results" id="q-results" hidden></ul>
       </div>
+      <nav class="subnav" id="mk-subnav" aria-label="Sezioni dei mercati">
+        <button data-v="overview" class="on">Panoramica</button>
+        <button data-v="calendar">📅 Calendario</button>
+      </nav>
+      <div class="mk-view" id="mk-view-overview">
       <p class="meta" id="mk-meta"></p>
       <h2>⭐ Preferiti</h2>
       <ul class="rows" id="mk-favs"></ul>
@@ -84,6 +95,18 @@
       </div>
       <h2 id="mk-country-title"></h2>
       <ul class="rows" id="mk-country"></ul>
+      </div>
+      <div class="mk-view" id="mk-view-calendar" hidden>
+        <div class="toolbar">
+          <div class="seg" id="cal-kind"><button data-v="macro" class="on">Dati macro</button><button data-v="earnings">Utili societari</button></div>
+        </div>
+        <div class="toolbar" id="cal-filters">
+          <div class="seg" id="cal-impact"><button data-v="3">Alto</button><button data-v="2" class="on">Medio+</button><button data-v="0">Tutti</button></div>
+          <select id="cal-cur" aria-label="Valuta" class="cal-cur"></select>
+        </div>
+        <p class="meta" id="cal-meta"></p>
+        <div id="cal-list"></div>
+      </div>
     </section>
 
     <!-- CLAUDE -->

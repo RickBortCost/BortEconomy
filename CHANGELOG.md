@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.8.0] - 2026-11-22
+
+### Aggiunto
+- **Calendario economico** (Mercati → 📅 Calendario): dati macro della settimana (inflazione, PIL, occupazione, PMI, decisioni sui tassi…) con titoli tradotti in italiano, impatto, valori previsti, precedenti ed effettivi, filtri per importanza e valuta; utili societari dei titoli monitorati nei prossimi 45 giorni (tocco per aprire il titolo). Orari nel fuso del dispositivo.
+- **Il punto del giorno**: ogni mattina dalle 7:00 (ora italiana) Claude scrive un riepilogo di mercati, Italia, mondo, metalli e agenda della giornata, dai dati del sito più qualche ricerca web; mostrato in cima alle Notizie, espandibile, con le fonti. Richiede il secret `ANTHROPIC_API_KEY` nel repository; si può rigenerare manualmente dal workflow "Aggiorna dati e pubblica" (opzione "Rigenera subito il punto del giorno").
+- L'agenda dei prossimi 7 giorni (eventi di impatto medio/alto e utili) è inclusa nel contesto di Claude.
+- Sotto-sezioni nella scheda Mercati (Panoramica, Calendario).
+
 ## [1.7.0] - 2026-11-22
 
 ### Aggiunto
@@ -123,7 +131,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.7.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.4.1...v1.5.0

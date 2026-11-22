@@ -11,6 +11,8 @@ Web app (anche mobile, installabile come PWA) con:
 - **Tema chiaro/scuro**: automatico secondo il sistema o scelto manualmente (pulsante 🌓 in alto).
 - **Portafoglio**: posizioni salvate nel browser, valore e guadagni in euro, ripartizione, andamento, import/export.
 - **Avvisi di prezzo**: notifiche GitHub quando un titolo supera una soglia o si muove oltre una percentuale.
+- **Calendario economico**: dati macro della settimana e utili societari.
+- **Il punto del giorno**: riepilogo mattutino scritto da Claude.
 - **Claude AI**: chat con analisi basata sulle notizie e i dati caricati, con ricerca web.
 
 ## Come funziona
@@ -30,6 +32,10 @@ Dal sito: cerca il titolo, aprilo e tocca **➕ Aggiungi al monitoraggio** (oppu
 ## Avvisi di prezzo
 
 Dalla scheda di un titolo tocca 🔔, scegli la condizione e conferma la richiesta su GitHub (issue `Avviso prezzo: SIMBOLO sopra|sotto|up|down VALORE`). Gli avvisi sono in `site/alerts.json`; a ogni aggiornamento (ogni 30 minuti) vengono controllati e quando scattano si apre una issue che ti menziona. Per rimuoverne uno: pulsante "Rimuovi" nella scheda Portafoglio (issue `Rimuovi avviso: CODICE`).
+
+## Il punto del giorno
+
+Per attivarlo aggiungi una chiave API Anthropic come secret del repository: **Settings → Secrets and variables → Actions → New repository secret**, nome `ANTHROPIC_API_KEY`. Il riepilogo viene generato al primo aggiornamento dopo le 7:00 (ora italiana), una volta al giorno (`scripts/brief.mjs`, modello `claude-opus-5-5`, ricerca web limitata a 4 interrogazioni). Per rigenerarlo subito: Actions → "Aggiorna dati e pubblica su GitHub Pages" → Run workflow → "Rigenera subito il punto del giorno". Senza chiave il sito funziona normalmente e il riquadro non compare.
 
 ## Claude
 
