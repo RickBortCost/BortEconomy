@@ -292,3 +292,26 @@ body.offline .offline-bar { display: block; }
 .imp-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; background: var(--line); }
 .imp3 .imp-dot { background: var(--down); } .imp2 .imp-dot { background: var(--star); } .imp1 .imp-dot { background: var(--muted); }
 .imp3 { border-left: 3px solid var(--down); }
+
+/* Indicatori, confronto, fondamentali */
+.dt-ind { padding: 6px 0 0; }
+.dt-ind button { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 5px 11px; }
+.dt-ind button i { width: 10px; height: 3px; border-radius: 2px; }
+.dt-ind button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.dt-ind button:disabled { opacity: .45; cursor: not-allowed; }
+.dt-cmp { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0 2px; }
+.dt-cmp #dt-cmp-list { display: contents; }
+.dt-cmp-main, .dt-cmp-item { display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 6px 4px 10px; font-size: 13px; }
+.dt-cmp-main { padding-right: 10px; }
+.dt-cmp i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dt-cmp-item button { border: 0; background: transparent; cursor: pointer; color: var(--muted); padding: 0 4px; }
+.dt-cmp #dt-cmp-add { padding: 5px 12px; font-size: 13px; }
+.dt-cmp-box { flex-basis: 100%; display: grid; gap: 6px; }
+.dt-cmp-box input { padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); }
+.dt-chart .rsi-bg { fill: transparent; stroke: var(--line); }
+.dt-chart .rsi-zone { fill: var(--muted); opacity: .07; }
+.dt-profile { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px 12px; font-size: 14px; }
+.dt-profile a { color: var(--accent); }
+.dt-summary { color: var(--muted); font-size: 13px; }
+#detail .news li { padding: 8px 12px; }
+.chips.dt-ind { flex-wrap: wrap; overflow: visible; }

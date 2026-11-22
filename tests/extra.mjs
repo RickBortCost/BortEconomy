@@ -89,4 +89,48 @@ export default [
       await page.click("#dt-back");
     },
   },
+  {
+    name: "grafico avanzato: indicatori tecnici e RSI",
+    async run({ page, assert }) {
+      await page.click("[data-tab=markets]");
+      await page.click('#mk-indices .tile[data-sym="^GSPC"]');
+      await page.waitForSelector("#dt-chart svg");
+      await page.click('#dt-gran button[data-v="day"]');
+      await page.click('#dt-range button[data-v="1A"]');
+      for (const k of ["sma50", "sma200", "boll", "rsi"]) await page.click(`#dt-ind [data-ind="${k}"]`);
+      const paths = await page.$$eval("#dt-chart svg path", (p) => p.length);
+      assert(paths >= 6, `linee degli indicatori mancanti (${paths})`);
+      assert(await page.$("#dt-chart .rsi"), "pannello RSI assente");
+      for (const k of ["sma50", "sma200", "boll", "rsi"]) await page.click(`#dt-ind [data-ind="${k}"]`);
+    },
+  },
+  {
+    name: "confronto tra titoli in base percentuale",
+    async run({ page, assert }) {
+      await page.click("[data-tab=markets]");
+      await page.click('#mk-indices .tile[data-sym="^GSPC"]');
+      await page.waitForSelector("#dt-chart svg");
+      await page.click("#dt-cmp-add");
+      await page.fill("#dt-cmp-q", "eni");
+      await page.click('#dt-cmp-res [data-cmp="ENI.MI"]');
+      await page.waitForSelector(".dt-cmp-item");
+      const ax = await page.$$eval("#dt-chart text.ax", (t) => t.map((x) => x.textContent).join(" "));
+      assert(ax.includes("%"), "asse non in percentuale durante il confronto");
+      await page.click("[data-cmp-del]");
+      assert(!(await page.$(".dt-cmp-item")), "confronto non rimosso");
+    },
+  },
+  {
+    name: "fondamentali e notizie nella scheda titolo (se disponibili)",
+    async run({ page, assert }) {
+      await page.click("[data-tab=markets]");
+      await page.fill("#q-input", "eni");
+      await page.click('#q-results li[data-sym="ENI.MI"]');
+      await page.waitForSelector("#dt-chart svg");
+      const hasF = await page.evaluate(async () => !!(await (await fetch("data/markets.json")).json()).quotes.find((q) => q.symbol === "ENI.MI")?.f);
+      if (hasF) assert(!(await page.isHidden("#dt-fund")) && (await page.textContent("#dt-fund")).includes("P/E"), "fondamentali non mostrati");
+      await page.click("#dt-back");
+      await page.fill("#q-input", "");
+    },
+  },
 ];

@@ -653,7 +653,7 @@ async function init() {
       return [[`Prezzo €/${unitShort(m)}`, money(eur, "EUR")], ["€ al grammo", money(eur == null ? null : eur / m.grams, "EUR", m.industrial ? 4 : undefined)], ["$ al grammo", money(q.price / m.grams, "USD", m.industrial ? 4 : undefined)]]; },
     askPrompt: (q) => { const m = metal(q.symbol); return m ? `Analizza il mercato di ${m.name.toLowerCase()} (${q.symbol}): prezzo attuale ${nf(q.price)} USD/${unitShort(m)}, variazioni giorno ${nf(q.changePct)}%, settimana ${nf(q.weekPct)}%, mese ${nf(q.monthPct)}%, anno ${nf(q.yearPct)}%. Spiega i fattori che lo muovono (tassi reali, dollaro, banche centrali, domanda industriale e da investimento), livelli tecnici e notizie recenti. Cerca sul web.` : null; },
     onPortfolio: (sym) => openPositionForm({ sym }), onAlert: (sym) => openAlertForm(sym),
-    quoteFor: bySymbol, marketStatus: (q) => { const m = marketStatus(q); return m && STATUS_LABEL[m]; }, onAsk: (text) => { setTab("ai"); ask(text); }, favs,
+    quoteFor: bySymbol, searchQuotes, marketStatus: (q) => { const m = marketStatus(q); return m && STATUS_LABEL[m]; }, onAsk: (text) => { setTab("ai"); ask(text); }, favs,
     onAdd: (sym) => { requestAdd(sym); renderSearch(); }, pendingSince: (sym) => pending.get(sym), loadDirectory });
   const qi = $("#q-input");
   qi.addEventListener("input", renderSearch);
