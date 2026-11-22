@@ -87,7 +87,45 @@ async function renderNews() {
 let quoteMap = null;
 function bySymbol(sym) {
   if (!quoteMap && state.markets) quoteMap = new Map(state.markets.quotes.map((q) => [q.symbol, q]));
-  return quoteMap?.get(sym);
+  return quoteMap?.get(sym) ?? dirMap?.get(sym);
+}
+
+// ---------------- directory mondiale (titoli non monitorati) ----------------
+let dirMap = null, dirPromise = null;
+function loadDirectory() {
+  dirPromise ??= getJSON("data/directory.json").then((d) => {
+    dirMap = new Map();
+    for (const [symbol, name, exchange, currency, price, changePct, marketCap, region] of d.items) {
+      dirMap.set(symbol, { symbol, name, longName: name, exchange, currency, price, changePct, marketCap, region, type: "EQUITY", dir: true });
+    }
+    // capitalizzazione anche per i titoli monitorati
+    for (const q of state.markets?.quotes ?? []) { const x = dirMap.get(q.symbol); if (x) q.marketCap ??= x.marketCap; }
+    state.dirUpdated = d.updated;
+    searchIndex = null;
+    return dirMap;
+  }).catch(() => { dirPromise = null; return null; });
+  return dirPromise;
+}
+const isMonitored = (sym) => { bySymbol(""); return !!quoteMap?.has(sym); };
+
+// Richieste di aggiunta al monitoraggio (via issue GitHub, gestite dal workflow "Aggiungi titoli")
+const pending = {
+  all() { try { return JSON.parse(store.get("pendingAdds", "{}")); } catch { return {}; } },
+  get(sym) { const t = this.all()[sym]; return t && Date.now() - t < 6 * 3600e3 ? t : null; },
+  set(sym) { const a = this.all(); a[sym] = Date.now(); store.set("pendingAdds", JSON.stringify(a)); },
+  prune() { const a = this.all(); for (const k of Object.keys(a)) if (isMonitored(k) || Date.now() - a[k] > 6 * 3600e3) delete a[k]; store.set("pendingAdds", JSON.stringify(a)); },
+};
+function issueUrl(title, body = "") {
+  const repo = state.config.repo ?? "RickBortCost/BortEconomy";
+  return `https://github.com/${repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+}
+function requestAdd(sym) {
+  window.open(issueUrl(`Aggiungi titolo: ${sym}`, `Richiesta inviata da BortEconomy.\n\n${sym}`), "_blank", "noopener");
+  pending.set(sym);
+  if (!favs.has(sym)) favs.toggle(sym);
+}
+function requestSearch(term) {
+  window.open(issueUrl(`Aggiungi titolo: ${term}`, "Richiesta di ricerca inviata da BortEconomy: il workflow risponderà con i titoli trovati su Yahoo Finance."), "_blank", "noopener");
 }
 
 function tiles(symbols) {
@@ -103,47 +141,55 @@ function tiles(symbols) {
 function rows(quotes, { star = false, empty = "Dati non disponibili.", group = false } = {}) {
   return quotes.map((q) => `
     <li data-sym="${esc(q.symbol)}" tabindex="0" role="button" class="${star ? "has-star" : ""}">${star ? starBtn(q.symbol) : ""}
-      <div class="nm"><b>${esc(q.name)}</b><small>${esc(q.symbol)}${group ? ` · <span class="grp">${esc(groupLabel(q))}</span>` : ""}</small></div>
+      <div class="nm"><b>${esc(q.name)}</b><small>${esc(q.symbol)}${group ? ` · <span class="grp">${esc(groupLabel(q))}</span>` : ""}${q.dir
+        ? ` <span class="tag ${pending.get(q.symbol) ? "wait" : "new"}">${pending.get(q.symbol) ? "richiesto" : "non monitorato"}</span>` : ""}</small></div>
       <div class="px">${nf(q.price, q.price < 10 ? 4 : 2)} <small>${esc(q.currency ?? "")}</small></div>${pctHtml(q[state.mkField])}</li>`).join("")
     || `<li class="empty">${empty}</li>`;
 }
 
-const groupLabel = (q) => state.config.catalog?.[q.group]?.name ?? q.exchange ?? "";
+const groupLabel = (q) => q.dir ? `${q.exchange} · ${state.config.regions?.[q.region] ?? ""}` : state.config.catalog?.[q.group]?.name ?? q.exchange ?? "";
 
 // ---------------- ricerca titoli ----------------
 const norm = (s) => String(s ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 let searchIndex = null;
 function buildIndex() {
   const al = state.config.aliases ?? {};
-  searchIndex = (state.markets?.quotes ?? []).map((q) => ({
-    q, sym: norm(q.symbol), text: norm(`${q.name} ${q.longName} ${q.exchange} ${groupLabel(q)} ${al[q.symbol] ?? ""}`),
-  }));
+  const entry = (q) => ({ q, sym: norm(q.symbol), text: norm(`${q.name} ${q.longName} ${q.exchange} ${groupLabel(q)} ${al[q.symbol] ?? ""}`) });
+  searchIndex = (state.markets?.quotes ?? []).map(entry);
+  if (dirMap) for (const q of dirMap.values()) if (!quoteMap?.has(q.symbol)) searchIndex.push(entry(q));
 }
-function searchQuotes(term, limit = 25) {
+function searchQuotes(term, limit = 30) {
   const t = norm(term).trim(); if (!t) return [];
   if (!searchIndex) buildIndex();
   const words = t.split(/\s+/);
+  const tc = t.replace(/[^a-z0-9]/g, "");
+  const wordRe = words.map((w) => new RegExp(`(^|[^a-z0-9])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
   const scored = [];
   for (const e of searchIndex) {
     let score = 0;
     if (e.sym === t) score = 100;
-    else if (e.sym.startsWith(t)) score = 80;
-    else if (e.sym.replace(/[^a-z0-9]/g, "").startsWith(t.replace(/[^a-z0-9]/g, "")) && t.length > 1) score = 70;
+    else if (e.sym.startsWith(t)) score = t.length <= 5 ? 80 : 55; // i prefissi di simbolo contano solo per termini brevi
+    else if (tc.length > 1 && tc.length <= 6 && e.sym.replace(/[^a-z0-9]/g, "").startsWith(tc)) score = 70;
     if (words.every((w) => e.text.includes(w) || e.sym.includes(w))) {
-      const prefix = words.every((w) => new RegExp(`(^|[^a-z0-9])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`).test(e.text));
-      if (prefix) score = Math.max(score, 60);
+      if (wordRe.every((re) => re.test(e.text))) score = Math.max(score, 60);
       else if (t.length >= 4) score = Math.max(score, 40); // corrispondenze interne solo per termini lunghi
     }
-    if (score) scored.push([score - (e.q.type === "EQUITY" ? 0 : 1), e.q]);
+    if (!score) continue;
+    // a parità: prima i monitorati, poi le società più grandi
+    scored.push([score + (e.q.dir ? 0 : 5) - (e.q.type === "EQUITY" ? 0 : 1), e.q.marketCap ?? 0, e.q]);
   }
-  return scored.sort((a, b) => b[0] - a[0] || a[1].name.localeCompare(b[1].name)).slice(0, limit).map((x) => x[1]);
+  return scored.sort((a, b) => b[0] - a[0] || b[1] - a[1]).slice(0, limit).map((x) => x[2]);
 }
 function renderSearch() {
-  const box = $("#q-results"), term = $("#q-input").value;
-  if (!term.trim()) { box.hidden = true; box.innerHTML = ""; return; }
+  const box = $("#q-results"), term = $("#q-input").value.trim();
+  if (!term) { box.hidden = true; box.innerHTML = ""; return; }
+  if (!dirMap) loadDirectory().then((m) => { if (m && $("#q-input").value.trim()) renderSearch(); });
   const res = searchQuotes(term);
   box.hidden = false;
-  box.innerHTML = rows(res, { star: true, group: true, empty: `Nessun titolo trovato per “${esc(term)}”. I titoli disponibili sono ${state.markets?.quotes.length ?? 0} tra indici e azioni principali.` });
+  const total = (state.markets?.quotes.length ?? 0) + (dirMap ? dirMap.size : 0);
+  box.innerHTML = rows(res, { star: true, group: true, empty: `Nessun titolo trovato per “${esc(term)}” tra ${total.toLocaleString("it-IT")} titoli.` })
+    + (dirMap ? "" : `<li class="empty">Caricamento dell'elenco mondiale dei titoli…</li>`)
+    + `<li class="q-more"><button type="button" data-req="${esc(term)}">🔎 Non lo trovi? Cerca “${esc(term)}” su Yahoo Finance e aggiungilo</button></li>`;
 }
 
 function movers(n = 8) {
@@ -362,6 +408,8 @@ async function init() {
 
   // Dettaglio titoli
   const openFrom = (e) => {
+    const req = e.target.closest("[data-req]");
+    if (req) { if (e.type === "click") requestSearch(req.dataset.req); return; }
     const star = e.target.closest("[data-star]");
     if (star) { if (e.type === "click") { e.preventDefault(); e.stopPropagation(); favs.toggle(star.dataset.star); } return; }
     const el = e.target.closest("[data-sym]"); if (!el) return;
@@ -402,7 +450,10 @@ async function init() {
   }).catch(() => {});
   state.markets = await getJSON("data/markets.json").catch(() => null);
   renderMarkets();
-  initDetail({ quoteFor: bySymbol, onAsk: (text) => { setTab("ai"); ask(text); }, favs });
+  pending.prune();
+  if (favs.list().some((sym) => !isMonitored(sym))) loadDirectory().then(() => renderMarkets());
+  initDetail({ quoteFor: bySymbol, onAsk: (text) => { setTab("ai"); ask(text); }, favs,
+    onAdd: (sym) => { requestAdd(sym); renderSearch(); }, pendingSince: (sym) => pending.get(sym), loadDirectory });
   const qi = $("#q-input");
   qi.addEventListener("input", renderSearch);
   qi.addEventListener("focus", renderSearch);

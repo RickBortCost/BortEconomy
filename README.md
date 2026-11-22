@@ -4,7 +4,8 @@ Web app (anche mobile, installabile come PWA) con:
 
 - **Notizie economiche** del giorno e della settimana: mondo e paese selezionabile (14 paesi), da Google News RSS in lingua locale + italiano.
 - **Mercati**: indici mondiali, valute/materie prime/tassi, migliori e peggiori titoli mondiali (giorno/settimana), titoli principali del paese. Fonte: Yahoo Finance (dati ritardati).
-- **Ricerca e preferiti**: ricerca tra 461 titoli, indici, valute, materie prime, cripto ed ETF; preferiti salvati nel browser.
+- **Ricerca e preferiti**: ricerca tra i titoli monitorati (indici, valute, materie prime, cripto, ETF, azioni) e una directory mondiale di oltre 11.000 azioni; preferiti salvati nel browser.
+- **Nuovi titoli**: "➕ Aggiungi al monitoraggio" apre una richiesta su GitHub; il workflow `Aggiungi titoli` aggiunge il titolo al catalogo e ripubblica il sito con storico e grafico (solo proprietario/collaboratori del repository).
 - **Dettaglio titolo**: grafico interattivo per ore, giorni e settimane, statistiche e storico per ogni simbolo (link diretto `#q=SIMBOLO`).
 - **Tema chiaro/scuro**: automatico secondo il sistema o scelto manualmente (pulsante 🌓 in alto).
 - **Claude AI**: chat con analisi basata sulle notizie e i dati caricati, con ricerca web.
@@ -18,6 +19,10 @@ Sito: https://rickbortcost.github.io/BortEconomy/
 ## GitHub Pages
 
 Già attivo: Settings → Pages → Source "Deploy from a branch", branch `gh-pages`, cartella `/ (root)`. Per un aggiornamento immediato: Actions → "Aggiorna dati e pubblica su GitHub Pages" → Run workflow.
+
+## Aggiungere titoli
+
+Dal sito: cerca il titolo, aprilo e tocca **➕ Aggiungi al monitoraggio** (oppure "Non lo trovi? Cerca su Yahoo Finance"). In alternativa crea direttamente una issue con titolo `Aggiungi titolo: SIMBOLO` (es. `Aggiungi titolo: SFER.MI`); più simboli o nomi possono andare nel corpo, uno per riga. I simboli validi vengono aggiunti a `catalog.USER` in `site/config.json`; per i nomi il workflow risponde con i risultati della ricerca e un link per aggiungere ciascuno.
 
 ## Claude
 

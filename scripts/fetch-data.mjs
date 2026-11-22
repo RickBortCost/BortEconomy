@@ -7,6 +7,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildDirectory } from "./lib/directory.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "site", "data");
@@ -162,6 +163,24 @@ for (const [code, c] of Object.entries(config.countries)) {
   const items = await buildNews(feeds);
   await writeFile(join(OUT, `news-${code}.json`), JSON.stringify({ updated, items }));
   console.log(`news ${code}: ${items.length}`);
+}
+
+// Directory mondiale per la ricerca (con fallback sulle regioni non scaricate)
+try {
+  const { items, failed } = await buildDirectory(() => {});
+  if (failed.length) {
+    const prev = await previous("data/directory.json");
+    const have = new Set(items.map((i) => i[0]));
+    for (const it of prev?.items ?? []) if (failed.includes(it[7]) && !have.has(it[0])) items.push(it);
+  }
+  if (items.length) {
+    await writeFile(join(OUT, "directory.json"), JSON.stringify({ updated, fields: ["symbol", "name", "exchange", "currency", "price", "changePct", "marketCap", "region"], items }));
+  }
+  console.log(`directory: ${items.length} titoli${failed.length ? ` (regioni dalla pubblicazione precedente: ${failed.join(", ")})` : ""}`);
+} catch (e) {
+  const prev = await previous("data/directory.json");
+  if (prev) await writeFile(join(OUT, "directory.json"), JSON.stringify(prev));
+  console.log(`::warning::Directory non aggiornata (${e.message}); usata la pubblicazione precedente.`);
 }
 
 // Mercati
