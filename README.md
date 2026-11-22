@@ -52,6 +52,18 @@ In **Claude AI → ⚙️ Impostazioni** inserisci una chiave API Anthropic (con
 
 Dal pulsante con lo scudo in alto: cassaforte cifrata con password (AES-256-GCM, PBKDF2 600.000 iterazioni) per chiavi API, portafoglio, composizione e preferiti; blocco automatico; backup cifrato; eliminazione di tutti i dati; scelta dei dati inviati agli assistenti AI. Il sito ha una Content Security Policy restrittiva e non contatta terze parti oltre alle API degli assistenti. Più persone sullo stesso dispositivo possono usare **profili** separati (pulsante con l'iniziale in alto), ognuno con dati e password propri. Dettagli, limiti e segnalazione di vulnerabilità in [SECURITY.md](SECURITY.md).
 
+## Cloudflare Pages e server AI
+
+Il workflow **Pubblica su Cloudflare Pages** pubblica una copia del sito su `https://borteconomy.pages.dev` (o il sottodominio assegnato) con intestazioni di sicurezza HTTP e un proxy AI. Secret del repository:
+
+| Secret | Uso |
+|---|---|
+| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | Pubblicazione (token con Workers Scripts, Cloudflare Pages, Workers KV: Edit; Account Settings: Read) |
+| `BORT_ACCESS_CODES` | Codici di accesso al proxy, `nome:codice,nome2:codice2` (codici lunghi e casuali) |
+| `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` | Facoltativi: abilitano il fornitore sul proxy (la prima serve anche al punto del giorno) |
+
+Variabile facoltativa `BORT_DAILY_LIMIT` (richieste al giorno per persona, predefinito 60). Dopo aver cambiato un secret, rilancia il workflow da Actions.
+
 ## Affidabilità
 
 - `data/health.json` riporta l'esito di ogni aggiornamento; se è degradato si apre automaticamente una issue di avviso (chiusa da sola al ritorno alla normalità).

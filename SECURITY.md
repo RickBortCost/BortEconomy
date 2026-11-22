@@ -25,6 +25,12 @@ Il sito non usa account, cookie, statistiche o tracciamenti. Carattere e libreri
 - **Supply chain**: SDK Anthropic e carattere copiati nel repository (`npm run vendor`), azioni dei workflow bloccate per SHA, Dependabot per npm e azioni, permessi minimi dei workflow.
 - **Workflow**: le richieste dal sito vengono accettate solo da proprietario e collaboratori; titolo e corpo delle issue passati come variabili d'ambiente, mai interpolati nella shell.
 
+## Copia su Cloudflare Pages
+
+- Intestazioni HTTP di sicurezza (CSP con `frame-ancestors`, HSTS, nosniff, Referrer-Policy, Permissions-Policy).
+- Proxy AI: chiavi dei fornitori solo come secret del progetto Cloudflare; accesso con codice personale (`BORT_ACCESS_CODES`), limite giornaliero per persona, percorsi API ammessi in elenco, solo dalla stessa origine. Il proxy non registra domande né risposte; Cloudflare registra metadati delle richieste (IP, orari).
+- Chi conosce un codice può usare il credito del proprietario fino al limite giornaliero: usa codici lunghi, uno per persona, e revocali togliendoli dal secret.
+
 ## Limiti noti
 
 - I profili separano i dati, ma chi usa il dispositivo può eliminare un profilo non protetto o i dati del browser; un profilo con password non è leggibile senza di essa.

@@ -421,4 +421,25 @@ export default [
       await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
     },
   },
+  {
+    name: "server BortEconomy: assistente tramite proxy con codice di accesso",
+    async run({ page, assert }) {
+      let req = null;
+      await page.route("**/api/status", (r) => r.fulfill({ contentType: "application/json", body: '{"providers":["openai"],"codes":true,"dailyLimit":60}' }));
+      await page.route("**/api/openai/v1/responses", (r) => { req = { url: r.request().url(), h: r.request().headers() }; return r.fulfill({ headers: { "content-type": "text/event-stream" }, body: 'data: {"type":"response.output_text.delta","delta":"dal server"}\n\ndata: {"type":"response.completed","response":{"status":"completed","output":[]}}\n\n' }); });
+      await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+      await page.reload();
+      await page.click("[data-tab=ai]");
+      await page.click('#ai-provider button[data-v="openai"]');
+      await page.waitForSelector("#settings[open]");
+      assert(await page.isVisible("#proxy-box"), "opzione server non mostrata");
+      await page.fill("#proxy-code", "codice-di-prova");
+      await page.click('#settings button[value="save"]');
+      await page.fill("#prompt", "test server"); await page.click("#send");
+      await page.waitForFunction(() => document.querySelector("#chat .msg.bot:last-child")?.textContent.includes("dal server"));
+      assert(req && req.h["x-bort-code"] === "codice-di-prova" && new URL(req.url).pathname.endsWith("/api/openai/v1/responses"), "richiesta non inviata al proxy con il codice");
+      await page.unroute("**/api/status"); await page.unroute("**/api/openai/v1/responses");
+      await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+    },
+  },
 ];

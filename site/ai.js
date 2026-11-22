@@ -35,10 +35,10 @@ const claude = {
   defaultModel: "claude-opus-5-5",
   models: [["claude-opus-5-5", "Claude Opus 5.5 (consigliato)"], ["claude-sonnet-5-5", "Claude Sonnet 5.5"], ["claude-haiku-5-5", "Claude Haiku 5.5 (economico)"]],
   async listModels() { return this.models; },
-  async send({ key, model, system, conv, text, web, onText, onStatus }) {
+  async send({ key, via, model, system, conv, text, web, onText, onStatus }) {
     anthropicMod ??= await import("./vendor/anthropic-sdk.js");
     const Anthropic = anthropicMod.default ?? anthropicMod.Anthropic;
-    const client = new Anthropic({ apiKey: key, dangerouslyAllowBrowser: true });
+    const client = new Anthropic({ apiKey: key, dangerouslyAllowBrowser: true, ...(via ? { baseURL: via.base, defaultHeaders: via.headers } : {}) });
     const isHaiku = model.startsWith("claude-haiku");
     conv.push({ role: "user", content: text });
     const params = { model, max_tokens: 16000, system, output_config: { effort: "medium" }, messages: conv };
@@ -69,20 +69,20 @@ const claude = {
 const openai = {
   id: "openai", label: "ChatGPT", vendor: "OpenAI", keyHint: "sk-…", keyUrl: "platform.openai.com", host: "api.openai.com",
   defaultModel: "chat-latest",
-  async listModels(key) {
-    const res = await fetch("https://api.openai.com/v1/models", { headers: { Authorization: `Bearer ${key}` } });
+  async listModels(key, via) {
+    const res = await fetch(`${via?.base ?? "https://api.openai.com"}/v1/models`, { headers: { Authorization: `Bearer ${key}`, ...via?.headers } });
     if (!res.ok) throw await httpError(res, "openai");
     const j = await res.json();
     return j.data.map((m) => m.id)
       .filter((id) => /^(gpt-|o\d|chat-latest|chatgpt)/.test(id) && !/(audio|realtime|transcribe|tts|image|embedding|search-preview|instruct)/.test(id))
       .sort((a, b) => b.localeCompare(a, "en", { numeric: true })).map((id) => [id, id]);
   },
-  async send({ key, model, system, conv, text, web, onText, onStatus }) {
+  async send({ key, via, model, system, conv, text, web, onText, onStatus }) {
     conv.push({ role: "user", content: text });
     const body = { model, instructions: system, input: conv, stream: true, store: false };
     if (web) body.tools = [{ type: "web_search" }];
-    const res = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` }, body: JSON.stringify(body),
+    const res = await fetch(`${via?.base ?? "https://api.openai.com"}/v1/responses`, {
+      method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}`, ...via?.headers }, body: JSON.stringify(body),
     }).catch((e) => { conv.pop(); throw e; });
     if (!res.ok) { conv.pop(); throw await httpError(res, "openai"); }
     let live = "", final = null;
@@ -103,19 +103,19 @@ const openai = {
 const gemini = {
   id: "gemini", label: "Gemini", vendor: "Google", keyHint: "AIza…", keyUrl: "aistudio.google.com", host: "generativelanguage.googleapis.com",
   defaultModel: "gemini-flash-latest",
-  async listModels(key) {
-    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": key } });
+  async listModels(key, via) {
+    const res = await fetch(`${via?.base ?? "https://generativelanguage.googleapis.com"}/v1beta/models?pageSize=200`, { headers: { "x-goog-api-key": key, ...via?.headers } });
     if (!res.ok) throw await httpError(res, "gemini");
     const j = await res.json();
     return (j.models ?? []).filter((m) => m.supportedGenerationMethods?.includes("generateContent") && /gemini/.test(m.name) && !/(embedding|image|tts|audio|live)/.test(m.name))
       .map((m) => [m.name.replace(/^models\//, ""), `${m.displayName ?? m.name} (${m.name.replace(/^models\//, "")})`]);
   },
-  async send({ key, model, system, conv, text, web, onText, onStatus }) {
+  async send({ key, via, model, system, conv, text, web, onText, onStatus }) {
     conv.push({ role: "user", parts: [{ text }] });
     const body = { systemInstruction: { parts: [{ text: system }] }, contents: conv };
     if (web) body.tools = [{ google_search: {} }];
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`, {
-      method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body: JSON.stringify(body),
+    const res = await fetch(`${via?.base ?? "https://generativelanguage.googleapis.com"}/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`, {
+      method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key, ...via?.headers }, body: JSON.stringify(body),
     }).catch((e) => { conv.pop(); throw e; });
     if (!res.ok) { conv.pop(); throw await httpError(res, "gemini"); }
     let live = "", finish = null, blocked = false;
@@ -140,6 +140,24 @@ gemini.keyAdvice = "Consiglio: limita la chiave al sito (Google Cloud → Creden
 
 export const PROVIDERS = { claude, openai, gemini };
 
+// ---------------------------------------------------------------- server BortEconomy (proxy su Cloudflare)
+// Disponibile solo sulla copia del sito pubblicata su Cloudflare Pages: le chiavi API restano sul server e il
+// browser invia un codice di accesso personale. Su GitHub Pages /api/status non esiste e il proxy resta nascosto.
+const SERVER_ID = { claude: "anthropic", openai: "openai", gemini: "gemini" };
+export const server = {
+  info: null,
+  async load() {
+    try {
+      const r = await fetch("api/status", { cache: "no-store" });
+      this.info = r.ok && (r.headers.get("content-type") ?? "").includes("json") ? await r.json() : null;
+    } catch { this.info = null; }
+    return this.info;
+  },
+  available() { return !!this.info?.codes; },
+  has(p) { return this.available() && this.info.providers.includes(SERVER_ID[p]); },
+  base(p) { return new URL(`api/${SERVER_ID[p]}`, location.href).href; },
+};
+
 // ---------------------------------------------------------------- impostazioni (chiavi e modelli per fornitore)
 const LEGACY = { claude: ["apiKey", "model"] }; // chiavi usate prima del supporto multi-fornitore
 const kKey = (p) => LEGACY[p]?.[0] ?? `apiKey.${p}`;
@@ -160,12 +178,25 @@ export const aiSettings = {
   },
   model(p) { return pls.get(kModel(p)) || PROVIDERS[p].defaultModel; },
   setModel(p, m) { pls.set(kModel(p), m); },
-  configured() { return Object.keys(PROVIDERS).filter((p) => this.key(p)); },
+  // Codice di accesso al server BortEconomy (dato protetto: passa dalla cassaforte se attiva)
+  code() { return (vault.enabled() ? vault.get("proxyCode") : pls.get("proxyCode")) || ""; },
+  setCode(v) { if (vault.enabled()) vault.set("proxyCode", v || null); else pls.set("proxyCode", v || null); },
+  // Come raggiungere il fornitore: chiave personale (diretto) oppure server BortEconomy con codice
+  access(p) {
+    const key = this.key(p);
+    if (key) return { key, via: null };
+    if (server.has(p) && this.code()) return { key: "proxy", via: { base: server.base(p), headers: { "x-bort-code": this.code() } } };
+    return null;
+  },
+  configured() { return Object.keys(PROVIDERS).filter((p) => this.access(p)); },
 };
 
 // Messaggio d'errore comprensibile, per fornitore
 export function errorText(e, p) {
   const name = PROVIDERS[p]?.label ?? "AI", s = e?.status;
+  if (e?.via && s === 401) return "Codice di accesso al server BortEconomy non valido. Controlla le impostazioni.";
+  if (e?.via && s === 429) return e.message || "Limite giornaliero del server BortEconomy raggiunto.";
+  if (e?.via && s === 503) return `${name} non è configurato sul server BortEconomy.`;
   if (s === 401 || s === 403) return `Chiave API di ${name} non valida o senza permessi. Controlla le impostazioni.`;
   if (s === 404) return `Modello non disponibile per ${name}. Apri le impostazioni e tocca "Carica modelli" per scegliere tra quelli attivi sul tuo account.`;
   if (s === 429) return `${name}: limite di richieste o credito esaurito. Riprova tra poco o controlla il piano del tuo account.`;

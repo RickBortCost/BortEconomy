@@ -1,0 +1,38 @@
+name: Pubblica su Cloudflare Pages
+
+# Copia del sito su Cloudflare Pages con intestazioni di sicurezza HTTP e proxy AI (functions/).
+# I dati arrivano dalla pubblicazione su GitHub Pages, quindi basta ripubblicare quando cambia il codice.
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", "!site/data/**", "functions/**", "scripts/cf-deploy.mjs", ".github/workflows/cloudflare.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+      - name: Pubblica
+        run: node scripts/cf-deploy.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BORT_ACCESS_CODES: ${{ secrets.BORT_ACCESS_CODES }}
+          BORT_DAILY_LIMIT: ${{ vars.BORT_DAILY_LIMIT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

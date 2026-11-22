@@ -5,6 +5,17 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.16.0] - 2026-11-22
+
+### Aggiunto
+- **Pubblicazione su Cloudflare Pages** (workflow `cloudflare.yml`, script `scripts/cf-deploy.mjs`) accanto a GitHub Pages, con vere **intestazioni di sicurezza HTTP**: Content Security Policy con `frame-ancestors 'none'`, HSTS, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, COOP/CORP (`site/_headers`).
+- **Server BortEconomy (proxy AI)** come Pages Function (`functions/api`): le chiavi API di Anthropic, OpenAI e Google restano sul server; chi usa l'app inserisce solo un **codice di accesso personale**. Limite giornaliero di richieste per persona (KV), solo percorsi API ammessi, solo dalla stessa origine, confronto dei codici a tempo costante, chiavi e codici mai inoltrati né registrati.
+- Nelle impostazioni AI, sulla copia Cloudflare, campo "Codice di accesso": senza chiave personale l'assistente passa dal server.
+- I dati su Cloudflare arrivano dalla pubblicazione su GitHub Pages tramite `functions/data`, quindi Cloudflare si ripubblica solo quando cambia il codice.
+
+### Modificato
+- Il codice di accesso è un dato protetto (cassaforte e profili).
+
 ## [1.15.0] - 2026-11-22
 
 ### Aggiunto
@@ -222,7 +233,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.15.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.16.0...HEAD
+[1.16.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.15.0...v1.16.0
 [1.15.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.12.0...v1.13.0

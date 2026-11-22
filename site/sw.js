@@ -1,7 +1,7 @@
 // Service worker: app installabile e consultabile offline.
 // - Interfaccia (HTML, CSS, JS, icone): prima la rete, in mancanza la copia salvata (così gli aggiornamenti arrivano subito).
 // - Dati (data/*.json, config.json): prima la rete con timeout breve, in mancanza l'ultima copia salvata.
-const CACHE = "borteconomy-v12";
+const CACHE = "borteconomy-v13";
 const SHELL = ["./", "index.html", "style.css", "app.js", "detail.js", "portfolio.js", "calendar.js", "indicators.js", "markets-extra.js", "lab.js", "ai.js", "vault.js", "profiles.js", "security.js", "theme-init.js", "config.json", "alerts.json", "icon.svg", "icon-192.png", "icon-512.png", "icon-180.png", "manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
@@ -33,7 +33,7 @@ async function networkFirst(req, timeoutMs) {
 
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
-  if (e.request.method !== "GET" || url.origin !== location.origin) return; // API esterne (Claude, GitHub): mai in cache
+  if (e.request.method !== "GET" || url.origin !== location.origin || url.pathname.includes("/api/")) return; // API (esterne o proxy): mai in cache
   const isData = url.pathname.includes("/data/") || url.pathname.endsWith("config.json");
   e.respondWith(networkFirst(e.request, isData ? 6000 : 4000));
 });
