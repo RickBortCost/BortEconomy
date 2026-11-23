@@ -5,6 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.20.1] - 2026-11-23
+
+### Aggiunto
+- **Tieni premuto e sposta** nella modalità Personalizza della Home: una pressione prolungata (dito) o un breve clic tenuto (mouse) solleva il widget, che segue il puntatore mentre gli altri si riordinano in tempo reale; al rilascio la posizione viene salvata. Scorrimento automatico vicino ai bordi, vibrazione leggera alla presa (dove supportata). Uno scorrimento rapido continua a far scorrere la pagina.
+
+### Modificato
+- Il trascinamento dei widget usa i Pointer Events (funziona su telefono, tablet e computer) al posto del drag and drop HTML5, che resta solo per portare i widget dal catalogo alla griglia da computer.
+
 ## [1.20.0] - 2026-11-22
 
 ### Aggiunto
@@ -270,7 +278,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.0...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.1...HEAD
+[1.20.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.0...v1.20.1
 [1.20.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.1...v1.20.0
 [1.19.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.0...v1.19.1
 [1.19.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.18.0...v1.19.0

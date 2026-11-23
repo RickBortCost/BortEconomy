@@ -208,14 +208,14 @@ const titleOf = (w) => W[w.type].title?.(w.cfg ?? {}) ?? W[w.type].name;
 function frame(w, i, n) {
   const T = W[w.type];
   const ctl = st.edit ? `<div class="hw-ctl" data-ctl="${w.id}">
-      <span class="hw-handle" title="Trascina per spostare" aria-hidden="true">⠿</span>
+      <span class="hw-handle" title="Tieni premuto il widget e trascinalo per spostarlo" aria-hidden="true">⠿</span>
       <button type="button" data-act="left" aria-label="Sposta prima" ${i === 0 ? "disabled" : ""}>◀</button>
       <button type="button" data-act="right" aria-label="Sposta dopo" ${i === n - 1 ? "disabled" : ""}>▶</button>
       <select data-act="size" aria-label="Larghezza">${SIZES.map(([v, l]) => `<option value="${v}" ${v === w.size ? "selected" : ""}>${l}</option>`).join("")}</select>
       <button type="button" data-act="tall" aria-pressed="${!!w.tall}" title="Altezza doppia" aria-label="Altezza doppia">↕</button>
       ${T.cfg ? `<button type="button" data-act="cfg" aria-label="Impostazioni del widget">⚙</button>` : ""}
       <button type="button" data-act="del" class="danger" aria-label="Rimuovi widget">✕</button></div>` : "";
-  return `<section class="hw" data-id="${w.id}" data-size="${w.size}" data-tall="${!!w.tall}" ${st.edit ? 'draggable="true"' : ""} aria-label="${H.esc(titleOf(w))}">
+  return `<section class="hw" data-id="${w.id}" data-size="${w.size}" data-tall="${!!w.tall}" aria-label="${H.esc(titleOf(w))}">
     <header class="hw-hd"><span class="hw-ic" aria-hidden="true">${T.icon}</span><h3>${H.esc(titleOf(w))}</h3></header>
     ${ctl}<div class="hw-body" id="hwb-${w.id}"><div class="hw-loading"></div></div></section>`;
 }
@@ -229,7 +229,7 @@ export async function renderHome() {
   H.$("#home-catalog").hidden = !st.edit || !st.catalogOpen;
   H.$("#home-add").setAttribute("aria-expanded", st.edit && st.catalogOpen);
   grid.innerHTML = l.map((w, i) => frame(w, i, l.length)).join("")
-    + (st.edit ? `<div class="hw-drop-end" data-drop-end>Trascina qui per mettere in fondo</div>` : "")
+    + (st.edit ? `<div class="hw-drop-end" data-drop-end>Trascina qui un widget dal catalogo per metterlo in fondo</div>` : "")
     + (!l.length ? `<div class="hw-empty-home">La Home è vuota. Tocca <b>Personalizza</b> e poi <b>Aggiungi widget</b>.</div>` : "");
   if (st.edit && st.catalogOpen) renderCatalog();
   await Promise.all(l.map(async (w) => {
@@ -331,12 +331,66 @@ export function initHome(helpers) {
     update((l) => { l.find((x) => x.id === id).size = s.value; });
   });
 
-  // trascinamento (mouse; su telefono si usano le frecce e la scelta della posizione)
-  const clearMarks = () => document.querySelectorAll(".hw-over,.hw-drop-end.over").forEach((x) => x.classList.remove("hw-over", "over"));
-  grid.addEventListener("dragstart", (e) => {
-    const w = e.target.closest(".hw"); if (!w || !st.edit) return;
-    st.drag = { id: w.dataset.id }; e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", w.dataset.id); w.classList.add("hw-dragging");
+  // "Tieni premuto e sposta" (dito, penna o mouse): dopo una breve pressione il widget si solleva e segue il puntatore;
+  // gli altri widget si riordinano in tempo reale e al rilascio la nuova posizione viene salvata.
+  const LONG_MS = 380, SLOP = 10;
+  let press = null; // { el, id, x, y, timer, pid, lifted, ghost, dx, dy, raf, lastX, lastY }
+  const cancelPress = () => { if (press) { clearTimeout(press.timer); cancelAnimationFrame(press.raf); } press = null; };
+  const lift = () => {
+    const p = press, r = p.el.getBoundingClientRect(), w = Math.min(r.width, 480), h = Math.min(r.height, 360);
+    p.lifted = true; p.dx = Math.min(p.x - r.left, w - 20); p.dy = Math.min(p.y - r.top, h - 20);
+    const g = p.el.cloneNode(true);
+    g.classList.add("hw-ghost"); g.removeAttribute("id"); g.querySelectorAll("[id]").forEach((x) => x.removeAttribute("id"));
+    Object.assign(g.style, { width: `${w}px`, height: `${h}px`, left: `${p.x - p.dx}px`, top: `${p.y - p.dy}px` });
+    document.body.append(g); p.ghost = g;
+    p.el.classList.add("hw-placeholder"); document.body.classList.add("hw-dragging-on");
+    navigator.vibrate?.(15);
+    const edge = () => { // scorrimento automatico vicino ai bordi dello schermo
+      if (!press?.lifted) return;
+      const y = press.lastY, m = 70;
+      if (y < m) scrollBy(0, -Math.ceil((m - y) / 5)); else if (y > innerHeight - m) scrollBy(0, Math.ceil((y - innerHeight + m) / 5));
+      press.raf = requestAnimationFrame(edge);
+    };
+    p.raf = requestAnimationFrame(edge);
+  };
+  // Quando il puntatore entra in un altro widget, il segnaposto prende il suo posto (prima o dopo a seconda della direzione);
+  // si agisce solo al cambio di widget sotto il dito, così non c'è sfarfallio.
+  const reorderAt = (x, y) => {
+    const t = document.elementFromPoint(x, y)?.closest(".hw:not(.hw-ghost)");
+    if (!t || !grid.contains(t) || t === press.el) { if (t === press.el) press.over = null; return; }
+    if (t === press.over) return;
+    press.over = t;
+    const items = [...grid.querySelectorAll(".hw")];
+    const from = items.indexOf(press.el), to = items.indexOf(t);
+    grid.insertBefore(press.el, from < to ? t.nextElementSibling : t);
+  };
+  const drop = () => {
+    const p = press; cancelPress();
+    p.ghost?.remove(); p.el.classList.remove("hw-placeholder"); document.body.classList.remove("hw-dragging-on");
+    const order = [...grid.querySelectorAll(".hw")].map((x) => x.dataset.id);
+    update((l) => l.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id)));
+  };
+  grid.addEventListener("pointerdown", (e) => {
+    if (!st.edit || press || e.button > 0) return;
+    const el = e.target.closest(".hw"); if (!el || e.target.closest("button, select, input, a")) return;
+    press = { el, id: el.dataset.id, x: e.clientX, y: e.clientY, lastY: e.clientY, pid: e.pointerId, lifted: false };
+    press.timer = setTimeout(() => { if (press) lift(); }, e.pointerType === "mouse" ? 180 : LONG_MS);
   });
+  addEventListener("pointermove", (e) => {
+    if (!press || e.pointerId !== press.pid) return;
+    if (!press.lifted) { if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > SLOP) { if (e.pointerType === "mouse") lift(); else cancelPress(); } return; }
+    press.lastY = e.clientY;
+    press.ghost.style.left = `${e.clientX - press.dx}px`; press.ghost.style.top = `${e.clientY - press.dy}px`;
+    reorderAt(e.clientX, e.clientY);
+  });
+  addEventListener("pointerup", (e) => { if (press && e.pointerId === press.pid) press.lifted ? drop() : cancelPress(); });
+  addEventListener("pointercancel", (e) => { if (press && e.pointerId === press.pid) press.lifted ? drop() : cancelPress(); });
+  // durante il trascinamento la pagina non deve scorrere col dito, né aprire menu contestuali o selezioni
+  addEventListener("touchmove", (e) => { if (press?.lifted) e.preventDefault(); }, { passive: false });
+  grid.addEventListener("contextmenu", (e) => { if (st.edit) e.preventDefault(); });
+
+  // trascinamento dal catalogo alla griglia (computer)
+  const clearMarks = () => document.querySelectorAll(".hw-over,.hw-drop-end.over").forEach((x) => x.classList.remove("hw-over", "over"));
   H.$("#hc-rows").addEventListener("dragstart", (e) => {
     const tr = e.target.closest("tr[data-type]"); if (!tr) return;
     st.drag = { type: tr.dataset.type }; e.dataTransfer.effectAllowed = "copy"; e.dataTransfer.setData("text/plain", tr.dataset.type);
@@ -353,7 +407,7 @@ export function initHome(helpers) {
     const t = e.target.closest(".hw, [data-drop-end]"), l = getLayout();
     const at = !t || t.matches("[data-drop-end]") ? l.length : l.findIndex((x) => x.id === t.dataset.id);
     const d = st.drag; st.drag = null; clearMarks();
-    if (d.type) addWidget(d.type, at); else if (d.id && d.id !== t?.dataset.id) move(d.id, at);
+    if (d.type) addWidget(d.type, at);
   });
 
   // impostazioni del widget
