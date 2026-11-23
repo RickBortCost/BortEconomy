@@ -7,8 +7,8 @@
 //   il blocco automatico per inattività serve di nuovo la password. Nulla viene inviato in rete.
 // - La password non è recuperabile: senza di essa i dati protetti si possono solo cancellare.
 
-export const PROTECTED = ["portfolio", "composition", "favs", "apiKey", "apiKey.openai", "apiKey.gemini", "proxyCode"];
-import { pls, pss, profiles } from "./profiles.js";
+export const PROTECTED = ["portfolio", "composition", "favs", "apiKey", "apiKey.openai", "apiKey.gemini", "proxyCode", "sync-key"];
+import { pls, pss, profiles, emitChange } from "./profiles.js";
 
 const VKEY = "vault";
 const ITER = 600000;
@@ -68,6 +68,7 @@ export const vault = {
     if (!state.data) return; // bloccata: le modifiche non sono possibili
     if (v == null) delete state.data[k]; else state.data[k] = v;
     this.persist();
+    emitChange(k);
   },
   persist() {
     state.saving = state.saving.then(async () => {

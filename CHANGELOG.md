@@ -5,6 +5,16 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.21.0] - 2026-11-23
+
+### Aggiunto
+- **Sincronizzazione tra dispositivi** (Privacy e sicurezza → Sincronizzazione tra dispositivi): preferiti, portafoglio, composizione, Home, tema, paese e impostazioni AI del profilo restano allineati tra più dispositivi (es. iPhone e iPad) e tra le due copie del sito (GitHub Pages e Cloudflare).
+  - Cifratura end-to-end: una chiave di sincronizzazione casuale (125 bit) generata sul primo dispositivo; da essa si derivano l'identificativo sul server (SHA-256) e la chiave AES-256-GCM (PBKDF2). Il server riceve solo dati cifrati.
+  - Unione dato per dato: vince la modifica più recente. Sincronizzazione all'apertura, dopo ogni modifica, al ritorno in primo piano, allo sblocco della cassaforte e ogni 2 minuti.
+  - Chiavi API e codice di accesso AI sincronizzati solo su scelta esplicita. La chiave di sincronizzazione è un dato protetto (cassaforte).
+  - Disattivazione sul singolo dispositivo ed eliminazione dei dati dal server.
+- Funzione Cloudflare `/api/sync/<id>` con KV dedicato (`borteconomy-sync`): solo contenitori cifrati, al massimo 512 KB, limite di scritture per IP, CORS solo per le due copie del sito.
+
 ## [1.20.2] - 2026-11-23
 
 ### Corretto
@@ -287,7 +297,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.2...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.21.0...HEAD
+[1.21.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.2...v1.21.0
 [1.20.2]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.1...v1.20.2
 [1.20.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.0...v1.20.1
 [1.20.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.1...v1.20.0

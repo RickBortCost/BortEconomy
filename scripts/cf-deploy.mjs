@@ -42,6 +42,9 @@ catch (e) {
 const spaces = await cf("/storage/kv/namespaces?per_page=100");
 let kv = spaces.find((n) => n.title === KV_TITLE);
 if (!kv) { console.log(`Creo il KV "${KV_TITLE}"`); kv = await cf("/storage/kv/namespaces", { method: "POST", body: JSON.stringify({ title: KV_TITLE }) }); }
+// KV della sincronizzazione tra dispositivi (contiene solo dati cifrati sui dispositivi)
+let kvSync = spaces.find((n) => n.title === "borteconomy-sync");
+if (!kvSync) { console.log('Creo il KV "borteconomy-sync"'); kvSync = await cf("/storage/kv/namespaces", { method: "POST", body: JSON.stringify({ title: "borteconomy-sync" }) }); }
 
 // 3. Configurazione di produzione: binding KV e secret (i valori non vengono mai stampati)
 const env_vars = { DAILY_LIMIT: { type: "plain_text", value: process.env.BORT_DAILY_LIMIT || "60" } };
@@ -51,7 +54,7 @@ for (const [name, from] of [["ACCESS_CODES", "BORT_ACCESS_CODES"], ["ANTHROPIC_A
 }
 await cf(`/pages/projects/${PROJECT}`, {
   method: "PATCH",
-  body: JSON.stringify({ deployment_configs: { production: { compatibility_date: "2026-11-01", kv_namespaces: { USAGE: { namespace_id: kv.id } }, env_vars } } }),
+  body: JSON.stringify({ deployment_configs: { production: { compatibility_date: "2026-11-01", kv_namespaces: { USAGE: { namespace_id: kv.id }, SYNC: { namespace_id: kvSync.id } }, env_vars } } }),
 });
 console.log(`Configurazione aggiornata. Proxy: ${Object.keys(env_vars).filter((k) => k.endsWith("_API_KEY")).map((k) => k.split("_")[0].toLowerCase()).join(", ") || "nessun fornitore"}; codici di accesso: ${env_vars.ACCESS_CODES ? "sì" : "no"}.`);
 

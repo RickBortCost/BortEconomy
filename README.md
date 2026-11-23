@@ -50,7 +50,7 @@ In **Claude AI → ⚙️ Impostazioni** inserisci una chiave API Anthropic (con
 
 ## Privacy e sicurezza
 
-Dal pulsante con lo scudo in alto: cassaforte cifrata con password (AES-256-GCM, PBKDF2 600.000 iterazioni) per chiavi API, portafoglio, composizione e preferiti; blocco automatico; backup cifrato; eliminazione di tutti i dati; scelta dei dati inviati agli assistenti AI. Il sito ha una Content Security Policy restrittiva e non contatta terze parti oltre alle API degli assistenti. Più persone sullo stesso dispositivo possono usare **profili** separati (pulsante con l'iniziale in alto), ognuno con dati e password propri. Dettagli, limiti e segnalazione di vulnerabilità in [SECURITY.md](SECURITY.md).
+Dal pulsante con lo scudo in alto: cassaforte cifrata con password (AES-256-GCM, PBKDF2 600.000 iterazioni) per chiavi API, portafoglio, composizione e preferiti; blocco automatico; backup cifrato; eliminazione di tutti i dati; scelta dei dati inviati agli assistenti AI. Il sito ha una Content Security Policy restrittiva e non contatta terze parti oltre alle API degli assistenti. I dati di un profilo si possono **sincronizzare tra dispositivi** (es. iPhone e iPad) con cifratura end-to-end. Più persone sullo stesso dispositivo possono usare **profili** separati (pulsante con l'iniziale in alto), ognuno con dati e password propri. Dettagli, limiti e segnalazione di vulnerabilità in [SECURITY.md](SECURITY.md).
 
 ## Cloudflare Pages e server AI
 

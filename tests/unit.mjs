@@ -115,5 +115,33 @@ check("valutazione robustezza password", strength("abc") === 0 && strength("Una-
   globalThis.fetch = real;
 }
 
+// sincronizzazione tra dispositivi: chiave, cifratura, unione e funzione server
+{
+  const { newSyncKey, validKey, deriveSync, seal, open, merge } = await import("../site/sync.js");
+  const k = newSyncKey();
+  check("sync: chiave casuale valida (25 caratteri)", validKey(k) && /^([A-Z2-9]{5}-){4}[A-Z2-9]{5}$/.test(k) && newSyncKey() !== k);
+  const a = await deriveSync(k), b = await deriveSync(k.toLowerCase().replace(/-/g, " ")), c = await deriveSync(newSyncKey());
+  check("sync: stesso identificativo dalla stessa chiave, diverso per chiavi diverse", a.id === b.id && a.id !== c.id && /^[a-f0-9]{64}$/.test(a.id));
+  const box = await seal({ favs: { v: "[\"ENI.MI\"]", t: 1 } }, a.key);
+  check("sync: dati cifrati leggibili solo con la chiave giusta", !JSON.stringify(box).includes("ENI") && (await open(box, b.key)).favs.t === 1 && await open(box, c.key).then(() => false, () => true));
+  const m = merge({ favs: { v: "A", t: 5 }, theme: { v: "dark", t: 1 }, country: { v: "IT", t: 0 } }, { favs: { v: "B", t: 3 }, theme: { v: "light", t: 9 }, apiKey: { v: "x", t: 4 } });
+  check("sync: vince la modifica più recente, dato per dato", m.merged.favs.v === "A" && m.apply.theme?.v === "light" && !("favs" in m.apply) && m.merged.apiKey.v === "x" && m.push);
+  check("sync: nessun invio se non cambia nulla", merge({ favs: { v: "A", t: 5 } }, { favs: { v: "A", t: 5 } }).push === false);
+
+  const { onRequest } = await import("../functions/api/sync/[id].js");
+  const store = new Map(), kv = { get: async (x) => store.get(x) ?? null, put: async (x, v) => { store.set(x, v); }, delete: async (x) => { store.delete(x); } };
+  const env = { SYNC: kv, USAGE: kv };
+  const call = (method, id, { origin = "https://rickbortcost.github.io", body } = {}) => onRequest({ env, params: { id },
+    request: new Request(`https://borteconomy.pages.dev/api/sync/${id}`, { method, body, headers: { origin, "content-type": "application/json" } }) });
+  const g0 = await call("GET", a.id);
+  const put = await call("PUT", a.id, { body: JSON.stringify({ box }) });
+  const g1 = await call("GET", a.id), j = await g1.json();
+  check("sync server: 404, salvataggio e lettura del contenitore cifrato", g0.status === 404 && put.status === 200 && j.box.ct === box.ct && g1.headers.get("access-control-allow-origin") === "https://rickbortcost.github.io");
+  check("sync server: origine estranea e identificativo non valido rifiutati", (await call("GET", a.id, { origin: "https://evil.example" })).status === 403 && (await call("GET", "abc")).status === 400);
+  check("sync server: contenitore non valido rifiutato", (await call("PUT", a.id, { body: JSON.stringify({ box: { plain: "x" } }) })).status === 400);
+  const del = await call("DELETE", a.id);
+  check("sync server: eliminazione", del.status === 200 && (await call("GET", a.id)).status === 404);
+}
+
 console.log(failed ? `\n${failed} test falliti` : "\nTutti i test unitari superati");
 process.exit(failed ? 1 : 0);
