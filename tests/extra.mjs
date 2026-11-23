@@ -500,6 +500,16 @@ export default [
       await page.click(`.hw[data-id="${L[1].id}"] [data-act="del"]`);
       L = await page.evaluate(() => JSON.parse(localStorage.getItem("home-layout")));
       assert(!L.some((w) => w.type === "watch"), "widget non rimosso");
+      // tieni premuto e sposta (mouse): il primo widget finisce dopo il secondo
+      const before = await page.$$eval("#home-grid .hw", (l) => l.map((x) => x.dataset.id));
+      const [w0, w1] = await page.$$("#home-grid .hw");
+      const b0 = await w0.boundingBox(), b1 = await w1.boundingBox();
+      await page.mouse.move(b0.x + 20, b0.y + b0.height - 15); await page.mouse.down(); await page.waitForTimeout(260);
+      for (let i = 1; i <= 10; i++) await page.mouse.move(b0.x + 20 + (b1.x + b1.width / 2 - b0.x - 20) * i / 10, b0.y + b0.height - 15 + (b1.y + b1.height / 2 - b0.y - b0.height + 15) * i / 10);
+      await page.mouse.up();
+      const after = await page.evaluate(() => JSON.parse(localStorage.getItem("home-layout")).map((w) => w.id));
+      assert(after[0] === before[1] && after[1] === before[0], "tieni premuto e sposta non ha riordinato i widget");
+      L = await page.evaluate(() => JSON.parse(localStorage.getItem("home-layout")));
       await page.click("#home-done");
       await page.reload();
       await page.waitForSelector("#home-grid .hw");

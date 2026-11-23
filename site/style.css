@@ -805,3 +805,11 @@ button.prof-pick { cursor: pointer; }
   .hc-table select { max-width: none; width: 100%; }
 }
 .hw-two > div { min-width: 0; }
+/* tieni premuto e sposta */
+#tab-home.editing .hw { cursor: grab; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.hw-placeholder { opacity: .35; outline: 2px dashed var(--accent) !important; box-shadow: none !important; }
+.hw-ghost { position: fixed; z-index: 1000; pointer-events: none; margin: 0; cursor: grabbing; opacity: .95;
+  transform: scale(1.03) rotate(-.6deg); box-shadow: 0 24px 48px -12px var(--shadow), 0 0 0 2px var(--accent) !important; transition: transform .12s; }
+body.hw-dragging-on, body.hw-dragging-on * { cursor: grabbing !important; }
+@media (hover: none) { #tab-home.editing .hw-handle { display: inline; } }
+@media (prefers-reduced-motion: reduce) { .hw-ghost { transform: none; transition: none; } }
