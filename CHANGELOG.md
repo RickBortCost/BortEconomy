@@ -5,6 +5,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 
 ## [Non rilasciato]
 
+## [1.20.2] - 2026-11-23
+
+### Corretto
+- Schede dei metalli: l'etichetta "industriale" e i nomi lunghi (es. "Premio alluminio") uscivano dal riquadro su telefono e computer. L'etichetta ora sta sulla riga descrittiva e i nomi vanno a capo.
+- Metalli industriali (rame, acciaio, alluminio, premio alluminio): prezzo al kg invece che al grammo.
+
+### Aggiunto
+- Test automatico che controlla, su telefono e computer, che nessun testo esca dai riquadri in Home, Notizie, Mercati, Metalli e Portafoglio.
+
 ## [1.20.1] - 2026-11-23
 
 ### Aggiunto
@@ -278,7 +287,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/) · Versiona
 - Aggiornamento automatico dei dati ogni 30 minuti tramite GitHub Actions.
 - Release automatica con tag e note dal changelog a ogni nuova versione su `main`.
 
-[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.1...HEAD
+[Non rilasciato]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.2...HEAD
+[1.20.2]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.1...v1.20.2
 [1.20.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.20.0...v1.20.1
 [1.20.0]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.1...v1.20.0
 [1.19.1]: https://github.com/RickBortCost/BortEconomy/compare/v1.19.0...v1.19.1
