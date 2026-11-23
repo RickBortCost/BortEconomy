@@ -552,4 +552,47 @@ export default [
       assert(!problems.length, `testo fuori dai riquadri: ${problems.slice(0, 5).join(" | ")}`);
     },
   },
+  {
+    name: "sincronizzazione: due dispositivi con la stessa chiave restano allineati",
+    async run({ page, ctx, assert }) {
+      const server = new Map();
+      const fake = async (route) => {
+        const req = route.request(), id = new URL(req.url()).pathname.split("/").pop();
+        const h = { "content-type": "application/json", "access-control-allow-origin": "*" };
+        if (req.method() === "GET") return server.has(id) ? route.fulfill({ headers: h, body: server.get(id) }) : route.fulfill({ status: 404, headers: h, body: "{}" });
+        if (req.method() === "PUT") { server.set(id, JSON.stringify({ box: JSON.parse(req.postData()).box, updated: new Date().toISOString() })); return route.fulfill({ headers: h, body: '{"ok":true}' }); }
+        if (req.method() === "DELETE") { server.delete(id); return route.fulfill({ headers: h, body: '{"ok":true}' }); }
+        return route.fulfill({ status: 204, headers: h });
+      };
+      await ctx.route("https://borteconomy.pages.dev/api/sync/**", fake);
+      // dispositivo A (iPhone): attiva e aggiunge un preferito
+      await page.evaluate(() => { localStorage.clear(); localStorage.setItem("favs", JSON.stringify(["ENI.MI"])); });
+      await page.reload();
+      await page.click("#sec-btn"); await page.waitForSelector("#sec-dialog[open]");
+      await page.click('[data-sync="enable"]');
+      await page.waitForFunction(() => document.querySelector("#sync-key-out")?.textContent.includes("-") && !document.querySelector("#sync-box").textContent.includes("in corso"));
+      const key = (await page.textContent("#sync-key-out")).trim();
+      assert(server.size === 1, "dati non inviati al server");
+      assert(![...server.values()][0].includes("ENI.MI"), "dati inviati in chiaro");
+      await page.click('#sec-dialog button[value="close"]');
+      // dispositivo B (iPad): si collega con la chiave e riceve il preferito
+      const ctxB = await page.context().browser().newContext({ viewport: { width: 820, height: 1180 }, hasTouch: true });
+      await ctxB.route("https://borteconomy.pages.dev/api/sync/**", fake);
+      const pB = await ctxB.newPage();
+      await pB.goto(page.url()); await pB.waitForSelector(".hw");
+      await pB.click("#sec-btn"); await pB.click('[data-sync="show-link"]');
+      await pB.fill("#sync-key-in", key); await pB.click('[data-sync="link"]');
+      await pB.waitForFunction(() => JSON.parse(localStorage.getItem("favs") ?? "[]").includes("ENI.MI"), null, { timeout: 15000 });
+      // B aggiunge un preferito; A lo riceve con "Sincronizza ora"
+      await pB.evaluate(async () => { const v = JSON.parse(localStorage.getItem("favs")); v.push("AAPL"); (await import("./profiles.js")).pls.set("favs", JSON.stringify(v)); });
+      await pB.waitForTimeout(3800);
+      await page.click("#sec-btn"); await page.click('[data-sync="now"]');
+      await page.waitForFunction(() => JSON.parse(localStorage.getItem("favs") ?? "[]").includes("AAPL"), null, { timeout: 15000 });
+      // chiave sbagliata rifiutata
+      await pB.click('[data-sync="disable"]').catch(() => {});
+      await ctxB.close();
+      await page.evaluate(() => localStorage.clear());
+      await ctx.unroute("https://borteconomy.pages.dev/api/sync/**");
+    },
+  },
 ];

@@ -10,6 +10,7 @@ Non aprire una issue pubblica: usa **Security → Report a vulnerability** (segn
 |---|---|---|
 | Chiavi API (Anthropic, OpenAI, Google) | Solo nel browser dell'utente | Cassaforte opzionale: AES-256-GCM, chiave da password con PBKDF2-SHA-256 (600.000 iterazioni); oppure solo per la sessione |
 | Portafoglio, composizione, preferiti | Solo nel browser | Cassaforte opzionale (come sopra); backup esportabili cifrati |
+| Sincronizzazione tra dispositivi (facoltativa) | Cloudflare KV, solo cifrata | Cifratura end-to-end AES-256-GCM con chiave derivata da una chiave di sincronizzazione casuale che resta sui dispositivi; il server conosce solo un'impronta SHA-256 e il contenitore cifrato |
 | Profili sullo stesso dispositivo | Solo nel browser | Dati separati per profilo, ciascuno con la propria cassaforte e password; in chiaro solo nome e colore dei profili |
 | Domande agli assistenti AI | Inviate direttamente al fornitore scelto | Nessun salvataggio da parte del sito; preferiti esclusi per impostazione predefinita; conferma prima di inviare portafoglio o composizione |
 | Avvisi di prezzo, richieste di titoli | Issue e `site/alerts.json` del repository | **Pubblici se il repository è pubblico** |
@@ -36,6 +37,8 @@ Il sito non usa account, cookie, statistiche o tracciamenti. Carattere e libreri
 Il workflow `security.yml` esegue TruffleHog (segreti nello storico Git e nel sito pubblicato) e Trivy (vulnerabilità delle dipendenze, segreti, configurazioni) a ogni pull request, a ogni rilascio e settimanalmente. Dependabot propone gli aggiornamenti di dipendenze e azioni.
 
 ## Limiti noti
+
+- Sincronizzazione: chi ottiene la chiave di sincronizzazione può leggere e modificare i dati sincronizzati di quel profilo. Cloudflare registra metadati delle richieste (IP, orari, dimensione). In caso di modifiche contemporanee allo stesso dato su due dispositivi vince la più recente.
 
 - I profili separano i dati, ma chi usa il dispositivo può eliminare un profilo non protetto o i dati del browser; un profilo con password non è leggibile senza di essa.
 - Un'estensione del browser malevola o un dispositivo compromesso possono leggere i dati mentre la cassaforte è sbloccata.

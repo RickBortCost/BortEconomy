@@ -8,7 +8,8 @@ import { initSecurity, confirmShare, askPassword } from "./security.js";
 import { sealWithPassword, openWithPassword } from "./vault.js";
 import { initCalendar, renderCalendar, upcoming } from "./calendar.js";
 import { initMarketsExtra, renderHeatmap, renderForex, renderCrypto, renderEtf } from "./markets-extra.js";
-import { initHome, renderHome } from "./home.js";
+import { initHome, renderHome, reloadHome } from "./home.js";
+import { initSync, syncNow, renderSyncBox } from "./sync.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -655,8 +656,11 @@ function seg(id, onChange) {
 }
 
 // Ridisegna le parti che dipendono dai dati protetti (dopo sblocco, blocco o cambio della cassaforte)
+let wasLocked = null;
 function refreshProtected() {
   const locked = vault.locked();
+  if (wasLocked === true && !locked) setTimeout(syncNow, 300); // appena sbloccata: sincronizza
+  wasLocked = locked;
   document.querySelectorAll(".lock-card").forEach((el) => { el.hidden = !locked; });
   document.querySelectorAll("#tab-portfolio > :not(.lock-card), #tab-ai > :not(.lock-card)").forEach((el) => { el.classList.toggle("vault-hidden", locked); });
   if (!state.markets) return;
@@ -749,6 +753,9 @@ async function init() {
   renderProviderBar();
   const srv = server.load().then((i) => { if (i) renderProviderBar(); });
   initSecurity({ store, refresh: refreshProtected, download });
+  // Sincronizzazione tra dispositivi: dopo l'applicazione dei dati arrivati da un altro dispositivo si ridisegna tutto
+  initSync({ store, $, esc, reload: () => location.reload(), refresh: () => { reloadHome(); refreshProtected(); renderNews(); } });
+  for (const b of document.querySelectorAll("#sec-btn, [data-open-sec]")) b.addEventListener("click", () => renderSyncBox());
   document.querySelectorAll("[data-unlock]").forEach((b) => b.addEventListener("click", () => document.querySelector("#sec-btn").click()));
   refreshProtected();
   $("#ai-chips").addEventListener("click", (e) => {

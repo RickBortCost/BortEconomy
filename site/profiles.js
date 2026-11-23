@@ -79,10 +79,14 @@ export const profiles = {
 
 function cleanName(s) { return String(s ?? "").replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 24) || "Profilo"; }
 
+// Notifica delle modifiche ai dati del profilo (usata dalla sincronizzazione tra dispositivi)
+export const changes = new EventTarget();
+export const emitChange = (key) => changes.dispatchEvent(new CustomEvent("change", { detail: key }));
+
 // Archivi del profilo attivo (stessa interfaccia per localStorage e sessionStorage)
 const scoped = (R) => ({
   get: (k) => R.get(profiles.prefix() + k),
   set: (k, v) => R.set(profiles.prefix() + k, v),
 });
-export const pls = scoped(L);
+export const pls = { ...scoped(L), set: (k, v) => { L.set(profiles.prefix() + k, v); emitChange(k); } };
 export const pss = scoped(S);

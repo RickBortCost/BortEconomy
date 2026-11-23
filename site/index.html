@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <!-- Sicurezza: il sito può caricare solo i propri file e contattare solo le API degli assistenti AI -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://borteconomy.pages.dev https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>BortEconomy</title>
@@ -473,6 +473,9 @@
         <button type="button" class="ghost danger" id="sec-disable">Disattiva la cassaforte</button>
       </div>
       <p class="hint">Cifratura AES-256-GCM con chiave derivata dalla password (PBKDF2-SHA-256, 600.000 iterazioni). La password non lascia mai il dispositivo e non è recuperabile.</p>
+
+      <h4>Sincronizzazione tra dispositivi</h4>
+      <div id="sync-box"></div>
 
       <h4>Dati inviati agli assistenti AI</h4>
       <label class="check"><input type="checkbox" id="sec-share-favs"> Includi i miei titoli preferiti nel contesto delle domande</label>
