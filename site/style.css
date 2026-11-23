@@ -813,3 +813,10 @@ button.prof-pick { cursor: pointer; }
 body.hw-dragging-on, body.hw-dragging-on * { cursor: grabbing !important; }
 @media (hover: none) { #tab-home.editing .hw-handle { display: inline; } }
 @media (prefers-reduced-motion: reduce) { .hw-ghost { transform: none; transition: none; } }
+
+/* schede metalli: nome e etichette sempre dentro il riquadro */
+.mt-card { min-width: 0; overflow: hidden; }
+.mt-card .hd { align-items: flex-start; min-width: 0; }
+.mt-card .hd .nm { min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
+.mt-card .mt-sub { overflow-wrap: anywhere; line-height: 1.35; margin-top: 3px; }
+.mt-card .mt-sub .tag { font-size: 10px; padding: 1px 6px; text-transform: uppercase; letter-spacing: .04em; vertical-align: 1px; }

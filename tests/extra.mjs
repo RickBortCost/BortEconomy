@@ -519,4 +519,37 @@ export default [
       await page.evaluate(() => { localStorage.removeItem("home-layout"); localStorage.removeItem("favs"); });
     },
   },
+  {
+    name: "grafica: nessun testo esce dai riquadri (telefono e computer)",
+    async run({ page, assert }) {
+      const audit = () => {
+        const out = [];
+        const clipped = (el, card) => { for (let e = el.parentElement; e && e !== card; e = e.parentElement) { const s = getComputedStyle(e); if (/(auto|scroll|hidden)/.test(s.overflowX) && e.scrollWidth > e.clientWidth) return true; } return false; };
+        for (const card of document.querySelectorAll(".panel.active :is(.tile, .mt-card, .hw, .rows > li, .nw, .brief, .lock-card, .pf-alloc, .fx-conv, .cal-ev)")) {
+          const cr = card.getBoundingClientRect(); if (!cr.width || !cr.height) continue;
+          for (const el of card.querySelectorAll("*")) {
+            if (el.closest("svg") && el.tagName !== "svg") continue;
+            const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
+            if ((r.right > cr.right + 1 || r.left < cr.left - 1) && !clipped(el, card)) out.push(`${el.tagName.toLowerCase()} «${(el.textContent || "").trim().slice(0, 30)}»`);
+          }
+        }
+        return [...new Set(out)];
+      };
+      const views = [["home"], ["news"], ["markets", "#mk-subnav", "overview"], ["markets", "#mk-subnav", "forex"], ["markets", "#mk-subnav", "crypto"], ["markets", "#mk-subnav", "etf"], ["metals"], ["portfolio", "#pf-subnav", "composition"]];
+      const vp = page.viewportSize();
+      const problems = [];
+      for (const size of [vp, { width: 1280, height: 900 }]) {
+        await page.setViewportSize(size);
+        for (const [tab, nav, sub] of views) {
+          await page.click(`[data-tab=${tab}]`);
+          if (nav) await page.click(`${nav} button[data-v="${sub}"]`);
+          await page.waitForTimeout(500);
+          for (const x of await page.evaluate(audit)) problems.push(`${size.width}px ${tab}${sub ? "/" + sub : ""}: ${x}`);
+        }
+      }
+      await page.setViewportSize(vp);
+      await page.click('#mk-subnav button[data-v="overview"]').catch(() => {});
+      assert(!problems.length, `testo fuori dai riquadri: ${problems.slice(0, 5).join(" | ")}`);
+    },
+  },
 ];

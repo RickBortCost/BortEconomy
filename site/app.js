@@ -369,7 +369,7 @@ function inCur(usd, cur = mt.cur) {
 const money = (v, cur = mt.cur, d) => v == null || !isFinite(v) ? "–" : `${nf(v, d ?? (Math.abs(v) < 10 ? 3 : 2))} ${cur === "EUR" ? "€" : "$"}`;
 const unitShort = (m) => m.short ?? (m.unit === "libbra" ? "lb" : "oz");
 // Prezzo per unità piccola: grammo per i metalli preziosi, kg per quelli quotati a tonnellata
-const perSmall = (m) => (m.grams >= 1e5 ? ["kg", 1000] : ["grammo", 1]);
+const perSmall = (m) => (m.grams >= 1e5 || m.industrial ? ["kg", 1000] : ["grammo", 1]);
 
 // Rapporto tra due metalli su 1 anno (chiusure giornaliere allineate per data)
 async function ratioSeries(a, b) {
@@ -406,8 +406,8 @@ async function renderMetals() {
 
   $("#mt-cards").innerHTML = items.map(({ q, ...m }) => `
     <div class="tile mt-card" data-sym="${esc(q.symbol)}" tabindex="0" role="button" title="Dettaglio ${esc(m.name)}">
-      <div class="hd"><span class="ic">${m.icon}</span>${esc(m.name)}${m.industrial ? ' <small class="tag">industriale</small>' : ""}</div>
-      ${m.sub ? `<small class="mt-sub">${esc(m.sub)}</small>` : ""}
+      <div class="hd"><span class="ic">${m.icon}</span><span class="nm">${esc(m.name)}</span></div>
+      ${m.industrial || m.sub ? `<small class="mt-sub">${m.industrial ? '<span class="tag">industriale</span> ' : ""}${esc(m.sub ?? "")}</small>` : ""}
       <div class="p">${money(inCur(q.price))} <span class="u">/${unitShort(m)}</span></div>
       ${pctHtml(q[f])}
       <div class="g">${(() => { const [u, k] = perSmall(m); const v = inCur(q.price) / m.grams * k; return `${money(v, mt.cur, v < 1 ? 4 : undefined)} al ${u}`; })()}</div>
