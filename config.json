@@ -1,0 +1,1899 @@
+{
+ "repo": "RickBortCost/BortEconomy",
+ "world": {
+  "name": "Mondo",
+  "flag": "🌍",
+  "feeds": [
+   {
+    "lang": "it",
+    "url": "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=it&gl=IT&ceid=IT:it"
+   },
+   {
+    "lang": "it",
+    "q": "economia mondiale OR mercati globali OR banche centrali",
+    "hl": "it",
+    "gl": "IT",
+    "ceid": "IT:it"
+   },
+   {
+    "lang": "en",
+    "url": "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-US&gl=US&ceid=US:en"
+   },
+   {
+    "lang": "en",
+    "q": "global economy OR world markets OR central banks",
+    "hl": "en-US",
+    "gl": "US",
+    "ceid": "US:en"
+   },
+   {
+    "lang": "it",
+    "q": "\"Piazza Affari\" OR \"Borsa di Milano\" OR \"titoli azionari\" OR \"mercati finanziari\" OR spread OR BCE",
+    "hl": "it",
+    "gl": "IT",
+    "ceid": "IT:it",
+    "when": "2d"
+   },
+   {
+    "lang": "en",
+    "q": "\"stock market\" OR stocks OR earnings OR \"bond yields\"",
+    "hl": "en-US",
+    "gl": "US",
+    "ceid": "US:en",
+    "when": "2d"
+   }
+  ]
+ },
+ "countries": {
+  "IT": {
+   "name": "Italia",
+   "flag": "🇮🇹",
+   "hl": "it",
+   "gl": "IT",
+   "ceid": "IT:it",
+   "q": "economia italiana OR Borsa di Milano OR Piazza Affari",
+   "qit": "economia Italia",
+   "index": "FTSEMIB.MI",
+   "stocks": [
+    "ENI.MI",
+    "ISP.MI",
+    "UCG.MI",
+    "ENEL.MI",
+    "RACE.MI",
+    "STLAM.MI",
+    "G.MI",
+    "STMMI.MI",
+    "LDO.MI",
+    "PRY.MI"
+   ]
+  },
+  "US": {
+   "name": "Stati Uniti",
+   "flag": "🇺🇸",
+   "hl": "en-US",
+   "gl": "US",
+   "ceid": "US:en",
+   "q": "US economy OR Wall Street OR Federal Reserve",
+   "qit": "economia Stati Uniti OR Wall Street OR Fed",
+   "index": "^GSPC",
+   "stocks": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "TSLA",
+    "JPM",
+    "XOM",
+    "BRK-B"
+   ]
+  },
+  "GB": {
+   "name": "Regno Unito",
+   "flag": "🇬🇧",
+   "hl": "en-GB",
+   "gl": "GB",
+   "ceid": "GB:en",
+   "q": "UK economy OR FTSE 100 OR Bank of England",
+   "qit": "economia Regno Unito OR Bank of England",
+   "index": "^FTSE",
+   "stocks": [
+    "SHEL.L",
+    "AZN.L",
+    "HSBA.L",
+    "ULVR.L",
+    "BP.L",
+    "RIO.L",
+    "GSK.L",
+    "BARC.L",
+    "LLOY.L",
+    "RR.L"
+   ]
+  },
+  "DE": {
+   "name": "Germania",
+   "flag": "🇩🇪",
+   "hl": "de",
+   "gl": "DE",
+   "ceid": "DE:de",
+   "q": "Wirtschaft Deutschland OR DAX OR Konjunktur",
+   "qit": "economia Germania OR DAX",
+   "index": "^GDAXI",
+   "stocks": [
+    "SAP.DE",
+    "SIE.DE",
+    "ALV.DE",
+    "DTE.DE",
+    "MBG.DE",
+    "BMW.DE",
+    "VOW3.DE",
+    "BAS.DE",
+    "DBK.DE",
+    "RHM.DE"
+   ]
+  },
+  "FR": {
+   "name": "Francia",
+   "flag": "🇫🇷",
+   "hl": "fr",
+   "gl": "FR",
+   "ceid": "FR:fr",
+   "q": "économie France OR CAC 40 OR Bourse de Paris",
+   "qit": "economia Francia OR CAC 40",
+   "index": "^FCHI",
+   "stocks": [
+    "MC.PA",
+    "OR.PA",
+    "RMS.PA",
+    "TTE.PA",
+    "SAN.PA",
+    "AIR.PA",
+    "BNP.PA",
+    "SU.PA",
+    "AI.PA",
+    "KER.PA"
+   ]
+  },
+  "ES": {
+   "name": "Spagna",
+   "flag": "🇪🇸",
+   "hl": "es",
+   "gl": "ES",
+   "ceid": "ES:es",
+   "q": "economía España OR IBEX 35",
+   "qit": "economia Spagna OR Ibex",
+   "index": "^IBEX",
+   "stocks": [
+    "ITX.MC",
+    "SAN.MC",
+    "IBE.MC",
+    "BBVA.MC",
+    "TEF.MC",
+    "REP.MC",
+    "CABK.MC",
+    "AMS.MC"
+   ]
+  },
+  "CH": {
+   "name": "Svizzera",
+   "flag": "🇨🇭",
+   "hl": "de",
+   "gl": "CH",
+   "ceid": "CH:de",
+   "q": "Wirtschaft Schweiz OR SMI Börse",
+   "qit": "economia Svizzera",
+   "index": "^SSMI",
+   "stocks": [
+    "NESN.SW",
+    "RO.SW",
+    "NOVN.SW",
+    "UBSG.SW",
+    "ZURN.SW",
+    "ABBN.SW",
+    "CFR.SW"
+   ]
+  },
+  "JP": {
+   "name": "Giappone",
+   "flag": "🇯🇵",
+   "hl": "ja",
+   "gl": "JP",
+   "ceid": "JP:ja",
+   "q": "日本経済 OR 日経平均 OR 日銀",
+   "qit": "economia Giappone OR Nikkei",
+   "index": "^N225",
+   "stocks": [
+    "7203.T",
+    "6758.T",
+    "9984.T",
+    "8306.T",
+    "6861.T",
+    "9983.T",
+    "8035.T",
+    "7974.T"
+   ]
+  },
+  "CN": {
+   "name": "Cina",
+   "flag": "🇨🇳",
+   "hl": "zh-CN",
+   "gl": "CN",
+   "ceid": "CN:zh-Hans",
+   "q": "中国经济 OR 股市",
+   "qit": "economia Cina",
+   "index": "000001.SS",
+   "stocks": [
+    "0700.HK",
+    "9988.HK",
+    "1398.HK",
+    "0941.HK",
+    "3690.HK",
+    "1211.HK",
+    "600519.SS",
+    "300750.SZ"
+   ]
+  },
+  "IN": {
+   "name": "India",
+   "flag": "🇮🇳",
+   "hl": "en-IN",
+   "gl": "IN",
+   "ceid": "IN:en",
+   "q": "Indian economy OR Sensex OR RBI",
+   "qit": "economia India",
+   "index": "^BSESN",
+   "stocks": [
+    "RELIANCE.NS",
+    "TCS.NS",
+    "HDFCBANK.NS",
+    "INFY.NS",
+    "ICICIBANK.NS",
+    "BHARTIARTL.NS",
+    "ITC.NS"
+   ]
+  },
+  "BR": {
+   "name": "Brasile",
+   "flag": "🇧🇷",
+   "hl": "pt-BR",
+   "gl": "BR",
+   "ceid": "BR:pt-419",
+   "q": "economia brasileira OR Ibovespa",
+   "qit": "economia Brasile",
+   "index": "^BVSP",
+   "stocks": [
+    "PETR4.SA",
+    "VALE3.SA",
+    "ITUB4.SA",
+    "BBDC4.SA",
+    "ABEV3.SA",
+    "WEGE3.SA"
+   ]
+  },
+  "CA": {
+   "name": "Canada",
+   "flag": "🇨🇦",
+   "hl": "en-CA",
+   "gl": "CA",
+   "ceid": "CA:en",
+   "q": "Canada economy OR TSX OR Bank of Canada",
+   "qit": "economia Canada",
+   "index": "^GSPTSE",
+   "stocks": [
+    "RY.TO",
+    "TD.TO",
+    "SHOP.TO",
+    "ENB.TO",
+    "CNR.TO",
+    "BN.TO"
+   ]
+  },
+  "AU": {
+   "name": "Australia",
+   "flag": "🇦🇺",
+   "hl": "en-AU",
+   "gl": "AU",
+   "ceid": "AU:en",
+   "q": "Australian economy OR ASX OR RBA",
+   "qit": "economia Australia",
+   "index": "^AXJO",
+   "stocks": [
+    "BHP.AX",
+    "CBA.AX",
+    "CSL.AX",
+    "NAB.AX",
+    "WBC.AX",
+    "FMG.AX"
+   ]
+  },
+  "KR": {
+   "name": "Corea del Sud",
+   "flag": "🇰🇷",
+   "hl": "ko",
+   "gl": "KR",
+   "ceid": "KR:ko",
+   "q": "한국 경제 OR 코스피",
+   "qit": "economia Corea del Sud",
+   "index": "^KS11",
+   "stocks": [
+    "005930.KS",
+    "000660.KS",
+    "373220.KS",
+    "005380.KS",
+    "035420.KS"
+   ]
+  }
+ },
+ "globalIndices": [
+  "^GSPC",
+  "^IXIC",
+  "^DJI",
+  "^STOXX50E",
+  "^FTSE",
+  "^GDAXI",
+  "^FCHI",
+  "FTSEMIB.MI",
+  "^N225",
+  "^HSI",
+  "000001.SS",
+  "^BSESN",
+  "^BVSP"
+ ],
+ "macro": [
+  "EURUSD=X",
+  "GBPUSD=X",
+  "USDJPY=X",
+  "GC=F",
+  "CL=F",
+  "BZ=F",
+  "^TNX",
+  "BTC-USD",
+  "^VIX"
+ ],
+ "globalStocks": [
+  "AAPL",
+  "MSFT",
+  "NVDA",
+  "GOOGL",
+  "AMZN",
+  "META",
+  "TSLA",
+  "AVGO",
+  "BRK-B",
+  "JPM",
+  "LLY",
+  "V",
+  "WMT",
+  "XOM",
+  "MA",
+  "NFLX",
+  "ORCL",
+  "COST",
+  "TSM",
+  "ASML.AS",
+  "SAP.DE",
+  "NOVO-B.CO",
+  "MC.PA",
+  "NESN.SW",
+  "SHEL.L",
+  "AZN.L",
+  "7203.T",
+  "005930.KS",
+  "0700.HK",
+  "9988.HK",
+  "RELIANCE.NS",
+  "RACE.MI"
+ ],
+ "catalog": {
+  "US": {
+   "name": "Stati Uniti",
+   "symbols": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "GOOGL",
+    "GOOG",
+    "AMZN",
+    "META",
+    "TSLA",
+    "AVGO",
+    "BRK-B",
+    "JPM",
+    "LLY",
+    "V",
+    "UNH",
+    "XOM",
+    "MA",
+    "JNJ",
+    "PG",
+    "HD",
+    "COST",
+    "ABBV",
+    "MRK",
+    "CVX",
+    "WMT",
+    "KO",
+    "PEP",
+    "BAC",
+    "ADBE",
+    "CRM",
+    "NFLX",
+    "TMO",
+    "ORCL",
+    "AMD",
+    "CSCO",
+    "ACN",
+    "MCD",
+    "ABT",
+    "LIN",
+    "DHR",
+    "WFC",
+    "DIS",
+    "INTC",
+    "VZ",
+    "TXN",
+    "CMCSA",
+    "PM",
+    "NEE",
+    "PFE",
+    "INTU",
+    "IBM",
+    "QCOM",
+    "AMGN",
+    "UNP",
+    "HON",
+    "LOW",
+    "SPGI",
+    "CAT",
+    "GE",
+    "BA",
+    "AMAT",
+    "GS",
+    "MS",
+    "RTX",
+    "SBUX",
+    "BLK",
+    "ISRG",
+    "T",
+    "NOW",
+    "UBER",
+    "PLTR",
+    "BKNG",
+    "AXP",
+    "DE",
+    "MDT",
+    "GILD",
+    "LMT",
+    "C",
+    "ADP",
+    "MU",
+    "SCHW",
+    "MO",
+    "PYPL",
+    "MMM",
+    "F",
+    "GM",
+    "NKE",
+    "CVS",
+    "TGT",
+    "SO",
+    "DUK",
+    "COP",
+    "USB",
+    "PNC",
+    "BMY",
+    "CL",
+    "EL",
+    "KHC",
+    "MDLZ",
+    "ANET",
+    "PANW",
+    "CRWD",
+    "SNOW",
+    "SHOP",
+    "ABNB",
+    "COIN",
+    "ARM",
+    "SMCI",
+    "DELL",
+    "HPQ"
+   ]
+  },
+  "IT": {
+   "name": "Italia",
+   "symbols": [
+    "ENI.MI",
+    "ISP.MI",
+    "UCG.MI",
+    "ENEL.MI",
+    "RACE.MI",
+    "STLAM.MI",
+    "G.MI",
+    "STMMI.MI",
+    "LDO.MI",
+    "PRY.MI",
+    "A2A.MI",
+    "AMP.MI",
+    "AZM.MI",
+    "BMED.MI",
+    "BAMI.MI",
+    "BPE.MI",
+    "BMPS.MI",
+    "CPR.MI",
+    "DIA.MI",
+    "FBK.MI",
+    "HER.MI",
+    "IP.MI",
+    "INW.MI",
+    "IVG.MI",
+    "MB.MI",
+    "MONC.MI",
+    "NEXI.MI",
+    "PIRC.MI",
+    "PST.MI",
+    "REC.MI",
+    "SPM.MI",
+    "SRG.MI",
+    "TEN.MI",
+    "TRN.MI",
+    "TIT.MI",
+    "UNI.MI",
+    "BC.MI",
+    "ERG.MI"
+   ]
+  },
+  "DE": {
+   "name": "Germania",
+   "symbols": [
+    "SAP.DE",
+    "SIE.DE",
+    "ALV.DE",
+    "DTE.DE",
+    "MBG.DE",
+    "BMW.DE",
+    "VOW3.DE",
+    "BAS.DE",
+    "DBK.DE",
+    "RHM.DE",
+    "ADS.DE",
+    "AIR.DE",
+    "BAYN.DE",
+    "BEI.DE",
+    "CBK.DE",
+    "CON.DE",
+    "DB1.DE",
+    "DHL.DE",
+    "EOAN.DE",
+    "FRE.DE",
+    "HEI.DE",
+    "HEN3.DE",
+    "IFX.DE",
+    "MRK.DE",
+    "MTX.DE",
+    "MUV2.DE",
+    "P911.DE",
+    "PAH3.DE",
+    "QIA.DE",
+    "RWE.DE",
+    "SHL.DE",
+    "SY1.DE",
+    "VNA.DE",
+    "ZAL.DE",
+    "ENR.DE"
+   ]
+  },
+  "FR": {
+   "name": "Francia",
+   "symbols": [
+    "MC.PA",
+    "OR.PA",
+    "RMS.PA",
+    "TTE.PA",
+    "SAN.PA",
+    "AIR.PA",
+    "BNP.PA",
+    "SU.PA",
+    "AI.PA",
+    "KER.PA",
+    "AC.PA",
+    "ACA.PA",
+    "BN.PA",
+    "CA.PA",
+    "CAP.PA",
+    "CS.PA",
+    "DG.PA",
+    "DSY.PA",
+    "EL.PA",
+    "EN.PA",
+    "ENGI.PA",
+    "ERF.PA",
+    "GLE.PA",
+    "HO.PA",
+    "LR.PA",
+    "ML.PA",
+    "ORA.PA",
+    "PUB.PA",
+    "RI.PA",
+    "RNO.PA",
+    "SAF.PA",
+    "SGO.PA",
+    "STLAP.PA",
+    "VIE.PA",
+    "VIV.PA"
+   ]
+  },
+  "GB": {
+   "name": "Regno Unito",
+   "symbols": [
+    "SHEL.L",
+    "AZN.L",
+    "HSBA.L",
+    "ULVR.L",
+    "BP.L",
+    "RIO.L",
+    "GSK.L",
+    "BARC.L",
+    "LLOY.L",
+    "RR.L",
+    "REL.L",
+    "DGE.L",
+    "BATS.L",
+    "LSEG.L",
+    "NG.L",
+    "GLEN.L",
+    "AAL.L",
+    "BA.L",
+    "CPG.L",
+    "PRU.L",
+    "VOD.L",
+    "TSCO.L",
+    "NWG.L",
+    "STAN.L",
+    "IMB.L",
+    "EXPN.L",
+    "HLN.L",
+    "SSE.L",
+    "AV.L",
+    "LGEN.L",
+    "BT-A.L",
+    "IAG.L"
+   ]
+  },
+  "ES": {
+   "name": "Spagna",
+   "symbols": [
+    "ITX.MC",
+    "SAN.MC",
+    "IBE.MC",
+    "BBVA.MC",
+    "TEF.MC",
+    "REP.MC",
+    "CABK.MC",
+    "AMS.MC",
+    "AENA.MC",
+    "FER.MC",
+    "CLNX.MC",
+    "ELE.MC",
+    "NTGY.MC",
+    "IAG.MC",
+    "ACS.MC",
+    "SAB.MC"
+   ]
+  },
+  "CH": {
+   "name": "Svizzera",
+   "symbols": [
+    "NESN.SW",
+    "RO.SW",
+    "NOVN.SW",
+    "UBSG.SW",
+    "ZURN.SW",
+    "ABBN.SW",
+    "CFR.SW",
+    "HOLN.SW",
+    "LONN.SW",
+    "SIKA.SW",
+    "GIVN.SW",
+    "ALC.SW",
+    "SREN.SW"
+   ]
+  },
+  "NL": {
+   "name": "Paesi Bassi",
+   "symbols": [
+    "ASML.AS",
+    "INGA.AS",
+    "PRX.AS",
+    "AD.AS",
+    "HEIA.AS",
+    "PHIA.AS",
+    "WKL.AS",
+    "ADYEN.AS",
+    "UMG.AS"
+   ]
+  },
+  "NORDIC": {
+   "name": "Nord Europa",
+   "symbols": [
+    "NOVO-B.CO",
+    "MAERSK-B.CO",
+    "VWS.CO",
+    "DSV.CO",
+    "ERIC-B.ST",
+    "VOLV-B.ST",
+    "ATCO-A.ST",
+    "INVE-B.ST",
+    "EQNR.OL",
+    "NOKIA.HE"
+   ]
+  },
+  "JP": {
+   "name": "Giappone",
+   "symbols": [
+    "7203.T",
+    "6758.T",
+    "9984.T",
+    "8306.T",
+    "6861.T",
+    "9983.T",
+    "8035.T",
+    "7974.T",
+    "6501.T",
+    "9432.T",
+    "8058.T",
+    "4063.T",
+    "6098.T",
+    "7267.T",
+    "8316.T",
+    "4502.T",
+    "6902.T",
+    "7011.T",
+    "6367.T",
+    "6981.T"
+   ]
+  },
+  "CN": {
+   "name": "Cina e Hong Kong",
+   "symbols": [
+    "0700.HK",
+    "9988.HK",
+    "1398.HK",
+    "0941.HK",
+    "3690.HK",
+    "1211.HK",
+    "600519.SS",
+    "300750.SZ",
+    "1299.HK",
+    "0005.HK",
+    "2318.HK",
+    "0939.HK",
+    "3988.HK",
+    "9618.HK",
+    "1810.HK",
+    "9999.HK",
+    "0388.HK",
+    "0883.HK",
+    "BIDU",
+    "JD",
+    "PDD"
+   ]
+  },
+  "IN": {
+   "name": "India",
+   "symbols": [
+    "RELIANCE.NS",
+    "TCS.NS",
+    "HDFCBANK.NS",
+    "INFY.NS",
+    "ICICIBANK.NS",
+    "BHARTIARTL.NS",
+    "ITC.NS",
+    "SBIN.NS",
+    "LT.NS",
+    "HINDUNILVR.NS",
+    "KOTAKBANK.NS",
+    "AXISBANK.NS",
+    "BAJFINANCE.NS",
+    "MARUTI.NS",
+    "SUNPHARMA.NS",
+    "WIPRO.NS"
+   ]
+  },
+  "BR": {
+   "name": "Brasile",
+   "symbols": [
+    "PETR4.SA",
+    "VALE3.SA",
+    "ITUB4.SA",
+    "BBDC4.SA",
+    "ABEV3.SA",
+    "WEGE3.SA",
+    "BBAS3.SA",
+    "B3SA3.SA",
+    "RENT3.SA",
+    "SUZB3.SA"
+   ]
+  },
+  "CA": {
+   "name": "Canada",
+   "symbols": [
+    "RY.TO",
+    "TD.TO",
+    "SHOP.TO",
+    "ENB.TO",
+    "CNR.TO",
+    "BN.TO",
+    "CP.TO",
+    "BMO.TO",
+    "BNS.TO",
+    "CNQ.TO",
+    "SU.TO",
+    "TRI.TO",
+    "ATD.TO"
+   ]
+  },
+  "AU": {
+   "name": "Australia",
+   "symbols": [
+    "BHP.AX",
+    "CBA.AX",
+    "CSL.AX",
+    "NAB.AX",
+    "WBC.AX",
+    "FMG.AX",
+    "ANZ.AX",
+    "WES.AX",
+    "MQG.AX",
+    "WDS.AX",
+    "RIO.AX",
+    "TLS.AX"
+   ]
+  },
+  "KR": {
+   "name": "Corea del Sud",
+   "symbols": [
+    "005930.KS",
+    "000660.KS",
+    "373220.KS",
+    "005380.KS",
+    "035420.KS",
+    "000270.KS",
+    "005490.KS",
+    "035720.KS"
+   ]
+  },
+  "TW": {
+   "name": "Taiwan",
+   "symbols": [
+    "TSM",
+    "2330.TW",
+    "2317.TW",
+    "2454.TW"
+   ]
+  },
+  "EXTRA": {
+   "name": "Indici, materie prime, valute, cripto, ETF",
+   "symbols": [
+    "^RUT",
+    "^AEX",
+    "^SSMI",
+    "^OMX",
+    "^KS11",
+    "^TWII",
+    "^AXJO",
+    "^GSPTSE",
+    "^MXX",
+    "^NSEI",
+    "^STOXX",
+    "^VIX",
+    "SI=F",
+    "NG=F",
+    "HG=F",
+    "PL=F",
+    "ZW=F",
+    "ZC=F",
+    "KC=F",
+    "EURGBP=X",
+    "EURJPY=X",
+    "EURCHF=X",
+    "AUDUSD=X",
+    "USDCAD=X",
+    "USDCNY=X",
+    "DX-Y.NYB",
+    "^FVX",
+    "^TYX",
+    "ETH-USD",
+    "SOL-USD",
+    "XRP-USD",
+    "BNB-USD",
+    "SPY",
+    "QQQ",
+    "VT",
+    "IWDA.AS",
+    "VWCE.DE",
+    "GLD",
+    "TIP",
+    "IEF"
+   ]
+  },
+  "USER": {
+   "name": "Aggiunti dagli utenti",
+   "symbols": [
+    "SFER.MI",
+    "DAN.MI"
+   ]
+  },
+  "METALS": {
+   "name": "Metalli",
+   "symbols": [
+    "GC=F",
+    "SI=F",
+    "PL=F",
+    "PA=F",
+    "HG=F",
+    "PHAU.MI",
+    "SGLD.MI",
+    "PHAG.MI",
+    "PHPT.MI",
+    "PHPD.MI",
+    "4GLD.DE",
+    "GLD",
+    "SLV",
+    "PPLT",
+    "PALL",
+    "GDX",
+    "SIL",
+    "NEM",
+    "AEM",
+    "B",
+    "WPM",
+    "FNV",
+    "RGLD",
+    "KGC",
+    "PAAS",
+    "AG",
+    "HRC=F",
+    "ALI=F",
+    "APAM.AS",
+    "OUT1V.HE",
+    "ACX.MC",
+    "ALLEI.ST",
+    "ATI",
+    "CRS",
+    "VOE.VI",
+    "MT",
+    "NUE",
+    "STLD",
+    "TKA.DE",
+    "SSAB-A.ST",
+    "5401.T",
+    "005490.KS",
+    "TX",
+    "TEN.MI",
+    "SLX",
+    "AUP=F",
+    "CLF",
+    "GGB",
+    "DAN.MI",
+    "CMC",
+    "RS",
+    "VALE",
+    "RIO",
+    "BHP",
+    "FMG.AX",
+    "AA",
+    "NHY.OL",
+    "CENX",
+    "CSTM",
+    "KALU",
+    "2600.HK",
+    "0486.HK",
+    "HINDALCO.NS",
+    "ALUM.MI",
+    "AIGI.MI"
+   ]
+  },
+  "FX": {
+   "name": "Cambi",
+   "symbols": [
+    "EURUSD=X",
+    "EURGBP=X",
+    "EURCHF=X",
+    "EURJPY=X",
+    "EURSEK=X",
+    "EURDKK=X",
+    "EURNOK=X",
+    "EURPLN=X",
+    "EURHKD=X",
+    "EURCNY=X",
+    "EURINR=X",
+    "EURKRW=X",
+    "EURTWD=X",
+    "EURBRL=X",
+    "EURCAD=X",
+    "EURAUD=X",
+    "EURSGD=X",
+    "EURMXN=X",
+    "EURZAR=X",
+    "EURILS=X",
+    "EURTRY=X",
+    "EURSAR=X",
+    "GBPUSD=X",
+    "USDJPY=X",
+    "USDCHF=X",
+    "AUDUSD=X",
+    "USDCAD=X",
+    "NZDUSD=X",
+    "USDCNY=X"
+   ]
+  },
+  "CRYPTO": {
+   "name": "Criptovalute",
+   "symbols": [
+    "BTC-USD",
+    "ETH-USD",
+    "XRP-USD",
+    "BNB-USD",
+    "SOL-USD",
+    "USDT-USD",
+    "USDC-USD",
+    "TRX-USD",
+    "DOGE-USD",
+    "ADA-USD",
+    "TON11419-USD",
+    "LINK-USD",
+    "AVAX-USD",
+    "XLM-USD",
+    "SUI20947-USD",
+    "BCH-USD",
+    "HBAR-USD",
+    "LTC-USD",
+    "SHIB-USD",
+    "DOT-USD",
+    "UNI7083-USD",
+    "NEAR-USD",
+    "ATOM-USD"
+   ]
+  },
+  "ETF": {
+   "name": "ETF",
+   "symbols": [
+    "SWDA.MI",
+    "VWCE.MI",
+    "XDWD.MI",
+    "MWRD.MI",
+    "IUSN.DE",
+    "VHYL.MI",
+    "TDIV.MI",
+    "CSSPX.MI",
+    "VUAA.MI",
+    "IUSA.MI",
+    "CSNDX.MI",
+    "EQQQ.MI",
+    "SMEA.MI",
+    "MEUD.MI",
+    "EXSA.DE",
+    "SPYW.DE",
+    "ETFMIB.MI",
+    "IMIB.MI",
+    "EIMI.MI",
+    "VFEM.MI",
+    "XDWT.MI",
+    "XDWH.MI",
+    "XDWF.MI",
+    "INRG.MI",
+    "RBOT.MI",
+    "WCLD.MI",
+    "EM13.MI",
+    "CSBGE3.MI",
+    "IBGM.MI",
+    "IBGL.MI",
+    "XGLE.MI",
+    "BTP10.MI",
+    "IBTS.MI",
+    "IEAC.MI",
+    "IBCX.MI",
+    "IHYG.MI",
+    "EMBE.MI",
+    "AGGH.MI",
+    "IEAG.MI",
+    "IBCI.MI",
+    "ITPS.MI",
+    "XEON.MI",
+    "CMOD.MI"
+   ]
+  }
+ },
+ "aliases": {
+  "GC=F": "oro gold",
+  "SI=F": "argento silver",
+  "CL=F": "petrolio wti greggio",
+  "BZ=F": "petrolio brent greggio",
+  "NG=F": "gas naturale",
+  "HG=F": "rame copper",
+  "PL=F": "platino",
+  "ZW=F": "grano frumento",
+  "ZC=F": "mais",
+  "KC=F": "caffè caffe",
+  "^TNX": "rendimento treasury titoli di stato usa 10 anni",
+  "^FVX": "rendimento treasury 5 anni",
+  "^TYX": "rendimento treasury 30 anni",
+  "BTC-USD": "bitcoin cripto",
+  "ETH-USD": "ethereum cripto",
+  "SOL-USD": "solana cripto",
+  "XRP-USD": "ripple cripto",
+  "BNB-USD": "binance cripto",
+  "EURUSD=X": "euro dollaro cambio",
+  "GBPUSD=X": "sterlina dollaro cambio",
+  "USDJPY=X": "dollaro yen cambio",
+  "EURGBP=X": "euro sterlina cambio",
+  "EURJPY=X": "euro yen cambio",
+  "EURCHF=X": "euro franco svizzero cambio",
+  "AUDUSD=X": "dollaro australiano cambio",
+  "USDCAD=X": "dollaro canadese cambio",
+  "USDCNY=X": "dollaro yuan renminbi cambio",
+  "DX-Y.NYB": "indice dollaro dxy",
+  "^VIX": "volatilità paura",
+  "FTSEMIB.MI": "ftse mib borsa milano piazza affari",
+  "^GSPC": "s&p 500 sp500",
+  "^IXIC": "nasdaq",
+  "^DJI": "dow jones",
+  "^GDAXI": "dax francoforte",
+  "^FCHI": "cac 40 parigi",
+  "^FTSE": "ftse 100 londra",
+  "^N225": "nikkei tokyo",
+  "^STOXX50E": "euro stoxx 50 europa",
+  "^HSI": "hang seng hong kong",
+  "RACE.MI": "ferrari",
+  "STLAM.MI": "stellantis fiat",
+  "G.MI": "generali assicurazioni",
+  "ISP.MI": "intesa sanpaolo",
+  "UCG.MI": "unicredit",
+  "GOOGL": "google alphabet",
+  "GOOG": "google alphabet",
+  "META": "facebook",
+  "BRK-B": "berkshire hathaway buffett",
+  "SPY": "etf s&p 500",
+  "QQQ": "etf nasdaq 100",
+  "VT": "etf mondo",
+  "IWDA.AS": "etf msci world",
+  "VWCE.DE": "etf ftse all world",
+  "GLD": "etf oro",
+  "PA=F": "palladio",
+  "PHAU.MI": "etc oro fisico",
+  "SGLD.MI": "etc oro fisico",
+  "PHAG.MI": "etc argento fisico",
+  "PHPT.MI": "etc platino fisico",
+  "PHPD.MI": "etc palladio fisico",
+  "4GLD.DE": "xetra gold oro fisico",
+  "SLV": "etf argento",
+  "PPLT": "etf platino",
+  "PALL": "etf palladio",
+  "GDX": "etf minatori oro miniere",
+  "SIL": "etf minatori argento miniere",
+  "NEM": "miniere oro newmont",
+  "AEM": "miniere oro",
+  "B": "barrick miniere oro",
+  "WPM": "streaming metalli preziosi",
+  "FNV": "royalty oro",
+  "RGLD": "royalty oro",
+  "KGC": "miniere oro",
+  "PAAS": "miniere argento",
+  "AG": "miniere argento",
+  "ADA-USD": "cardano cripto",
+  "DOGE-USD": "dogecoin cripto",
+  "USDT-USD": "tether stablecoin",
+  "USDC-USD": "usdc stablecoin",
+  "TON11419-USD": "toncoin telegram cripto",
+  "SUI20947-USD": "sui cripto",
+  "UNI7083-USD": "uniswap cripto",
+  "USDCHF=X": "dollaro franco svizzero cambio",
+  "NZDUSD=X": "dollaro neozelandese cambio",
+  "SWDA.MI": "etf msci world mondo",
+  "VWCE.MI": "etf all world mondo vanguard",
+  "XDWD.MI": "etf",
+  "MWRD.MI": "etf",
+  "IUSN.DE": "etf",
+  "VHYL.MI": "etf",
+  "TDIV.MI": "etf",
+  "CSSPX.MI": "etf s&p 500 usa",
+  "VUAA.MI": "etf",
+  "IUSA.MI": "etf",
+  "CSNDX.MI": "etf nasdaq 100",
+  "EQQQ.MI": "etf",
+  "SMEA.MI": "etf",
+  "MEUD.MI": "etf",
+  "EXSA.DE": "etf",
+  "SPYW.DE": "etf",
+  "ETFMIB.MI": "etf ftse mib italia",
+  "IMIB.MI": "etf",
+  "EIMI.MI": "etf emergenti",
+  "VFEM.MI": "etf",
+  "XDWT.MI": "etf",
+  "XDWH.MI": "etf",
+  "XDWF.MI": "etf",
+  "INRG.MI": "etf",
+  "RBOT.MI": "etf",
+  "WCLD.MI": "etf",
+  "EM13.MI": "etf",
+  "CSBGE3.MI": "etf",
+  "IBGM.MI": "etf",
+  "IBGL.MI": "etf",
+  "XGLE.MI": "etf",
+  "BTP10.MI": "etf btp titoli di stato italia",
+  "IBTS.MI": "etf",
+  "IEAC.MI": "etf",
+  "IBCX.MI": "etf",
+  "IHYG.MI": "etf",
+  "EMBE.MI": "etf",
+  "AGGH.MI": "etf obbligazioni globali",
+  "IEAG.MI": "etf",
+  "IBCI.MI": "etf inflazione obbligazioni",
+  "ITPS.MI": "etf",
+  "XEON.MI": "etf liquidità monetario estr",
+  "CMOD.MI": "etf",
+  "TIP": "etf tips inflazione usa",
+  "IEF": "etf treasury 7-10 anni"
+ },
+ "regions": {
+  "us": "Stati Uniti",
+  "it": "Italia",
+  "de": "Germania",
+  "fr": "Francia",
+  "gb": "Regno Unito",
+  "es": "Spagna",
+  "ch": "Svizzera",
+  "nl": "Paesi Bassi",
+  "be": "Belgio",
+  "pt": "Portogallo",
+  "ie": "Irlanda",
+  "at": "Austria",
+  "se": "Svezia",
+  "dk": "Danimarca",
+  "no": "Norvegia",
+  "fi": "Finlandia",
+  "pl": "Polonia",
+  "gr": "Grecia",
+  "jp": "Giappone",
+  "hk": "Hong Kong",
+  "cn": "Cina",
+  "in": "India",
+  "kr": "Corea del Sud",
+  "tw": "Taiwan",
+  "br": "Brasile",
+  "ca": "Canada",
+  "au": "Australia",
+  "sg": "Singapore",
+  "mx": "Messico",
+  "za": "Sudafrica",
+  "il": "Israele",
+  "tr": "Turchia",
+  "sa": "Arabia Saudita"
+ },
+ "metals": {
+  "items": [
+   {
+    "symbol": "GC=F",
+    "name": "Oro",
+    "icon": "🥇",
+    "unit": "oncia troy",
+    "grams": 31.1034768
+   },
+   {
+    "symbol": "SI=F",
+    "name": "Argento",
+    "icon": "🥈",
+    "unit": "oncia troy",
+    "grams": 31.1034768
+   },
+   {
+    "symbol": "PL=F",
+    "name": "Platino",
+    "icon": "💍",
+    "unit": "oncia troy",
+    "grams": 31.1034768
+   },
+   {
+    "symbol": "PA=F",
+    "name": "Palladio",
+    "icon": "🔘",
+    "unit": "oncia troy",
+    "grams": 31.1034768
+   },
+   {
+    "symbol": "HG=F",
+    "name": "Rame",
+    "icon": "🟠",
+    "unit": "libbra",
+    "grams": 453.59237,
+    "industrial": true
+   },
+   {
+    "symbol": "HRC=F",
+    "name": "Acciaio",
+    "sub": "coils laminati a caldo (USA)",
+    "icon": "🏗️",
+    "unit": "tonnellata corta",
+    "short": "t",
+    "grams": 907184.74,
+    "industrial": true
+   },
+   {
+    "symbol": "ALI=F",
+    "name": "Alluminio",
+    "icon": "✈️",
+    "unit": "tonnellata",
+    "short": "t",
+    "grams": 1000000,
+    "industrial": true,
+    "sub": "future COMEX (USA)"
+   },
+   {
+    "symbol": "AUP=F",
+    "name": "Premio alluminio",
+    "sub": "Midwest USA, sopra il prezzo base",
+    "icon": "➕",
+    "unit": "libbra",
+    "grams": 453.59237,
+    "industrial": true
+   }
+  ],
+  "fx": "EURUSD=X",
+  "ratios": [
+   [
+    "GC=F",
+    "SI=F",
+    "Oro / Argento"
+   ],
+   [
+    "GC=F",
+    "PL=F",
+    "Oro / Platino"
+   ],
+   [
+    "PL=F",
+    "PA=F",
+    "Platino / Palladio"
+   ]
+  ],
+  "etc": [
+   "PHAU.MI",
+   "SGLD.MI",
+   "PHAG.MI",
+   "PHPT.MI",
+   "PHPD.MI",
+   "4GLD.DE",
+   "GLD",
+   "SLV",
+   "PPLT",
+   "PALL"
+  ],
+  "miners": [
+   "GDX",
+   "SIL",
+   "NEM",
+   "AEM",
+   "B",
+   "WPM",
+   "FNV",
+   "RGLD",
+   "KGC",
+   "PAAS",
+   "AG"
+  ],
+  "news": [
+   {
+    "lang": "it",
+    "q": "prezzo oro OR argento OR platino OR palladio OR metalli preziosi",
+    "hl": "it",
+    "gl": "IT",
+    "ceid": "IT:it"
+   },
+   {
+    "lang": "en",
+    "q": "gold price OR silver price OR platinum OR palladium OR precious metals",
+    "hl": "en-US",
+    "gl": "US",
+    "ceid": "US:en"
+   },
+   {
+    "lang": "it",
+    "q": "prezzo acciaio OR acciaio inox OR siderurgia OR prezzo alluminio",
+    "hl": "it",
+    "gl": "IT",
+    "ceid": "IT:it"
+   },
+   {
+    "lang": "en",
+    "q": "steel prices OR stainless steel OR aluminium prices OR aluminum prices",
+    "hl": "en-US",
+    "gl": "US",
+    "ceid": "US:en"
+   }
+  ],
+  "steel": {
+   "groups": [
+    {
+     "title": "Acciai inox, speciali e superleghe",
+     "symbols": [
+      "APAM.AS",
+      "OUT1V.HE",
+      "ACX.MC",
+      "ALLEI.ST",
+      "ATI",
+      "CRS",
+      "VOE.VI"
+     ]
+    },
+    {
+     "title": "Grandi produttori di acciaio",
+     "symbols": [
+      "MT",
+      "NUE",
+      "STLD",
+      "CLF",
+      "TKA.DE",
+      "SSAB-A.ST",
+      "5401.T",
+      "005490.KS",
+      "TX",
+      "GGB"
+     ]
+    },
+    {
+     "title": "Tubi, impianti, riciclo e distribuzione",
+     "symbols": [
+      "TEN.MI",
+      "DAN.MI",
+      "CMC",
+      "RS"
+     ]
+    },
+    {
+     "title": "Minerale di ferro (materia prima dell'acciaio)",
+     "symbols": [
+      "VALE",
+      "RIO",
+      "BHP",
+      "FMG.AX"
+     ]
+    },
+    {
+     "title": "Alluminio: produttori e laminati",
+     "symbols": [
+      "AA",
+      "NHY.OL",
+      "CENX",
+      "CSTM",
+      "KALU",
+      "2600.HK",
+      "0486.HK",
+      "HINDALCO.NS"
+     ]
+    },
+    {
+     "title": "ETC ed ETF su acciaio, alluminio e metalli industriali",
+     "symbols": [
+      "ALUM.MI",
+      "AIGI.MI",
+      "SLX"
+     ]
+    }
+   ]
+  }
+ },
+ "crypto": {
+  "items": [
+   "BTC-USD",
+   "ETH-USD",
+   "XRP-USD",
+   "BNB-USD",
+   "SOL-USD",
+   "USDT-USD",
+   "USDC-USD",
+   "TRX-USD",
+   "DOGE-USD",
+   "ADA-USD",
+   "TON11419-USD",
+   "LINK-USD",
+   "AVAX-USD",
+   "XLM-USD",
+   "SUI20947-USD",
+   "BCH-USD",
+   "HBAR-USD",
+   "LTC-USD",
+   "SHIB-USD",
+   "DOT-USD",
+   "UNI7083-USD",
+   "NEAR-USD",
+   "ATOM-USD"
+  ]
+ },
+ "forex": {
+  "majors": [
+   "EURUSD=X",
+   "GBPUSD=X",
+   "USDJPY=X",
+   "USDCHF=X",
+   "AUDUSD=X",
+   "USDCAD=X",
+   "NZDUSD=X",
+   "USDCNY=X",
+   "EURGBP=X",
+   "EURJPY=X",
+   "EURCHF=X",
+   "DX-Y.NYB"
+  ],
+  "crosses": [
+   "EURUSD=X",
+   "EURGBP=X",
+   "EURCHF=X",
+   "EURJPY=X",
+   "EURSEK=X",
+   "EURDKK=X",
+   "EURNOK=X",
+   "EURPLN=X",
+   "EURHKD=X",
+   "EURCNY=X",
+   "EURINR=X",
+   "EURKRW=X",
+   "EURTWD=X",
+   "EURBRL=X",
+   "EURCAD=X",
+   "EURAUD=X",
+   "EURSGD=X",
+   "EURMXN=X",
+   "EURZAR=X",
+   "EURILS=X",
+   "EURTRY=X",
+   "EURSAR=X"
+  ]
+ },
+ "etfs": {
+  "groups": [
+   {
+    "name": "Azionari mondo",
+    "items": [
+     {
+      "s": "SWDA.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "VWCE.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "XDWD.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "MWRD.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "IUSN.DE",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "VHYL.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "TDIV.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     }
+    ]
+   },
+   {
+    "name": "Azionari USA",
+    "items": [
+     {
+      "s": "CSSPX.MI",
+      "cls": "Azioni",
+      "reg": "USA"
+     },
+     {
+      "s": "VUAA.MI",
+      "cls": "Azioni",
+      "reg": "USA"
+     },
+     {
+      "s": "IUSA.MI",
+      "cls": "Azioni",
+      "reg": "USA"
+     },
+     {
+      "s": "CSNDX.MI",
+      "cls": "Azioni",
+      "reg": "USA"
+     },
+     {
+      "s": "EQQQ.MI",
+      "cls": "Azioni",
+      "reg": "USA"
+     }
+    ]
+   },
+   {
+    "name": "Azionari Europa e Italia",
+    "items": [
+     {
+      "s": "SMEA.MI",
+      "cls": "Azioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "MEUD.MI",
+      "cls": "Azioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "EXSA.DE",
+      "cls": "Azioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "SPYW.DE",
+      "cls": "Azioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "ETFMIB.MI",
+      "cls": "Azioni",
+      "reg": "Italia"
+     },
+     {
+      "s": "IMIB.MI",
+      "cls": "Azioni",
+      "reg": "Italia"
+     }
+    ]
+   },
+   {
+    "name": "Azionari emergenti",
+    "items": [
+     {
+      "s": "EIMI.MI",
+      "cls": "Azioni",
+      "reg": "Emergenti"
+     },
+     {
+      "s": "VFEM.MI",
+      "cls": "Azioni",
+      "reg": "Emergenti"
+     }
+    ]
+   },
+   {
+    "name": "Settoriali e tematici",
+    "items": [
+     {
+      "s": "XDWT.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "XDWH.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "XDWF.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "INRG.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "RBOT.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "WCLD.MI",
+      "cls": "Azioni",
+      "reg": "Mondo"
+     }
+    ]
+   },
+   {
+    "name": "Obbligazionari governativi",
+    "items": [
+     {
+      "s": "EM13.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "CSBGE3.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "IBGM.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "IBGL.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "XGLE.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "BTP10.MI",
+      "cls": "Obbligazioni",
+      "reg": "Italia"
+     },
+     {
+      "s": "IBTS.MI",
+      "cls": "Obbligazioni",
+      "reg": "USA"
+     }
+    ]
+   },
+   {
+    "name": "Obbligazionari societari e globali",
+    "items": [
+     {
+      "s": "IEAC.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "IBCX.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "IHYG.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "EMBE.MI",
+      "cls": "Obbligazioni",
+      "reg": "Emergenti"
+     },
+     {
+      "s": "AGGH.MI",
+      "cls": "Obbligazioni",
+      "reg": "Mondo"
+     },
+     {
+      "s": "IEAG.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     }
+    ]
+   },
+   {
+    "name": "Legati all'inflazione",
+    "items": [
+     {
+      "s": "IBCI.MI",
+      "cls": "Obbligazioni",
+      "reg": "Europa"
+     },
+     {
+      "s": "ITPS.MI",
+      "cls": "Obbligazioni",
+      "reg": "USA"
+     }
+    ]
+   },
+   {
+    "name": "Liquidità",
+    "items": [
+     {
+      "s": "XEON.MI",
+      "cls": "Liquidità",
+      "reg": "Europa"
+     }
+    ]
+   },
+   {
+    "name": "Oro e materie prime",
+    "items": [
+     {
+      "s": "SGLD.MI",
+      "cls": "Oro",
+      "reg": "Mondo"
+     },
+     {
+      "s": "PHAU.MI",
+      "cls": "Oro",
+      "reg": "Mondo"
+     },
+     {
+      "s": "CMOD.MI",
+      "cls": "Materie prime",
+      "reg": "Mondo"
+     }
+    ]
+   }
+  ]
+ },
+ "factors": {
+  "equity": {
+   "s": "SWDA.MI",
+   "name": "Azioni mondiali",
+   "unit": "%",
+   "range": [
+    -40,
+    40
+   ],
+   "step": 1
+  },
+  "rates": {
+   "s": "^TNX",
+   "name": "Tassi a 10 anni (Treasury USA, riferimento globale)",
+   "unit": "p.p.",
+   "range": [
+    -2,
+    2
+   ],
+   "step": 0.25,
+   "diff": true
+  },
+  "inflation": {
+   "s": [
+    "TIP",
+    "IEF"
+   ],
+   "name": "Inflazione attesa (TIPS contro Treasury)",
+   "unit": "p.p.",
+   "range": [
+    -2,
+    2
+   ],
+   "step": 0.25,
+   "scale": 7
+  },
+  "eurusd": {
+   "s": "EURUSD=X",
+   "name": "Euro contro dollaro",
+   "unit": "%",
+   "range": [
+    -20,
+    20
+   ],
+   "step": 1
+  },
+  "oil": {
+   "s": "BZ=F",
+   "name": "Petrolio Brent",
+   "unit": "%",
+   "range": [
+    -50,
+    50
+   ],
+   "step": 5
+  },
+  "gold": {
+   "s": "GC=F",
+   "name": "Oro",
+   "unit": "%",
+   "range": [
+    -30,
+    30
+   ],
+   "step": 1
+  }
+ }
+}
